@@ -96,3 +96,4 @@ E:\Me\coding\PeakLabs\obj\Debug\net10.0\ref\PeakLabs.dll
 E:\Me\coding\PeakLabs\obj\Debug\net10.0\scopedcss\Areas\Admin\Views\Shared\_AdminLayout.cshtml.rz.scp.css
 E:\Me\coding\PeakLabs\obj\Debug\net10.0\compressed\5b11uud5n9-{0}-c5il5aungb-c5il5aungb.gz
 E:\Me\coding\PeakLabs\obj\Debug\net10.0\compressed\lgyv96dww9-{0}-c5il5aungb-c5il5aungb.gz
+E:\Me\coding\PeakLabs\obj\Debug\net10.0\PeakLabs.sourcelink.json

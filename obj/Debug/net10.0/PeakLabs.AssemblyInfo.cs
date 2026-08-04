@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PeakLabs")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e9ca722540953251f3678cc7e51f427f03a69083")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+40cbb81b4f246afe49f20d2d6ecc7ae7c48c8825")]
 [assembly: System.Reflection.AssemblyProductAttribute("PeakLabs")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PeakLabs")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
