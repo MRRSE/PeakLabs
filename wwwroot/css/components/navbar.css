@@ -1,0 +1,59 @@
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 20px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+.brand-mark {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+.brand-name {
+  color: var(--color-text);
+}
+.brand-name span {
+  color: var(--color-primary);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.nav-links a {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: 0.93rem;
+  color: var(--color-text-muted);
+  transition:
+    color 0.2s var(--ease),
+    background 0.2s var(--ease);
+  position: relative;
+}
+.nav-links a:hover {
+  color: var(--color-text);
+  background: var(--color-surface-alt);
+}
+.nav-links a.active {
+  color: var(--color-primary-700);
+}
+[data-theme="dark"] .nav-links a.active {
+  color: var(--color-primary);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
