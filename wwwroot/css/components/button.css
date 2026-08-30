@@ -56,6 +56,35 @@
 .btn-block {
   width: 100%;
 }
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 48px;
+}
+.page-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+.page-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-text);
+}
+.page-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #03140d;
+}
 
 .icon-btn {
   width: 38px;
@@ -70,7 +99,7 @@
   font-size: 1rem;
   transition: all 0.2s var(--ease);
 }
-.icon-btn i{
+.icon-btn i {
   margin-top: 5px;
 }
 .icon-btn:hover {
@@ -80,4 +109,3 @@
 [data-theme="dark"] .icon-btn:hover {
   color: var(--color-primary);
 }
-
