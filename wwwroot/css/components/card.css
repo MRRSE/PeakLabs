@@ -94,6 +94,34 @@
   align-items: center;
   gap: 8px;
 }
+.category-card {
+  padding: 22px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.25s var(--ease);
+}
+.category-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+.category-card i {
+  font-size: 1.4rem;
+  color: var(--color-primary);
+}
+.category-card span {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--color-text);
+}
+.category-card small {
+  color: var(--color-text-faint);
+  font-size: 0.78rem;
+}
 .avatar {
   width: 26px;
   height: 26px;
