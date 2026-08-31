@@ -1,31 +1,70 @@
-
-.category-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+@media (max-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero-art {
+    order: -1;
+    max-width: 420px;
+    margin-inline: auto;
+  }
+  .article-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .portfolio-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .article-layout {
+    grid-template-columns: 1fr;
+  }
+  .toc {
+    display: none;
+  }
+  .team-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+  .value-grid,
+  .mv-grid {
+    grid-template-columns: 1fr;
+  }
+  .related-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
-@media (max-width:1024px){
-  .hero-grid{ grid-template-columns:1fr; }
-  .hero-art{ order:-1; max-width:420px; margin-inline:auto; }
-  .article-grid{ grid-template-columns:repeat(2,1fr); }
-  .portfolio-grid{ grid-template-columns:repeat(2,1fr); }
-  .category-grid{ grid-template-columns:repeat(2,1fr); }
-  .footer-grid{ grid-template-columns:1fr 1fr; }
-  .article-layout{ grid-template-columns:1fr; }
-  .toc{ display:none; }
-  .team-grid{ grid-template-columns:repeat(2,1fr); }
-  .contact-grid{ grid-template-columns:1fr; }
-  .value-grid, .mv-grid{ grid-template-columns:1fr; }
-  .related-grid{ grid-template-columns:1fr 1fr; }
-}
-@media (max-width:768px){
-  .nav-links{ display:none; }
-  .hamburger{ display:inline-flex; }
-  .article-grid{ grid-template-columns:1fr; }
-  .portfolio-grid{ grid-template-columns:1fr; }
-  .related-grid{ grid-template-columns:1fr; }
-  .newsletter{ padding:34px 24px; }
-  .newsletter-form input{ min-width:100%; }
-  .form-row{ grid-template-columns:1fr; }
-  h1{ font-size:2rem; }
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+  .hamburger {
+    display: inline-flex;
+  }
+  .article-grid {
+    grid-template-columns: 1fr;
+  }
+  .portfolio-grid {
+    grid-template-columns: 1fr;
+  }
+  .related-grid {
+    grid-template-columns: 1fr;
+  }
+  .newsletter {
+    padding: 34px 24px;
+  }
+  .newsletter-form input {
+    min-width: 100%;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  h1 {
+    font-size: 2rem;
+  }
 }
