@@ -5,19 +5,7 @@
 .page.active {
   display: block;
 }
-.hero {
-  position: relative;
-  padding-block: 88px 60px;
-  overflow: hidden;
-}
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: 56px;
-  align-items: center;
-  position: relative;
-  z-index: 1;
-}
+ 
 .category-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -47,13 +35,4 @@
 [data-theme="dark"] .eyebrow {
   color: var(--color-primary);
   border-color: rgba(52, 211, 153, 0.25);
-}
-
-@media (max-width: 1024) {
-  .category-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 768) {
 }

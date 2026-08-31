@@ -21,7 +21,6 @@
     <link rel="stylesheet" href="~/css/components/modal.css">
     <link rel="stylesheet" href="~/css/components/navbar.css">
     <link rel="stylesheet" href="~/css/components/pages.css">
-    <link rel="stylesheet" href="~/css/components/responsive.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -78,15 +77,17 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    @* <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2026 - PeakLabs - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
+    </footer> *@
+    <link rel="stylesheet" href="~/css/components/responsive.css">
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/components/navbar.js"></script>
+    <script src="~/js/base/theme.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 
