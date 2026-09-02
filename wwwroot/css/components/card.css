@@ -123,6 +123,23 @@
   font-size: 0.78rem;
 }
 
+.value-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+.value-card {
+  padding: 26px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+.value-card i {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  margin-bottom: 14px;
+}
+
 .mv-card {
   padding: 30px;
   border-radius: var(--radius-lg);
