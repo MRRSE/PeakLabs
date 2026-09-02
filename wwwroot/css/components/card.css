@@ -104,6 +104,7 @@
   gap: 12px;
   transition: all 0.25s var(--ease);
 }
+
 .category-card:hover {
   border-color: var(--color-primary);
   transform: translateY(-4px);
@@ -168,3 +169,14 @@
   font-size: 0.7rem;
   flex-shrink: 0;
 }
+.article-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; }
+
+.cover-architecture{ background:linear-gradient(135deg,#0F172A,#10B981); }
+.cover-ai{ background:linear-gradient(135deg,#1E1B4B,#4338CA); }
+.cover-cloud{ background:linear-gradient(135deg,#0C4A6E,#0EA5E9); }
+.cover-devops{ background:linear-gradient(135deg,#7C2D12,#EA580C); }
+.cover-programming{ background:linear-gradient(135deg,#134E4A,#0F766E); }
+.cover-career{ background:linear-gradient(135deg,#4A044E,#A21CAF); }
+.cover-architecture{ background:linear-gradient(135deg,#0F172A,#10B981); }
+.cover-tech{ background:linear-gradient(135deg,#0F172A,#1E293B); }
+.cover-aspnet{ background:linear-gradient(135deg,#065F46,#10B981); }
