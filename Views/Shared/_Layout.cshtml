@@ -38,7 +38,7 @@
 <body>
     <header class="navbar">
         <div class="container nav-inner">
-            <a class="brand" href="">
+            <a class="brand" asp-controller="Home" asp-action="Index">
                 <svg class="brand-mark" viewBox="0 0 40 40" fill="none">
                     <path d="M4 30 L15 12 L21 21 L26 13 L36 30Z" fill="#10B981" />
                     <path d="M15 12 L21 21 L18 26 L11 26Z" fill="#059669" />
@@ -77,11 +77,41 @@
         </main>
     </div>
 
-    @* <footer class="border-top footer text-muted">
+    <footer class="site-footer">
         <div class="container">
-            &copy; 2026 - PeakLabs - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="brand">
+                        <svg class="brand-mark" viewBox="0 0 40 40" fill="none">
+                            <path d="M4 30 L15 12 L21 21 L26 13 L36 30Z" fill="#10B981" />
+                            <path d="M15 12 L21 21 L18 26 L11 26Z" fill="#059669" />
+                        </svg>
+                        <span class="brand-name">Pick <Span>Labs</Span></span>
+                    </div>
+                    <p>استودیوی مهندسی نرم‌افزار که درباره معماری، ابر و هنر ساخت سیستم‌های پایدار می‌نویسد.</p>
+                    <div class="footer-social">
+                        <a class="icon-btn" href=""><i class="bi bi-github"></i></a>
+                        <a class="icon-btn" href=""><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>شرکت</h4>
+                    <a asp-controller="AboutUs" asp-action="Index">درباره ما</a>
+                    <a asp-controller="Article" asp-action="Index">مقالات</a>
+                    <a asp-controller="ContactUs" asp-action="Index">تماس با ما</a>
+                </div>
+                <div class="footer-col">
+                    <h4>شبکه های اجتمایی</h4>
+                    <a href="">GitHub</a>
+                    <a href="">LinkedIn</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© ۲۰۲۶ پیک‌لبز. تمامی حقوق محفوظ است.</span>
+                <span>ساخته‌شده با معماری تمیز، درون‌سازمانی.</span>
+            </div>
         </div>
-    </footer> *@
+    </footer>
     <link rel="stylesheet" href="~/css/components/responsive.css">
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

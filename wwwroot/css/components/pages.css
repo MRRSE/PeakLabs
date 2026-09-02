@@ -36,3 +36,16 @@
   color: var(--color-primary);
   border-color: rgba(52, 211, 153, 0.25);
 }
+.footer-col a {
+  display: block;
+  padding: 6px 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.footer-col a:hover {
+  color: var(--color-primary-700);
+}
+[data-theme="dark"] .footer-col a:hover {
+  color: var(--color-primary);
+}

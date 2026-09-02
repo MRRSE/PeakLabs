@@ -16,9 +16,6 @@
   .category-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
-  }
   .article-layout {
     grid-template-columns: 1fr;
   }
