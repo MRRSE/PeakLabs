@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace PeakLabs.Areas.Admin.Controllers;
 
 [Area("Admin")]
-public class StatisticsController : Controller
+public class SystemController : Controller
 {
     public IActionResult Index()
     {

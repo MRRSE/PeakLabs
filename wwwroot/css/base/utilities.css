@@ -68,6 +68,10 @@
     transform 1s var(--ease);
 }
 
+.app {
+  min-height: 100vh;
+}
+
 .reveal.in {
   opacity: 1;
   transform: translateY(0);
