@@ -1,0 +1,179 @@
+.main {
+  margin-inline-start: var(--sidebar);
+  min-height: 100vh;
+}
+[dir="rtl"] .main {
+  margin-inline-start: var(--sidebar);
+}
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--sidebar);
+  background: var(--color-bg);
+  border-right: 1px solid var(--color-border);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition:
+    transform 0.3s var(--ease),
+    background 0.3s;
+}
+[dir="rtl"] .sidebar {
+  inset: 0 0 0 auto;
+  border-right: 0;
+  border-left: 1px solid var(--color-border);
+}
+
+.brandDash {
+  height: var(--topbar);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 22px;
+  border-bottom: 1px solid var(--color-border);
+  font-weight: 800;
+}
+.mark {
+  width: 34px;
+  height: 34px;
+  flex: none;
+}
+.brandDash-name {
+  font-size: 1.12rem;
+  letter-spacing: -0.02em;
+}
+.brandDash-name span {
+  color: var(--color-primary);
+}
+.side-label {
+  padding: 22px 20px 8px;
+  font-size: 0.69rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--color-text-faint);
+}
+[lang="fa"] .side-label {
+  letter-spacing: 0;
+  text-transform: none;
+}
+.nav {
+  padding: 0 10px;
+}
+.nav a {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  padding: 11px 12px;
+  border-radius: var(--radius-sm);
+  margin: 2px 0;
+  text-align: start;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.nav a i {
+  width: 20px;
+  text-align: center;
+  font-size: 1.02rem;
+}
+.nav a:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+.nav a.active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-700);
+}
+[data-theme="dark"] .nav button.active {
+  color: var(--color-primary);
+}
+.badge {
+  margin-inline-start: auto;
+  min-width: 23px;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-alt);
+  font-size: 0.68rem;
+  text-align: center;
+}
+.nav button.active .badge {
+  background: var(--color-primary);
+  color: #03140d;
+}
+.side-bottom {
+  margin-top: auto;
+  padding: 14px;
+  border-top: 1px solid var(--color-border);
+}
+.user-mini {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+}
+.avatarDash {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-primary-700)
+  );
+  color: #03140d;
+  font-weight: 800;
+  font-size: 0.76rem;
+  flex: none;
+}
+.user-mini strong {
+  display: block;
+  font-size: 0.82rem;
+}
+.user-mini small {
+  color: var(--color-text-faint);
+  font-size: 0.72rem;
+}
+.topbar {
+  height: var(--topbar);
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  background: color-mix(in srgb, var(--color-bg) 86%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+}
+.top-left,
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.menu-btn {
+  display: none;
+}
+.top-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+.crumb {
+  color: var(--color-text-faint);
+  font-size: 0.82rem;
+}
+.content {
+  padding: 30px;
+  max-width: 1500px;
+  margin: auto;
+}
