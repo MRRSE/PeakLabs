@@ -59,16 +59,17 @@
   }
 }
 
-<<<<<<< Updated upstream
 /* Reveal Animations */
-=======
->>>>>>> Stashed changes
 .reveal {
   opacity: 0;
   transform: translateY(22px);
   transition:
     opacity 1s var(--ease),
     transform 1s var(--ease);
+}
+
+.app {
+  min-height: 100vh;
 }
 
 .reveal.in {
