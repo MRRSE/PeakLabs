@@ -128,6 +128,7 @@
   color: var(--color-primary);
 }
 
+.toolbar {
 /* Hamburger button style */
 .hamburger {
   display: none;
