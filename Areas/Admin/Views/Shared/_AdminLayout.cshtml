@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PeakLabs</title>
+    <script type="importmap"></script>
+
+
+    <link rel="stylesheet" href="~/css/base/variables.css" />
+    <link rel="stylesheet" href="~/css/base/reset.css" />
+    <link rel="stylesheet" href="~/css/base/typography.css" />
+    <link rel="stylesheet" href="~/css/base/utilities.css" />
+
+    <link rel="stylesheet" href="~/css/components/button.css">
+    <link rel="stylesheet" href="~/css/components/card.css">
+    <link rel="stylesheet" href="~/css/components/form.css">
+    <link rel="stylesheet" href="~/css/components/modal.css">
+    <link rel="stylesheet" href="~/css/components/navbar.css">
+    <link rel="stylesheet" href="~/css/components/pages.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Vazirmatn:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="~/css/admin/admin.css">
+</head>
+
+<body>
+    <div class="app">
+        <aside class="sidebar" id="sidebar">
+            <div class="brandDash">
+                <svg class="mark" viewBox="0 0 40 40" fill="none" style="margin-top: -7px;">
+                    <path d="M4 30 L15 12 L21 21 L26 13 L36 30Z" fill="#10B981" />
+                    <path d="M15 12 L21 21 L18 26 L11 26Z" fill="#059669" />
+                </svg>
+                <span class="brand-name">Peak<span>Labs</span></span>
+            </div>
+            <div class="side-label">محیط کاری</div>
+            <nav class="nav">
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-grid-1x2"></i>
+                    <span>نمای کلی</span>
+                </a>
+                <a asp-area="Admin" asp-controller="Articles" asp-action="Index">
+                    <i class="bi bi-journal-text"></i>
+                    <span>مقالات</span>
+                    <span class="badge">24</span>
+                </a>
+                <a asp-area="Admin" asp-controller="Portfolio" asp-action="Index">
+                    <i class="bi bi-kanban"></i>
+                    <span>نمونه‌کارها</span>
+                    <span class="badge">8</span>
+                </a>
+            </nav>
+            <div class="side-label">تیم و دسترسی</div>
+            <nav class="nav">
+                <a asp-area="Admin" asp-controller="Developers" asp-action="Index">
+                    <i class="bi bi-code-slash"></i>
+                    <span>توسعه‌دهندگان</span>
+                </a>
+            </nav>
+            <div class="side-label">سیستم</div>
+            <nav class="nav">
+                <a asp-area="Admin" asp-controller="System" asp-action="Index">
+                    <i class="bi bi-sliders2"></i>
+                    <span>تنظیمات</span>
+                </a>
+            </nav>
+            <div class="side-bottom">
+                <div class="user-mini">
+                    <div class="avatarDash">MR</div>
+                    <div>
+                        <strong>Mohammad . RST</strong><small>مالک · دسترسی کامل</small>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <div class="main">
+            <header class="topbar">
+                <div class="top-left">
+                    <span class="top-title">PeakLabs</span>
+                    <span class="crumb"> / <span id="crumb">نمای کلی</span></span>
+                </div>
+                <div class="top-actions">
+                    <button class="hamburger" id="hamburgerBtn" type="button" aria-label="Open menu" aria-expanded="false">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <button class="icon-btn" id="themeToggle" title="Theme">
+                        <i id="themeIcon" class="bi bi-sun"></i>
+                    </button>
+                </div>
+            </header>
+        </div>
+        <div>
+            <main class="content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+    <link rel="stylesheet" href="~/css/admin/responsive.css">
+    <script src="~/js/admin/dashboard.js"></script>
+    <script src="~/js/base/theme.js"></script>
+</body>
+
+</html>

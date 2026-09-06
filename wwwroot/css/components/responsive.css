@@ -49,6 +49,9 @@
   .portfolio-grid {
     grid-template-columns: 1fr;
   }
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
   .related-grid {
     grid-template-columns: 1fr;
   }
