@@ -91,13 +91,6 @@
   color: var(--color-primary);
 }
 
-.filter-pills {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 34px;
-}
-
 .pill {
   padding: 9px 16px;
   border-radius: var(--radius-full);
