@@ -49,3 +49,4 @@
 [data-theme="dark"] .footer-col a:hover {
   color: var(--color-primary);
 }
+.related-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:20px; }
