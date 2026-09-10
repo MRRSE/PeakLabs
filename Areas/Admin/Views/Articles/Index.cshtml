@@ -4,12 +4,184 @@
 
 
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
 </head>
+
 <body>
-    
-</body>
-</html>
+    <section class="page active">
+        <div class="page-head">
+            <div>
+                <span class="eyebrow">
+                    <i class="bi bi-journal-richtext"></i>
+                    <span>مقالات</span>
+                </span>
+                <h1>کتابخانه مقالات</h1>
+                <p class="muted">مقالات دوزبانه را ایجاد، ویرایش، زمان‌بندی و سازمان‌دهی کنید.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('article')">
+                <i class="bi bi-plus-lg"></i>
+                <span>مقاله جدید</span>
+            </button>
+        </div>
+        <div class="toolbar">
+            <div class="search">
+                <i class="bi bi-search"></i>
+                <input placeholder="جستجوی مقاله...">
+            </div>
+            <select class="select">
+                <option value="all">All statuses</option>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+            </select>
+            <select class="select">
+                <option>All categories</option>
+                <option>Architecture</option>
+                <option>AI</option>
+                <option>Cloud</option>
+                <option>ASP.NET</option>
+            </select>
+        </div>
+        <div class="panel">
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>مقاله</th>
+                            <th>نویسنده</th>
+                            <th>بازدید</th>
+                            <th>آخرین تغییر</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <div class="thumb cover-architecture">
+                                        <i class="bi bi-image"></i>
+                                    </div>
+                                    <div>
+                                        <div class="item-title">طراحی معماری تمیز برای سیستم‌های ماندگار ASP.NET Core
+                                        </div>
+                                        <div class="item-desc">راهنمای عملی برای مستقل نگه‌داشتن منطق کسب‌وکار.</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Adnan Zarei</td>
+                            <td>12,840</td>
+                            <td>Jul 30, 2026</td>
+                            <td>
+                                <span class="status published">منتشرشده</span>
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <button class="action" title="ویرایش" onclick="openModal('article')">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="action" title="حذف" onclick="toastMsg('تغییرات ذخیره شد.')"><i
+                                        class="bi bi-trash3"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div style="display:flex;align-items:center;gap:10px">
+                                        <div class="thumb cover-architecture">
+                                            <i class="bi bi-image"></i>
+                                        </div>
+                                        <div>
+                                            <div class="item-title"> الگوهای طراحی پرامپت برای خروجی ساختاریافته قابل‌اعتماد
+                                            </div>
+                                            <div class="item-desc">تکنیک‌هایی برای دریافت JSON پایدار از مدل‌های زبانی.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>Armin Eydi</td>
+                                <td>13,444</td>
+                                <td>Jul 12, 2026</td>
+                                <td>
+                                    <span class="status published">منتشرشده</span>
+                                </td>
+                                <td>
+                                    <div class="actions">
+                                        <button class="action" title="ویرایش" onclick="openModal('article')">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="action" title="حذف" onclick="toastMsg('تغییرات ذخیره شد.')"><i
+                                            class="bi bi-trash3"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:10px">
+                                            <div class="thumb cover-architecture">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+                                            <div>
+                                                <div class="item-title">چه زمانی مونولیت ماژولار بهتر از مایکروسرویس است؟
+                                                </div>
+                                                <div class="item-desc">رویکردی مبتنی بر موازنه هزینه و مزایا برای مرزهای سرویس.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Hosein Sharifi</td>
+                                    <td>10,990</td>
+                                    <td>Jul 11, 2026</td>
+                                    <td>
+                                        <span class="status published">منتشرشده</span>
+                                    </td>
+                                    <td>
+                                        <div class="actions">
+                                            <button class="action" title="ویرایش" onclick="openModal('article')">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="action" title="حذف" onclick="toastMsg('تغییرات ذخیره شد.')"><i
+                                                class="bi bi-trash3"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div style="display:flex;align-items:center;gap:10px">
+                                                <div class="thumb cover-architecture">
+                                                    <i class="bi bi-image"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="item-title">لاگ‌گیری حرفه‌ای در ASP.NET Core
+                                                    </div>
+                                                    <div class="item-desc">الگوهای مشاهده‌پذیری که همراه با رشد برنامه مقیاس
+                                                        می‌گیرند.</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>Mohammad Rasteh</td>
+                                            <td>12,345</td>
+                                            <td>Jul 3, 2023</td>
+                                            <td>
+                                                <span class="status draft">پیش‌نویس</span>
+                                            </td>
+                                            <td>
+                                                <div class="actions">
+                                                    <button class="action" title="ویرایش" onclick="openModal('article')">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="action" title="حذف" onclick="toastMsg('تغییرات ذخیره شد.')"><i
+                                                        class="bi bi-trash3"></i></button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </section>
+                    </body>
+
+                </html>
