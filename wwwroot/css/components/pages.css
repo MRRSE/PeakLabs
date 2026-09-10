@@ -162,6 +162,18 @@
   margin-bottom: 26px;
   flex-wrap: wrap;
 }
+.page-head h1,
+h2,
+h3,
+h4 {
+  font-size: 1.6rem;
+  margin-top: 10px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+
+
 .muted {
   color: var(--color-text-muted);
   font-size: 0.86rem;
