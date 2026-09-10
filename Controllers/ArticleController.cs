@@ -10,4 +10,9 @@ public class ArticleController : Controller
     {
         return View();
     }
+    public IActionResult SingleArticle()
+    {
+        return View();
+    }
+
 }

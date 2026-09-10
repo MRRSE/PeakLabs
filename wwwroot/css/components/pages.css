@@ -35,7 +35,7 @@
 }
 
 .page-header-stats div span {
-  font-size: .8rem;
+  font-size: 0.8rem;
   color: var(--color-text-faint);
 }
 
@@ -90,16 +90,22 @@
 [data-theme="dark"] .footer-col a:hover {
   color: var(--color-primary);
 }
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-top: 20px;
+}
 
 .pill {
   padding: 9px 16px;
   border-radius: var(--radius-full);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
-  font-size: .85rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-text-muted);
-  transition: all .2s var(--ease);
+  transition: all 0.2s var(--ease);
 }
 
 .pill:hover {
@@ -110,11 +116,11 @@
 .pill.active {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: #03140D;
+  color: #03140d;
 }
 
 .result-count {
-  font-size: .85rem;
+  font-size: 0.85rem;
   color: var(--color-text-faint);
   margin-bottom: 20px;
 }
