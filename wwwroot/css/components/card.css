@@ -304,7 +304,6 @@
 [dir="rtl"] .card:hover .card-link i {
   transform: translateX(-4px);
 }
-
 .card-year {
   position: absolute;
   top: 16px;
