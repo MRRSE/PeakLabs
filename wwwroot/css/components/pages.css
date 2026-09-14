@@ -267,3 +267,25 @@ h4 {
   border-color: var(--color-primary);
   color: var(--color-primary);
 }
+
+.panel {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.panel-head {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.panel-head h2{
+  font-size: 1.18rem;
+}
+.panel-body {
+  padding: 20px;
+}
