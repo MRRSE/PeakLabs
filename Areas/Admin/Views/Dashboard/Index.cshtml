@@ -1,13 +1,298 @@
 @{
-    Layout = "_AdminLayout";
+  Layout = "_AdminLayout";
 }
 
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
+
 <body>
-    <section class="page-active"></section>
+<section class="page active">
+<div class="page-head">
+  <div>
+    <span class="eyebrow">
+      <i class="bi bi-activity"></i>
+      <span>داشبورد</span>
+    </span>
+    <h1>ظهر بخیر، محمد.</h1>
+    <p class="muted">وضعیت فعلی وب‌سایت PeakLabs را اینجا می‌بینید.</p>
+  </div>
+</div>
+<div class="stats">
+  <div class="stat">
+    <div class="stat-top">
+      <span class="tiny" data-t="totalViews">
+        بازدید مقالات
+      </span>
+      <span class="stat-icon">
+        <i class="bi bi-eye"></i>
+      </span>
+    </div>
+    <strong>
+      84.6K
+    </strong>
+    <span class="trend">
+      <i class="bi bi-arrow-up"></i> 18.4%
+      <span>نسبت به ماه قبل</span>
+    </span>
+  </div>
+  <div class="stat">
+    <div class="stat-top">
+      <span class="tiny" data-t="publishedArticles">
+        مقالات منتشر شده
+      </span>
+      <span class="stat-icon">
+        <i class="bi bi-journal-richtext">
+        </i>
+      </span>
+    </div>
+    <strong>
+      24
+    </strong>
+    <span class="trend">
+      <i class="bi bi-plus"></i> 4
+      <span data-t="thisMonth">این ماه</span>
+    </span>
+  </div>
+  <div class="stat">
+    <div class="stat-top">
+      <span class="tiny" data-t="portfolioItems">
+        نمونه کارها
+      </span>
+      <span class="stat-icon">
+        <i class="bi bi-boxes"></i>
+      </span>
+    </div>
+    <strong>
+      8
+    </strong>
+    <span class="trend">
+      <i class="bi bi-plus"></i> 2
+      <span data-t="thisQuarter">این ماه</span>
+    </span>
+  </div>
+  <div class="stat">
+    <div class="stat-top">
+      <span class="tiny" data-t="teamMembers">
+        اعضای تیم
+      </span>
+      <span class="stat-icon">
+        <i class="bi bi-people"></i>
+      </span>
+    </div>
+    <strong>
+      12
+    </strong>
+    <span class="trend">
+      <i class="bi bi-check2"></i> 100%
+      <span data-t="active">فعال</span>
+    </span>
+  </div>
+</div>
+<div class="grid-2">
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>بازدید  سایت</h2>
+        <span class="tiny">۳۰ روز گذشته</span>
+      </div>
+      <select class="select">
+        <option value="30">۳۰ روز</option>
+        <option value="90">۹۰ روز</option>
+        <option value="180">۱۸۰ روز</option>
+      </select>
+    </div>
+    <div class="panel-body">
+      <div class="chart">
+        <canvas id="articleViewsChart"></canvas>
+      </div>
+      <div class="chart-labels">
+        <span>Jun 30</span><span>Jul 7</span>
+        <span>
+          Jul 14
+        </span
+        ><span>Jul 21</span><span>Jul 30</span>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+
+        <h2 class="acticity">فعالیت‌های اخیر</h2>
+        <span class="tiny">رویدادهای زنده محیط کاری</span>
+      </div>
+      <i class="bi bi-three-dots"></i>
+    </div>
+    <div class="panel-body">
+      <div class="activity">
+        <div class="activity-item">
+          <span class="activity-dot"></span>
+          <div>
+            <strong>سارا یک مقاله منتشر کرد</strong>
+            <p>Designing clean architecture...</p>
+            <time>2 ساعت پیش</time>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-dot"></span>
+          <div>
+            <strong>رضا پروژه NimbusPay را به‌روزرسانی کرد</strong>
+            <p>Portfolio cover and tech stack</p>
+            <time>48 دقیقه پیش</time>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-dot"></span>
+          <div>
+            <strong>توسعه‌دهنده جدید دعوت شد</strong>
+            <p>alex@peaklabs.dev · Editor</p>
+            <time>2 ساعت پیش</time>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-dot"></span>
+          <div>
+            <strong>بازدید یک مقاله از ۱۰۰۰ گذشت</strong>
+            <p>Prompt design patterns...</p>
+            <time>4 ساعت پیش</time>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+<div class="panel" style="margin-top:18px">
+  <div class="panel-head">
+    <div>
+      <h2>مقالات پربازدید</h2>
+      <span class="tiny">پربازدیدترین محتوا در این ماه</span>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="go('articles')" data-t="manage">مدیریت</button>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+      <tr>
+        <th data-t="article">مقاله</th><th data-t="author">نویسنده</th><th data-t="views">بازدید</th><th data-t="status">وضعیت</th><th></th>
+      </tr>
+      </thead>
+      <tbody id="topRows">
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="thumb cover-architecture">
+              <i class="bi bi-journal-text"></i>
+            </div>
+            <div>
+              <div class="item-title">طراحی معماری تمیز برای سیستم‌های ماندگار ASP.NET Core</div>
+              <div class="item-desc">راهنمای عملی برای مستقل نگه‌داشتن منطق کسب‌وکار.</div>
+            </div>
+          </div>
+        </td><td>Sara Rezaei</td>
+        <td>
+          <strong>12,840</strong>
+        </td>
+        <td>
+          <span class="status published">منتشرشده</span>
+        </td>
+        <td>
+          <div class="actions">
+            <button class="action" onclick="openModal('article')">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="thumb ai">
+              <i class="bi bi-journal-text"></i>
+            </div>
+            <div>
+              <div class="item-title">الگوهای طراحی پرامپت برای خروجی ساختاریافته قابل‌اعتماد</div>
+              <div class="item-desc">تکنیک‌هایی برای دریافت JSON پایدار از مدل‌های زبانی.</div>
+            </div>
+          </div>
+        </td><td>Sara Rezaei</td>
+        <td>
+          <strong>9,420</strong>
+        </td>
+        <td>
+          <span class="status published">منتشرشده</span>
+        </td>
+        <td>
+          <div class="actions">
+            <button class="action" onclick="openModal('article')">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="thumb cloud">
+              <i class="bi bi-journal-text"></i>
+            </div>
+            <div>
+              <div class="item-title">چه زمانی مونولیت ماژولار بهتر از مایکروسرویس است؟</div>
+              <div class="item-desc">رویکردی مبتنی بر موازنه هزینه و مزایا برای مرزهای سرویس.</div>
+            </div>
+          </div>
+        </td><td>Reza Hosseini</td>
+        <td>
+          <strong>8,760</strong>
+        </td>
+        <td>
+          <span class="status published">منتشرشده</span>
+        </td>
+        <td>
+          <div class="actions">
+            <button class="action" onclick="openModal('article')">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="thumb cover-architecture">
+              <i class="bi bi-journal-text"></i>
+            </div>
+            <div>
+              <div class="item-title">لاگ‌گیری حرفه‌ای در ASP.NET Core</div>
+              <div class="item-desc">الگوهای مشاهده‌پذیری که همراه با رشد برنامه مقیاس می‌گیرند.</div>
+            </div>
+          </div>
+        </td><td>Milad Jafari</td>
+        <td>
+          <strong>6,910</strong>
+        </td>
+        <td>
+          <span class="status draft">پیش‌نویس</span>
+        </td>
+        <td>
+          <div class="actions">
+            <button class="action" onclick="openModal('article')">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</section>
 </body>
+
 </html>
