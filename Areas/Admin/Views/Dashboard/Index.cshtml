@@ -7,7 +7,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 
 <body>
@@ -97,7 +97,7 @@
   <div class="panel">
     <div class="panel-head">
       <div>
-        <h2>بازدید مقالات</h2>
+        <h2>بازدید  سایت</h2>
         <span class="tiny">۳۰ روز گذشته</span>
       </div>
       <select class="select">
@@ -108,191 +108,14 @@
     </div>
     <div class="panel-body">
       <div class="chart">
-        <svg viewBox="0 0 900 260" preserveAspectRatio="none">
-
-          <defs>
-
-            <!-- Gradient زیر نمودار -->
-            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-
-              <stop offset="0%" stop-color="#10B981" stop-opacity="0.25">
-              </stop>
-
-              <stop offset="55%" stop-color="#10B981" stop-opacity="0.10">
-              </stop>
-
-              <stop offset="100%" stop-color="#10B981" stop-opacity="0">
-              </stop>
-
-            </linearGradient>
-
-            <!-- Glow بسیار ظریف -->
-            <filter id="chartGlow" x="-20%" y="-20%" width="140%" height="160%">
-
-              <feGaussianBlur stdDeviation="3" result="blur">
-              </feGaussianBlur>
-
-              <feMerge>
-
-                <feMergeNode in="blur"></feMergeNode>
-
-                <feMergeNode in="SourceGraphic"></feMergeNode>
-
-              </feMerge>
-
-            </filter>
-
-          </defs>
-
-
-          <!-- =================================
-          خطوط Grid
-          ================================= -->
-
-          <g class="chart-grid" stroke="var(--color-border)" stroke-width="1">
-
-            <line x1="0" y1="45" x2="900" y2="45">
-            </line>
-
-            <line x1="0" y1="100" x2="900" y2="100">
-            </line>
-
-            <line x1="0" y1="155" x2="900" y2="155">
-            </line>
-
-            <line x1="0" y1="210" x2="900" y2="210">
-            </line>
-
-          </g>
-
-
-          <!-- =================================
-          Gradient زیر نمودار
-          ================================= -->
-
-          <path id="chartArea" d="
-                M0 210
-
-                C55 200
-                75 175
-                120 185
-
-                S180 140
-                225 158
-
-                S285 180
-                330 125
-
-                S390 135
-                430 105
-
-                S490 120
-                535 92
-
-                S595 115
-                640 82
-
-                S700 105
-                745 70
-
-                S800 90
-                850 48
-
-                S880 58
-                900 40
-
-                L900 260
-                L0 260
-                Z
-                " fill="url(#chartGradient)">
-          </path>
-
-
-          <!-- =================================
-          Glow خط
-          ================================= -->
-
-          <path class="chart-glow" d="
-                M0 210
-
-                C55 200
-                75 175
-                120 185
-
-                S180 140
-                225 158
-
-                S285 180
-                330 125
-
-                S390 135
-                430 105
-
-                S490 120
-                535 92
-
-                S595 115
-                640 82
-
-                S700 105
-                745 70
-
-                S800 90
-                850 48
-
-                S880 58
-                900 40
-                " fill="none" stroke="var(--color-primary)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"
-                opacity="0.14">
-          </path>
-
-
-          <!-- =================================
-          خط اصلی
-          ================================= -->
-
-          <path id="chartLine" d="
-                M0 210
-
-                C55 200
-                75 175
-                120 185
-
-                S180 140
-                225 158
-
-                S285 180
-                330 125
-
-                S390 135
-                430 105
-
-                S490 120
-                535 92
-
-                S595 115
-                640 82
-
-                S700 105
-                745 70
-
-                S800 90
-                850 48
-
-                S880 58
-                900 40
-                " fill="none" stroke="var(--color-primary)" stroke-width="3" stroke-linecap="round"
-                stroke-linejoin="round">
-          </path>
-
-        </svg>
+        <canvas id="articleViewsChart"></canvas>
       </div>
       <div class="chart-labels">
-        <span>Jun 30</span>
-        <span>Jul 7</span>
-        <span>Jul 14</span>
-        <span>Jul 21</span>
-        <span>Jul 30</span>
+        <span>Jun 30</span><span>Jul 7</span>
+        <span>
+          Jul 14
+        </span
+        ><span>Jul 21</span><span>Jul 30</span>
       </div>
     </div>
   </div>
