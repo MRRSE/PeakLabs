@@ -1,0 +1,36 @@
+.role {
+  font-size: 0.69rem;
+  color: var(--color-text-faint);
+}
+.permissions {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.permission {
+  font-size: 0.61rem;
+  padding: 3px 7px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+}
+.status {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+.published {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-700);
+}
+.member {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.member .avatar {
+  width: 34px;
+  height: 34px;
+}
