@@ -20,10 +20,10 @@
                     <i class="bi bi-code-slash"></i>
                     <span>توسعه‌دهندگان</span>
                 </span>
-                <h1>دسترسی توسعه‌دهندگان</h1>
-                <p class="muted">اعضایی را که می‌توانند محتوا ایجاد یا ویرایش کنند.</p>
+                <h1>اعضای نمایش داده‌شده در سایت</h1>
+                <p class="muted">اطلاعات افرادی را که قرار است در سایت اصلی نمایش داده شوند، مستقل از حساب‌های داشبورد مدیریت کنید.</p>
             </div>
-            <button class="btn btn-primary">
+            <button class="btn btn-primary" onclick="openModal('teamMember')">
                 <i class="bi bi-person-plus"></i><span>اضافه کردن توسعه‌دهنده</span>
             </button>
         </div>
@@ -36,12 +36,11 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th data-t="member">عضو</th>
-                            <th data-t="role">نقش</th>
-                            <th data-t="permissions">دسترسی‌ها</th>
-                            <th data-t="lastActive">آخرین فعالیت</th>
-                            <th data-t="status">دسترسی‌ها</th>
-                            <th></th>
+                            <th>عضو</th>
+                            <th>عنوان شغلی</th>
+                            <th>ایمیل</th>
+                            <th>وضعیت</th>
+                            <th>عملیات</th>
                         </tr>
                     </thead>
                     <tbody id="developerRows">
@@ -56,17 +55,12 @@
                                 </div>
                             </td>
                             <td>مدیر ارشد</td>
-                            <td>
-                                <div class="permissions">
-                                    <span class="permission">Articles</span>
-                                    <span class="permission">Analytics</span>
-                                </div>
-                            </td>
-                            <td>12 min ago</td>
+                            <td>developer.rasteh@gmail.com</td>
                             <td><span class="status published">فعال</span></td>
                             <td>
                                 <div class="actions">
-                                    <button class="action"><i class="bi bi-pencil"></i></button>
+                                    <button class="action" onclick="openModal('teamMember')"><i class="bi bi-pencil"></i></button>
+                                    <button class="action"><i class="bi bi-trash3"></i></button>
                                 </div>
                             </td>
                         </tr>
