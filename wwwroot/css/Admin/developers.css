@@ -1,7 +1,3 @@
-.role {
-  font-size: 0.69rem;
-  color: var(--color-text-faint);
-}
 .permissions {
   display: flex;
   gap: 5px;
@@ -25,6 +21,7 @@
   background: var(--color-primary-soft);
   color: var(--color-primary-700);
 }
+
 .member {
   display: flex;
   align-items: center;
@@ -33,4 +30,46 @@
 .member .avatar {
   width: 34px;
   height: 34px;
+}
+.role {
+  font-size: 0.69rem;
+  color: var(--color-text-faint);
+}
+.stat {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 19px;
+  box-shadow: var(--shadow-sm);
+}
+.stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+.stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-700);
+  display: grid;
+  place-items: center;
+}
+[data-theme="dark"] .stat-icon {
+  color: var(--color-primary);
+}
+.stat strong {
+  font-size: 1.55rem;
+  display: block;
+}
+.account-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.account-summary .stat {
+  margin: 0;
 }

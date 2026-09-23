@@ -9,4 +9,8 @@ public class AuthController : Controller
     {
         return View();
     }
+    public IActionResult AdminUsers()
+    {
+        return View();
+    }
 }
