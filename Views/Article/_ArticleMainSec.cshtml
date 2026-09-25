@@ -1,195 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-<section class="page active">
-    <div class="container section" style="padding-top:36px;">
-        <div class="article-hero">
-            <svg viewBox="0 0 1200 460" preserveAspectRatio="xMidYMid slice">
-                <defs>
-                    <linearGradient x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stop-color="#0F172A"></stop><stop offset="0.6" stop-color="#0F766E"></stop><stop offset="1" stop-color="#10B981"></stop>
-                    </linearGradient>
-                </defs>
-                <rect width="1200" height="460" fill="url(#artHeroGrad)"></rect>
-                <path d="M0 380 L200 220 L320 320 L520 140 L680 300 L860 200 L1200 380 Z" fill="rgba(255,255,255,.06)"></path>
-                <path d="M0 420 L260 280 L400 360 L620 200 L800 340 L1000 250 L1200 420 Z" fill="rgba(255,255,255,.10)"></path>
-            </svg>
-        </div>
 
-        <div class="article-layout">
-            <aside class="toc">
-                <h4>در این صفحه</h4>
-                <a href="" class="active">Why architecture matters</a>
-                <a href="" class="">Core principles</a>
-                <a href="" class="">A practical example</a>
-                <a href="" class="">Common pitfalls</a>
-                <a href="">Conclusion</a>
-            </aside>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
 
-            <article>
-                <div class="article-meta-row">
-                    <span class="card-cat">معماری نرم‌افزار</span>
-                    <span>·</span>
-                    <span>۲۹ خرداد ۱۴۰۵</span>
-                    <span>·</span>
-                    <span><i class="bi bi-clock"></i> 9 <span>دقیقه مطالعه</span></span>
+    <body>
+        <section class="page active">
+            <div class="container section" style="padding-top:36px;">
+                <div class="article-hero">
+                    <svg viewBox="0 0 1200 460" preserveAspectRatio="xMidYMid slice">
+                        <defs>
+                            <linearGradient x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0" stop-color="#0F172A"></stop>
+                                <stop offset="0.6" stop-color="#0F766E"></stop>
+                                <stop offset="1" stop-color="#10B981"></stop>
+                            </linearGradient>
+                        </defs>
+                        <rect width="1200" height="460" fill="url(#artHeroGrad)"></rect>
+                        <path d="M0 380 L200 220 L320 320 L520 140 L680 300 L860 200 L1200 380 Z" fill="rgba(255,255,255,.06)"></path>
+                        <path d="M0 420 L260 280 L400 360 L620 200 L800 340 L1000 250 L1200 420 Z" fill="rgba(255,255,255,.10)"></path>
+                    </svg>
                 </div>
-                <h1 class="article-title">طراحی معماری تمیز برای سیستم‌های بلندمدت ASP.NET Core</h1>
 
-                <div class="article-body">
-                    <p>بیشتر سیستم‌ها به این دلیل شکست نمی‌خورند که فریم‌ورک اشتباهی انتخاب شده — آن‌ها شکست می‌خورند چون مرز میان منطق کسب‌وکار و زیرساخت طی چند سال توسعه ویژگی، به‌آرامی از بین می‌رود. معماری تمیز روشی منضبط برای حفظ این مرزهاست.</p>
+                <div class="article-layout">
+                    <aside class="toc">
+                        <h4 data-i18n="article.toc">در این صفحه</h4>
+                        <a href="#sec-1">Why architecture matters</a>
+                        <a href="#sec-2">Core principles</a>
+                        <a href="#sec-3">A practical example</a>
+                        <a href="#sec-4">Common pitfalls</a>
+                        <a href="#sec-5">Conclusion</a>
+                    </aside>
 
-                    <h2>چرا معماری اهمیت دارد</h2>
-                    <p>یک پایگاه کد ساختاریافته، پایگاه کدی است که بعد از هجده ماه درخواست ویژگی، تغییر نیرو و تغییر نیازمندی‌ها هنوز قابل درک است. معماری مجموعه تصمیماتی است که بازگرداندن‌شان در آینده هزینه‌بر است — پس سعی می‌کنیم آن‌ها را آگاهانه، زود و مکتوب بگیریم.</p>
-
-                    <blockquote class="pl-quote">"معماری خوب درباره پیش‌بینی آینده نیست — درباره پایین نگه‌داشتن هزینه تغییر است، طوری که آینده دیگر مهم نباشد."</blockquote>
-
-                    <h2>اصول اصلی</h2>
-                    <p>لایه دامنه هرگز نباید به زیرساخت وابسته باشد. کنترلرها باید ساده بمانند. یوزکیس‌ها هماهنگ‌کننده‌اند، موجودیت‌ها قوانین را اجرا می‌کنند و هر چیزی که با دنیای بیرون صحبت می‌کند — پایگاه‌داده، صف، سرویس‌های ثالث — پشت یک اینترفیس متعلق به دامنه قرار می‌گیرد.</p>
-
-                    <h3>جهت وابستگی</h3>
-                    <p>وابستگی‌ها همیشه رو به داخل هستند. لایه وب به لایه اپلیکیشن وابسته است و آن به لایه دامنه — نه برعکس.</p>
-
-                    <h2>اشتباهات رایج</h2>
-                    <ul>
-                        <li>اجازه دادن به نشتی موجودیت‌های Entity Framework به لایه دامنه به‌عنوان منبع حقیقت.</li>
-                        <li>قرار دادن اعتبارسنجی و قوانین کسب‌وکار داخل کنترلرها «فقط فعلاً».</li>
-                        <li>رفتار با معماری به‌عنوان یک تصمیم یک‌باره به‌جای یک انضباط مستمر.</li>
-                    </ul>
-
-                    <h2>جمع‌بندی</h2>
-                    <p>معماری تمیز یک کتاب قانون برای اجرای کورکورانه نیست — مجموعه‌ای از موازنه‌هاست که با رشد سیستم شما نتیجه می‌دهد. با مرزهای روشن شروع کنید، دامنه را مستقل نگه دارید و اجازه دهید بقیه سیستم دور آن شکل بگیرد.</p>
-                </div>
-                <div class="share-bar">
-                    <span>اشتراک‌گذاری این مقاله</span>
-                    <button class="icon-btn" aria-label="Share on X">
-                        <i class="bi bi-twitter-x"></i>
-                    </button>
-                    <button class="icon-btn" aria-label="Share on LinkedIn">
-                        <i class="bi bi-linkedin"></i>
-                    </button>
-                    <button class="icon-btn" aria-label="Copy link">
-                        <i class="bi bi-link-45deg"></i>
-                    </button>
-                </div>
-                <div class="author-box">
-                    <div class="avatar">SR</div>
-                    <div>
-                        <h4>سارا رضایی</h4>
-                        <p>مهندس ارشد در پیک‌لبز، متمرکز بر سیستم‌های توزیع‌شده و تجربه توسعه‌دهنده.</p>
-                        <div class="socials">
-                            <button class="icon-btn" aria-label="GitHub">
-                                <i class="bi bi-github"></i>
-                            </button>
-                            <button class="icon-btn" aria-label="LinkedIn">
-                                <i class="bi bi-linkedin"></i>
-                            </button>
+                    <article>
+                        <div class="article-meta-row">
+                            <span class="card-cat">معماری نرم‌افزار</span>
+                            <span>·</span>
+                            <span>۲۹ خرداد ۱۴۰۵</span>
+                            <span>·</span>
+                            <span><i class="bi bi-clock"></i> 9 <span>دقیقه مطالعه</span></span>
                         </div>
-                    </div>
-                </div>
-                <div class="section-head" style="margin-bottom:20px;">
-                    <h2 style="font-size:1.3rem;">مقالات مرتبط</h2>
-                </div>
-                <div class="related-grid">
-                    <article class="card">
-                        <a href="#/article" class="card-cover cover-ai">
-                            <i class="bi bi-stars"></i>
-                        </a>
-                        <div class="card-body">
-                            <span class="card-cat">هوش مصنوعی</span>
-                            <h3>
-                                <a href="#/article">عرضه ویژگی‌های هوش مصنوعی بدون از دست دادن اعتماد کاربران</a>
-                            </h3>
-                            <p class="card-desc">چک‌لیستی عملی برای افزودن مسئولانه ویژگی‌های مبتنی بر مدل‌های زبانی، از تأخیر تا طراحی حالت پشتیبان.</p>
-                            <div class="card-meta">
-                                <div class="who">
-                                    <span class="avatar">AM</span> امیر مرادی
-                                </div>
-                                <div>۲۰ خرداد ۱۴۰۵ </div>
-                            </div>
-                        </div>
-                    </article>
-                    <article class="card">
-                        <a href="#/article" class="card-cover cover-cloud">
-                            <i class="bi bi-cloud"></i>
-                        </a>
-                        <div class="card-body">
-                            <span class="card-cat">ابر</span>
-                            <h3>
-                                <a href="#/article">راهنمای عملی استقرار چندمنطقه‌ای روی Azure</a>
-                            </h3>
-                            <p class="card-desc">وقتی سرویس تک‌منطقه‌ای را چندمنطقه‌ای می‌کنید چه چیزی واقعاً اهمیت دارد — و چه چیزی را می‌توان نادیده گرفت.</p>
-                            <div class="card-meta">
-                                <div class="who">
-                                    <span class="avatar">NK</span> نیلوفر کریمی
-                                </div>
-                                <div>۱۲ خرداد ۱۴۰۵ </div>
-                            </div>
-                        </div>
-                    </article>
-                    <article class="card">
-                        <a href="#/article" class="card-cover cover-devops">
-                            <i class="bi bi-gear-wide-connected"></i>
-                        </a>
-                        <div class="card-body">
-                            <span class="card-cat">DevOps</span>
-                            <h3>
-                                <a href="#/article">ساخت پایپ‌لاین‌های CI/CD که مهندسان واقعاً به آن اعتماد دارند</a>
-                            </h3>
-                            <p class="card-desc">چرا پایپ‌لاین‌های ناپایدار پیش از آنکه مشکل ابزار باشند، مشکل فرهنگی‌اند و چگونه هر دو را رفع کنیم.</p>
-                            <div class="card-meta">
-                                <div class="who">
-                                    <span class="avatar">RH</span> رضا حسینی
-                                </div>
-                                <div>۷ خرداد ۱۴۰۵ </div>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-                <div class="comments-section">
-                    <div class="section-head" style="margin-bottom:20px;">
-                        <h2 style="font-size:1.3rem;">
-                            <span>2</span> <span>دیدگاه</span>
-                        </h2>
-                    </div>
-                    <form class="comment-form">
-                        <textarea required="" placeholder="نظر خود را بنویسید..."></textarea>
-                        <button type="submit" class="btn btn-primary" style="align-self:flex-start;">ثبت دیدگاه</button>
-                    </form>
-                    <div id="commentsList">
-                        <div class="comment">
-                            <span class="avatar">MJ</span>
-                            <div class="comment-body">
-                                <div class="comment-head">
-                                    <strong>میلاد جعفری</strong><span>۲ روز پیش</span>
-                                </div>
-                                <p style="font-size:.92rem;">توضیح جهت وابستگی خیلی خوب بود — واضح‌ترین توضیحی بود که خوانده‌ام.</p>
-                                <div class="comment-actions">
-                                    <button><i class="bi bi-hand-thumbs-up"></i> پسندیدن</button><button><i class="bi bi-reply"></i> پاسخ</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="comment">
-                            <span class="avatar">PK</span>
-                            <div class="comment-body">
-                                <div class="comment-head">
-                                    <strong>پریسا کریمی</strong><span>۵ روز پیش</span>
-                                </div>
-                                <p style="font-size:.92rem;">کنجکاوم وقتی CQRS رو هم اضافه کنیم چطور مقیاس‌پذیر می‌مونه — دوست دارم ادامه‌اش رو بخونم.</p>
-                                <div class="comment-actions">
-                                    <button><i class="bi bi-hand-thumbs-up"></i> پسندیدن</button><button><i class="bi bi-reply"></i> پاسخ</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </article>
+                        <h1 class="article-title">طراحی معماری تمیز برای سیستم‌های بلندمدت ASP.NET Core</h1>
+
+                        <div class="article-body">
+<p>
+بیشتر سیستم‌ها به این دلیل شکست نمی‌خورند که فریم‌ورک اشتباهی انتخاب شده — آن‌ها شکست
+                            می‌خورند چون مرز میان منطق کسب‌وکار و زیرساخت طی چند سال توسعه ویژگی، به‌آرامی از بین
+                            می‌رود. معماری تمیز روشی منضبط برای حفظ این مرزهاست.
+</p>
+
+<h2>چرا معماری اهمیت دارد</h2>
+<p>
+یک پایگاه کد ساختاریافته، پایگاه کدی است که بعد از هجده ماه درخواست ویژگی، تغییر نیرو و تغییر
+                                نیازمندی‌ها هنوز قابل درک است. معماری مجموعه تصمیماتی است که بازگرداندن‌شان در آینده
+                                هزینه‌بر است — پس سعی می‌کنیم آن‌ها را آگاهانه، زود و مکتوب بگیریم.
+</p>
+
+<blockquote class="pl-quote">
+    "معماری خوب درباره پیش‌بینی آینده نیست — درباره پایین نگه‌داشتن
+    هزینه تغییر است، طوری که آینده دیگر مهم نباشد."
+</blockquote>
+
+<h2>اصول اصلی</h2>
+<p>
+لایه دامنه هرگز نباید به زیرساخت وابسته باشد. کنترلرها باید ساده بمانند. یوزکیس‌ها
+                                        هماهنگ‌کننده‌اند، موجودیت‌ها قوانین را اجرا می‌کنند و هر چیزی که با دنیای بیرون صحبت می‌کند
+                                        — پایگاه‌داده، صف، سرویس‌های ثالث — پشت یک اینترفیس متعلق به دامنه قرار می‌گیرد.
+</p>
+
+<h3>جهت وابستگی</h3>
+<p>
+وابستگی‌ها همیشه رو به داخل هستند. لایه وب به لایه اپلیکیشن وابسته است و آن به لایه دامنه —
+                                            نه برعکس.
+</p>
+
+<h2>اشتباهات رایج</h2>
+<ul>
+    <li>اجازه دادن به نشتی موجودیت‌های Entity Framework به لایه دامنه به‌عنوان منبع حقیقت.</li>
+    <li>قرار دادن اعتبارسنجی و قوانین کسب‌وکار داخل کنترلرها «فقط فعلاً».</li>
+    <li>رفتار با معماری به‌عنوان یک تصمیم یک‌باره به‌جای یک انضباط مستمر.</li>
+</ul>
+
+<h2>جمع‌بندی</h2>
+<p>
+معماری تمیز یک کتاب قانون برای اجرای کورکورانه نیست — مجموعه‌ای از موازنه‌هاست که با رشد
+                                                سیستم شما نتیجه می‌دهد. با مرزهای روشن شروع کنید، دامنه را مستقل نگه دارید و اجازه دهید بقیه
+                                                سیستم دور آن شکل بگیرد.
+</p>
+</div>
+<div class="share-bar">
+    <span>اشتراک‌گذاری این مقاله</span>
+    <button class="icon-btn" aria-label="Share on X">
+        <i class="bi bi-twitter-x"></i>
+    </button>
+    <button class="icon-btn" aria-label="Share on LinkedIn">
+        <i class="bi bi-linkedin"></i>
+    </button>
+    <button class="icon-btn" aria-label="Copy link">
+        <i class="bi bi-link-45deg"></i>
+    </button>
+</div>
+<div class="author-box">
+    <div class="avatar">SR</div>
+    <div>
+        <h4>سارا رضایی</h4>
+        <p>مهندس ارشد در پیک‌لبز، متمرکز بر سیستم‌های توزیع‌شده و تجربه توسعه‌دهنده.</p>
+        <div class="socials">
+            <button class="icon-btn" aria-label="GitHub">
+                <i class="bi bi-github"></i>
+            </button>
+            <button class="icon-btn" aria-label="LinkedIn">
+                <i class="bi bi-linkedin"></i>
+            </button>
         </div>
     </div>
+</div>
+<div class="section-head" style="margin-bottom:20px;">
+    <h2 style="font-size:1.3rem;">مقالات مرتبط</h2>
+</div>
+<div class="related-grid">
+    <article class="card">
+        <a href="#/article" class="card-cover cover-ai">
+            <i class="bi bi-stars"></i>
+        </a>
+        <div class="card-body">
+            <span class="card-cat">هوش مصنوعی</span>
+            <h3>
+                <a href="#/article">عرضه ویژگی‌های هوش مصنوعی بدون از دست دادن اعتماد کاربران</a>
+            </h3>
+<p class="card-desc">
+چک‌لیستی عملی برای افزودن مسئولانه ویژگی‌های مبتنی بر مدل‌های
+                                                            زبانی، از تأخیر تا طراحی حالت پشتیبان.
+</p>
+<div class="card-meta">
+    <div class="who">
+        <span class="avatar">AM</span> امیر مرادی
+    </div>
+    <div>۲۰ خرداد ۱۴۰۵ </div>
+</div>
+</div>
+</article>
+<article class="card">
+    <a href="#/article" class="card-cover cover-cloud">
+        <i class="bi bi-cloud"></i>
+    </a>
+    <div class="card-body">
+        <span class="card-cat">ابر</span>
+        <h3>
+            <a href="#/article">راهنمای عملی استقرار چندمنطقه‌ای روی Azure</a>
+        </h3>
+<p class="card-desc">
+وقتی سرویس تک‌منطقه‌ای را چندمنطقه‌ای می‌کنید چه چیزی واقعاً اهمیت
+                                                                دارد — و چه چیزی را می‌توان نادیده گرفت.
+</p>
+<div class="card-meta">
+    <div class="who">
+        <span class="avatar">NK</span> نیلوفر کریمی
+    </div>
+    <div>۱۲ خرداد ۱۴۰۵ </div>
+</div>
+</div>
+</article>
+<article class="card">
+    <a href="#/article" class="card-cover cover-devops">
+        <i class="bi bi-gear-wide-connected"></i>
+    </a>
+    <div class="card-body">
+        <span class="card-cat">DevOps</span>
+        <h3>
+            <a href="#/article">
+                ساخت پایپ‌لاین‌های CI/CD که مهندسان واقعاً به آن اعتماد
+                دارند
+            </a>
+        </h3>
+<p class="card-desc">
+چرا پایپ‌لاین‌های ناپایدار پیش از آنکه مشکل ابزار باشند، مشکل
+                                                                        فرهنگی‌اند و چگونه هر دو را رفع کنیم.
+</p>
+<div class="card-meta">
+    <div class="who">
+        <span class="avatar">RH</span> رضا حسینی
+    </div>
+    <div>۷ خرداد ۱۴۰۵ </div>
+</div>
+</div>
+</article>
+</div>
+
+</article>
+</div>
+</div>
 </section>
 </body>
+
 </html>
