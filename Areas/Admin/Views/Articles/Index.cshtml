@@ -32,12 +32,11 @@
                 <input placeholder="جستجوی مقاله...">
             </div>
             <select class="select">
-                <option value="all">All statuses</option>
-                <option value="published">Published</option>
-                <option value="draft">Draft</option>
+                <option value="New">جدید ترین</option>
+                <option value="Old">قدیمی ترین</option>
             </select>
             <select class="select">
-                <option>All categories</option>
+                <option>همه دسته بندی‌ها</option>
                 <option>Architecture</option>
                 <option>AI</option>
                 <option>Cloud</option>
@@ -53,7 +52,6 @@
                             <th>نویسنده</th>
                             <th>بازدید</th>
                             <th>آخرین تغییر</th>
-                            <th>وضعیت</th>
                             <th>عملیات</th>
                         </tr>
                     </thead>
@@ -74,9 +72,6 @@
                             <td>Adnan Zarei</td>
                             <td>12,840</td>
                             <td>Jul 30, 2026</td>
-                            <td>
-                                <span class="status published">منتشرشده</span>
-                            </td>
                             <td>
                                 <div class="actions">
                                     <button class="action" title="ویرایش" onclick="openModal('article')">
@@ -105,9 +100,6 @@
                                 <td>13,444</td>
                                 <td>Jul 12, 2026</td>
                                 <td>
-                                    <span class="status published">منتشرشده</span>
-                                </td>
-                                <td>
                                     <div class="actions">
                                         <button class="action" title="ویرایش" onclick="openModal('article')">
                                             <i class="bi bi-pencil"></i>
@@ -135,9 +127,6 @@
                                     <td>10,990</td>
                                     <td>Jul 11, 2026</td>
                                     <td>
-                                        <span class="status published">منتشرشده</span>
-                                    </td>
-                                    <td>
                                         <div class="actions">
                                             <button class="action" title="ویرایش" onclick="openModal('article')">
                                                 <i class="bi bi-pencil"></i>
@@ -164,9 +153,6 @@
                                             <td>Mohammad Rasteh</td>
                                             <td>12,345</td>
                                             <td>Jul 3, 2023</td>
-                                            <td>
-                                                <span class="status draft">پیش‌نویس</span>
-                                            </td>
                                             <td>
                                                 <div class="actions">
                                                     <button class="action" title="ویرایش" onclick="openModal('article')">
