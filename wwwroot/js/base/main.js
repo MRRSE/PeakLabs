@@ -120,6 +120,8 @@ function articleSectionTemplate(number) {
         </div>`;
 }
 
+
+
 function addArticleSection() {
   articleSectionCount++;
   const container = document.getElementById("articleSections");
