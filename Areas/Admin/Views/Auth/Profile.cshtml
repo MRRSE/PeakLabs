@@ -1,0 +1,92 @@
+@{
+  Layout = "_AdminLayout";
+}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>profile</title>
+  <link rel="stylesheet" href="~/css/Admin/profile.css">
+
+</head>
+
+<body>
+          <div class="page-head">
+            <div>
+              <span class="eyebrow"><i class="bi bi-person-circle"></i><span>پروفایل من</span></span>
+              <h1>پروفایل حساب کاربری</h1>
+              <p class="muted">
+                اطلاعات حساب و تنظیمات امنیتی خود را مدیریت کنید.
+              </p>
+            </div>
+          </div>
+          <div class="profile-layout">
+            <div class="profile-card">
+              <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">مر</div>
+                <div>
+                  <h2 class="profile-name">محمد رست</h2>
+                  <p class="profile-role">مدیر ارشد · حساب فعال</p>
+                </div>
+              </div>
+              <div class="profile-section">
+                <h3>اطلاعات حساب</h3>
+                <div class="form-grid">
+                  <div class="field">
+                    <label>نام</label><input id="profileFirstName" maxlength="40" value="محمد">
+                  </div>
+                  <div class="field">
+                    <label>نام خانوادگی</label><input id="profileLastName" maxlength="60" value="رست">
+                  </div>
+                  <div class="field">
+                    <label>نام کاربری</label><input id="profileUsername" maxlength="50" value="mohammad">
+                  </div>
+                  <div class="field">
+                    <label>ایمیل</label><input id="profileEmail" type="email" maxlength="120" value="mohammad@peaklabs.dev">
+                  </div>
+                </div>
+              </div>
+              <div class="profile-section">
+                <h3>تغییر رمز عبور</h3>
+                <div class="form-grid">
+                  <div class="field full">
+                    <label>رمز عبور فعلی</label><input id="profileCurrentPassword" type="password" autocomplete="current-password">
+                  </div>
+                  <div class="field">
+                    <label>رمز عبور جدید</label>
+                    <input id="profileNewPassword" type="password" minlength="8" maxlength="100" autocomplete="new-password" placeholder="حداقل ۸ کاراکتر">
+                  </div>
+                  <div class="field">
+                    <label>تکرار رمز عبور جدید</label>
+                    <input id="profileConfirmPassword" type="password" minlength="8"  maxlength="100" autocomplete="new-password" placeholder="تکرار رمز عبور جدید">
+                  </div>
+                </div>
+                <p class="account-note">
+                  در نسخه واقعی، رمز عبور با ASP.NET Core Identity مدیریت و
+                  به‌صورت هش‌شده ذخیره می‌شود.
+                </p>
+              </div>
+              <div class="profile-actions">
+                <button class="btn btn-primary" type="button" ">
+                  <i class=" bi bi-check2"></i>ذخیره تغییرات
+                </button>
+              </div>
+            </div>
+            <div class="profile-side-card">
+              <h3>نقش و دسترسی‌ها</h3>
+              <p class="muted">دسترسی‌های حساب فعلی شما در پنل مدیریت.</p>
+              <div class="permissions" style="margin-top: 16px">
+                <span class="permission">مدیریت کامل</span><span class="permission">مقالات</span><span
+                class="permission">نمونه‌کارها</span><span class="permission">اعضای تیم</span><span
+                class="permission">تنظیمات</span>
+              </div>
+            </div>
+          </div>
+        </section>
+  </div>
+</body>
+
+</html>
