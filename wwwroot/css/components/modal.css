@@ -1,0 +1,51 @@
+.account-form-grid {
+  column-gap: 18px;
+  row-gap: 16px;
+}
+
+.account-form-grid .field {
+  min-width: 0;
+}
+
+.account-form-grid .field label {
+  margin-bottom: 8px;
+}
+
+.account-form-grid .field input,
+.account-form-grid .field select {
+  min-height: 44px;
+}
+
+.account-form-grid .upload {
+  padding: 16px;
+}
+
+.account-form-grid .account-section-heading {
+  grid-column: 1 / -1;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.account-form-grid #accountRoleDescription {
+  min-height: 82px;
+}
+
+.account-form-grid #accountPermissions {
+  min-height: 150px;
+}
+
+.account-form-grid .multi-select-note {
+  margin-top: 7px;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.8;
+}
+
+@media (max-width: 800px) {
+  .account-form-grid .account-section-heading {
+    grid-column: 1;
+  }
+}

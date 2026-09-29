@@ -419,15 +419,28 @@ function accountModalBody(account = {}) {
     ["analytics", "آمار و تحلیل"],
     ["settings", "تنظیمات"],
   ];
-  return `<div class="form-grid">
+  return `<div class="form-grid account-form-grid">
+          <div class="field full">
+            <label>تصویر پروفایل</label>
+            <div class="upload" onclick="this.querySelector('input').click()">
+              <i class="bi bi-cloud-arrow-up"></i>
+              <strong style="display:block;margin-top:7px">برای آپلود تصویر کلیک کنید</strong>
+              <small>PNG، JPG یا WebP · اندازه پیشنهادی 512×512</small>
+              <input type="file" accept="image/*" hidden>
+            </div>
+          </div>
+          <div class="account-section-heading"><span>اطلاعات حساب</span></div>
           <div class="field"><label>نام</label><input id="accountFirstName" maxlength="40" placeholder="نام"></div>
           <div class="field"><label>نام خانوادگی</label><input id="accountLastName" maxlength="60" placeholder="نام خانوادگی"></div>
           <div class="field"><label>نام کاربری</label><input id="accountUsername" maxlength="50" placeholder="نام کاربری"></div>
           <div class="field"><label>ایمیل</label><input id="accountEmail" type="email" maxlength="120" placeholder="name@peaklabs.dev"></div>
           <div class="field"><label>نقش</label><select id="accountRole"><option value="Editor" ${account.role === "Editor" ? "selected" : ""}>ویرایشگر</option><option value="Lead developer" ${account.role === "Lead developer" ? "selected" : ""}>سرپرست توسعه</option><option value="Content Admin" ${account.role === "Content Admin" ? "selected" : ""}>مدیر محتوا</option><option value="Super Admin" ${account.role === "Super Admin" ? "selected" : ""}>مدیر ارشد</option></select></div>
           <div class="field"><label>وضعیت حساب</label><select id="accountStatus"><option value="online" ${account.status !== "offline" ? "selected" : ""}>فعال</option><option value="offline" ${account.status === "offline" ? "selected" : ""}>غیرفعال</option></select></div>
+          <div class="field full"><label>توضیح کوتاه درباره نقش در شرکت</label><textarea id="accountRoleDescription" maxlength="180" placeholder="مثلاً نویسنده مقالات حوزه طراحی و توسعه وب"></textarea><small class="muted">این توضیح می‌تواند کنار مقاله‌های این شخص نمایش داده شود.</small></div>
+          <div class="account-section-heading"><span>امنیت ورود</span></div>
           <div class="field"><label>${account.id ? "رمز عبور جدید (اختیاری)" : "رمز عبور اولیه"}</label><input id="accountPassword" type="password" minlength="8" maxlength="100" placeholder="حداقل ۸ کاراکتر"></div>
           <div class="field"><label>تکرار رمز عبور</label><input id="accountPasswordConfirm" type="password" minlength="8" maxlength="100" placeholder="تکرار رمز عبور"></div>
+          <div class="account-section-heading"><span>دسترسی‌های داشبورد</span></div>
           <div class="field full"><label>دسترسی‌ها</label><select id="accountPermissions" multiple size="6">${options.map(([value, label]) => `<option value="${value}" ${selected.includes(value) ? "selected" : ""}>${label}</option>`).join("")}</select><div class="multi-select-note">برای انتخاب چند مورد، در ویندوز کلید Ctrl و در مک کلید Command را نگه دارید.</div></div>
         </div>`;
 }
