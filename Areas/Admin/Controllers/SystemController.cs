@@ -5,10 +5,6 @@ namespace PeakLabs.Areas.Admin.Controllers;
 [Area("Admin")]
 public class SystemController : Controller
 {
-    public IActionResult Profile()
-    {
-        return View();
-    }
 
     public IActionResult Settings()
     {
