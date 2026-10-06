@@ -16,6 +16,35 @@
   min-height: 44px;
 }
 
+.account-form-grid .password-input-wrap {
+  position: relative;
+}
+
+.account-form-grid .password-input-wrap input {
+  padding-inline-end: 46px;
+}
+
+.account-form-grid .password-visibility-toggle {
+  position: absolute;
+  inset-inline-end: 7px;
+  top: 50%;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-muted, #64748b);
+  cursor: pointer;
+}
+
+.account-form-grid .password-visibility-toggle:hover {
+  background: var(--color-surface, #f1f5f9);
+  color: var(--color-text);
+}
+
 .account-form-grid .upload {
   padding: 16px;
 }
@@ -29,19 +58,56 @@
   font-weight: 700;
 }
 
+.account-form-grid .account-form-errors {
+  grid-column: 1 / -1;
+  padding: 10px 12px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--color-danger, #dc2626);
+  font-size: 0.78rem;
+  line-height: 1.8;
+}
+
 .account-form-grid #accountRoleDescription {
   min-height: 82px;
 }
 
-.account-form-grid #accountPermissions {
-  min-height: 150px;
+.dialog.account-delete-dialog {
+  width: min(460px, 100%);
 }
 
-.account-form-grid .multi-select-note {
-  margin-top: 7px;
+.account-delete-confirmation {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--color-text);
+}
+
+.account-delete-confirmation-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  place-items: center;
+  border: 1px solid var(--color-primary-100);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-700);
+  font-size: 1.15rem;
+}
+
+[data-theme="dark"] .account-delete-confirmation-icon {
+  color: var(--color-primary);
+}
+
+.account-delete-confirmation-name {
+  margin: 0 0 4px;
+  font-weight: 700;
+}
+
+.account-delete-confirmation small {
   color: var(--color-text-muted);
-  font-size: 0.72rem;
-  line-height: 1.8;
 }
 
 @media (max-width: 800px) {
