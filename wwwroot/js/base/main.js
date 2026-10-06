@@ -142,6 +142,7 @@ function removeArticleSection(button) {
 }
 
 let modalType = null;
+let pendingDeleteAccountId = null;
 
 function openModal(type) {
   modalType = type;
@@ -151,6 +152,7 @@ function openModal(type) {
     article: "ایجاد مقاله",
     portfolio: "نمونه کار جدید",
     developer: "توسعه دهنده جدید",
+    account: "ایجاد حساب کاربری",
   }[type];
 
   document.getElementById("modalTitle").textContent = title;
@@ -301,11 +303,139 @@ function openModal(type) {
 
 function closeModal() {
   document.getElementById("modal").classList.remove("open");
+  document.querySelector("#modal .dialog")?.classList.remove("account-delete-dialog");
+  const saveButton = document.querySelector("#modal .dialog-foot .btn-primary");
+  if (saveButton) {
+    saveButton.textContent = saveButton.dataset.defaultText || "ذخیره";
+    saveButton.disabled = false;
+  }
+  modalType = null;
+  pendingDeleteAccountId = null;
 }
 function saveModal() {
+  if (modalType === "account") {
+    document.getElementById("accountForm")?.requestSubmit();
+    return;
+  }
+  if (modalType === "deleteAccount") {
+    deletePendingAccount();
+    return;
+  }
+
   closeModal();
   toastMsg("ذخیره شد");
 }
+
+function openDeleteAccountModal(button) {
+  pendingDeleteAccountId = button.dataset.accountId;
+  modalType = "deleteAccount";
+
+  const modal = document.getElementById("modal");
+  const dialog = modal.querySelector(".dialog");
+  const title = document.getElementById("modalTitle");
+  const body = document.getElementById("modalBody");
+  const confirmButton = modal.querySelector(".dialog-foot .btn-primary");
+
+  dialog.classList.add("account-delete-dialog");
+  title.textContent = "حذف حساب کاربری";
+  body.replaceChildren();
+
+  const content = document.createElement("div");
+  content.className = "account-delete-confirmation";
+  const icon = document.createElement("i");
+  icon.className = "bi bi-person-x account-delete-confirmation-icon";
+  icon.setAttribute("aria-hidden", "true");
+  const text = document.createElement("div");
+  const name = document.createElement("p");
+  name.className = "account-delete-confirmation-name";
+  name.textContent = `حساب «${button.dataset.accountName || "کاربر انتخاب‌شده"}» حذف شود؟`;
+  const note = document.createElement("small");
+  note.textContent = "این کار قابل بازگشت نیست.";
+  text.append(name, note);
+  content.append(icon, text);
+  body.append(content);
+
+  if (confirmButton) {
+    confirmButton.dataset.defaultText ||= confirmButton.textContent.trim();
+    confirmButton.textContent = "حذف حساب";
+    confirmButton.disabled = false;
+  }
+
+  modal.classList.add("open");
+}
+
+async function deletePendingAccount() {
+  if (!pendingDeleteAccountId) return;
+
+  const token = document.querySelector(
+    "#accountAntiforgeryToken input[name='__RequestVerificationToken']",
+  )?.value;
+  const deleteUrl = document.getElementById("accountAntiforgeryToken")?.dataset.deleteUrl;
+  const confirmButton = document.querySelector("#modal .dialog-foot .btn-primary");
+  if (!token || !deleteUrl) {
+    toastMsg("امکان حذف حساب در حال حاضر وجود ندارد.");
+    return;
+  }
+
+  if (confirmButton) confirmButton.disabled = true;
+  const formData = new FormData();
+  formData.append("__RequestVerificationToken", token);
+  formData.append("id", pendingDeleteAccountId);
+
+  try {
+    const response = await fetch(deleteUrl, {
+      method: "POST",
+      body: formData,
+      headers: { Accept: "application/json" },
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || "حذف حساب انجام نشد.");
+
+    closeModal();
+    toastMsg(result.message || "حساب کاربری حذف شد.");
+    window.setTimeout(() => window.location.reload(), 700);
+  } catch (error) {
+    toastMsg(error.message || "ارتباط با سرور برقرار نشد. دوباره تلاش کنید.");
+    if (confirmButton) confirmButton.disabled = false;
+  }
+}
+
+document.addEventListener("submit", async (event) => {
+  const form = event.target;
+  if (!(form instanceof HTMLFormElement) || form.id !== "accountForm") return;
+
+  event.preventDefault();
+  const errorBox = document.getElementById("accountFormErrors");
+  const saveButton = document.querySelector("#modal .dialog-foot .btn-primary");
+  errorBox.hidden = true;
+  errorBox.textContent = "";
+  if (saveButton) saveButton.disabled = true;
+
+  try {
+    const response = await fetch(form.action, {
+      method: "POST",
+      body: new FormData(form),
+      headers: { Accept: "application/json" },
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      errorBox.textContent = (result.errors || ["ساخت حساب انجام نشد."]).join(" ");
+      errorBox.hidden = false;
+      return;
+    }
+
+    closeModal();
+    toastMsg(result.message || "حساب کاربری ساخته شد.");
+    window.setTimeout(() => window.location.reload(), 900);
+  } catch {
+    errorBox.textContent = "ارتباط با سرور برقرار نشد. دوباره تلاش کنید.";
+    errorBox.hidden = false;
+  } finally {
+    if (saveButton) saveButton.disabled = false;
+  }
+});
+
 function toastMsg(msg) {
   document.getElementById("toastText").textContent = msg;
   document.getElementById("toast").classList.add("show");
@@ -409,41 +539,58 @@ function renderArticleTags() {
 }
 
 function accountModalBody(account = {}) {
-  const selected = account.perms || [];
-  const options = [
-    ["all", "مدیریت کامل"],
-    ["dashboard", "نمای کلی داشبورد"],
-    ["articles", "مدیریت مقالات"],
-    ["portfolio", "مدیریت نمونه‌کارها"],
-    ["team", "مدیریت اعضای تیم"],
-    ["analytics", "آمار و تحلیل"],
-    ["settings", "تنظیمات"],
-  ];
-  return `<div class="form-grid account-form-grid">
+  const antiforgeryContainer = document.getElementById("accountAntiforgeryToken");
+  const antiforgeryToken = antiforgeryContainer?.querySelector(
+    "input[name='__RequestVerificationToken']",
+  )?.value ?? "";
+  const createAccountUrl = antiforgeryContainer?.dataset.createUrl
+    || "/Admin/Auth/CreateAccount";
+
+  return `<form id="accountForm" class="form-grid account-form-grid" action="${createAccountUrl}" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="__RequestVerificationToken" value="${antiforgeryToken}">
+          <div id="accountFormErrors" class="account-form-errors" role="alert" hidden></div>
           <div class="field full">
             <label>تصویر پروفایل</label>
             <div class="upload" onclick="this.querySelector('input').click()">
               <i class="bi bi-cloud-arrow-up"></i>
               <strong style="display:block;margin-top:7px">برای آپلود تصویر کلیک کنید</strong>
               <small>PNG، JPG یا WebP · اندازه پیشنهادی 512×512</small>
-              <input type="file" accept="image/*" hidden>
+              <input type="file" name="ProfileImage" accept="image/png,image/jpeg,image/webp" hidden>
             </div>
           </div>
           <div class="account-section-heading"><span>اطلاعات حساب</span></div>
-          <div class="field"><label>نام</label><input id="accountFirstName" maxlength="40" placeholder="نام"></div>
-          <div class="field"><label>نام خانوادگی</label><input id="accountLastName" maxlength="60" placeholder="نام خانوادگی"></div>
-          <div class="field"><label>نام کاربری</label><input id="accountUsername" maxlength="50" placeholder="نام کاربری"></div>
-          <div class="field"><label>ایمیل</label><input id="accountEmail" type="email" maxlength="120" placeholder="name@peaklabs.dev"></div>
-          <div class="field"><label>نقش</label><select id="accountRole"><option value="Editor" ${account.role === "Editor" ? "selected" : ""}>ویرایشگر</option><option value="Lead developer" ${account.role === "Lead developer" ? "selected" : ""}>سرپرست توسعه</option><option value="Content Admin" ${account.role === "Content Admin" ? "selected" : ""}>مدیر محتوا</option><option value="Super Admin" ${account.role === "Super Admin" ? "selected" : ""}>مدیر ارشد</option></select></div>
-          <div class="field"><label>وضعیت حساب</label><select id="accountStatus"><option value="online" ${account.status !== "offline" ? "selected" : ""}>فعال</option><option value="offline" ${account.status === "offline" ? "selected" : ""}>غیرفعال</option></select></div>
-          <div class="field full"><label>توضیح کوتاه درباره نقش در شرکت</label><textarea id="accountRoleDescription" maxlength="180" placeholder="مثلاً نویسنده مقالات حوزه طراحی و توسعه وب"></textarea><small class="muted">این توضیح می‌تواند کنار مقاله‌های این شخص نمایش داده شود.</small></div>
+          <div class="field"><label for="accountFirstName">نام</label><input id="accountFirstName" name="FirstName" required maxlength="60" placeholder="نام"></div>
+          <div class="field"><label for="accountLastName">نام خانوادگی</label><input id="accountLastName" name="LastName" required maxlength="80" placeholder="نام خانوادگی"></div>
+          <div class="field"><label for="accountUsername">نام کاربری</label><input id="accountUsername" name="UserName" required maxlength="50" placeholder="نام کاربری"></div>
+          <div class="field"><label for="accountEmail">ایمیل</label><input id="accountEmail" name="Email" type="email" required maxlength="120" placeholder="name@peaklabs.dev"></div>
+          <div class="field"><label for="accountRole">نقش</label><select id="accountRole" name="RoleName" required><option value="" disabled ${account.role ? "" : "selected"}>انتخاب نقش</option><option value="Editor" ${account.role === "Editor" ? "selected" : ""}>ویرایشگر</option><option value="ContentManager" ${account.role === "ContentManager" ? "selected" : ""}>مدیر محتوا</option><option value="SuperAdmin" ${account.role === "SuperAdmin" ? "selected" : ""}>مدیر ارشد</option></select></div>
+          <div class="field"><label for="accountStatus">وضعیت حساب</label><select id="accountStatus" name="IsActive"><option value="true" ${account.isActive === false ? "" : "selected"}>فعال</option><option value="false" ${account.isActive === false ? "selected" : ""}>غیرفعال</option></select></div>
+          <div class="field full"><label for="accountRoleDescription">توضیح کوتاه درباره نقش در شرکت</label><textarea id="accountRoleDescription" name="AuthorDescription" maxlength="240" placeholder="مثلاً نویسنده مقالات حوزه طراحی و توسعه وب">${account.authorDescription || ""}</textarea><small class="muted">این توضیح می‌تواند کنار مقاله‌های این شخص نمایش داده شود.</small></div>
           <div class="account-section-heading"><span>امنیت ورود</span></div>
-          <div class="field"><label>${account.id ? "رمز عبور جدید (اختیاری)" : "رمز عبور اولیه"}</label><input id="accountPassword" type="password" minlength="8" maxlength="100" placeholder="حداقل ۸ کاراکتر"></div>
-          <div class="field"><label>تکرار رمز عبور</label><input id="accountPasswordConfirm" type="password" minlength="8" maxlength="100" placeholder="تکرار رمز عبور"></div>
-          <div class="account-section-heading"><span>دسترسی‌های داشبورد</span></div>
-          <div class="field full"><label>دسترسی‌ها</label><select id="accountPermissions" multiple size="6">${options.map(([value, label]) => `<option value="${value}" ${selected.includes(value) ? "selected" : ""}>${label}</option>`).join("")}</select><div class="multi-select-note">برای انتخاب چند مورد، در ویندوز کلید Ctrl و در مک کلید Command را نگه دارید.</div></div>
-        </div>`;
+          <div class="field"><label for="accountPassword">رمز عبور اولیه</label><div class="password-input-wrap"><input id="accountPassword" name="Password" type="password" required minlength="8" maxlength="100" placeholder="حداقل ۸ کاراکتر"><button class="password-visibility-toggle" type="button" data-password-toggle="accountPassword" aria-label="نمایش رمز عبور" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div><small class="muted">حروف کوچک و بزرگ انگلیسی، عدد و نماد لازم است.</small></div>
+          <div class="field"><label for="accountPasswordConfirm">تکرار رمز عبور</label><div class="password-input-wrap"><input id="accountPasswordConfirm" name="ConfirmPassword" type="password" required minlength="8" maxlength="100" placeholder="تکرار رمز عبور"><button class="password-visibility-toggle" type="button" data-password-toggle="accountPasswordConfirm" aria-label="نمایش رمز عبور" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div></div>
+        </form>`;
 }
+
+document.addEventListener("click", (event) => {
+  const deleteButton = event.target.closest(".account-delete-button");
+  if (deleteButton) {
+    openDeleteAccountModal(deleteButton);
+    return;
+  }
+
+  const toggle = event.target.closest("[data-password-toggle]");
+  if (!toggle) return;
+
+  const input = document.getElementById(toggle.dataset.passwordToggle);
+  if (!input) return;
+
+  const showPassword = input.type === "password";
+  input.type = showPassword ? "text" : "password";
+  toggle.setAttribute("aria-pressed", String(showPassword));
+  toggle.setAttribute("aria-label", showPassword ? "پنهان کردن رمز عبور" : "نمایش رمز عبور");
+  toggle.innerHTML = `<i class="bi ${showPassword ? "bi-eye-slash" : "bi-eye"}" aria-hidden="true"></i>`;
+});
 
 function teamMemberModalBody(member = {}) {
   return `<div class="form-grid">
