@@ -65,11 +65,11 @@
             </nav>
             <div class="side-label">سیستم</div>
             <nav class="nav">
-                <a asp-area="Admin" asp-controller="System" asp-action="Index">
+                <a asp-area="Admin" asp-controller="Auth" asp-action="Profile">
                     <i class="bi bi-person-circle"></i>
-                    <span>پروفال من</span>
+                    <span>پروفایل من</span>
                 </a>
-                <a asp-area="Admin" asp-controller="System" asp-action="Index">
+                <a asp-area="Admin" asp-controller="System" asp-action="Settings">
                     <i class="bi bi-sliders2"></i>
                     <span>تنظیمات</span>
                 </a>
@@ -126,6 +126,7 @@
     <script src="~/js/admin/dashboard.js"></script>
     <script src="~/js/base/theme.js"></script>
     <script src="~/js/base/main.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 
 </html>
