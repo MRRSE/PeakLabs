@@ -49,6 +49,16 @@
   padding: 16px;
 }
 
+.account-form-grid .account-image-preview {
+  display: block;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}
+
 .account-form-grid .account-section-heading {
   grid-column: 1 / -1;
   padding-bottom: 8px;

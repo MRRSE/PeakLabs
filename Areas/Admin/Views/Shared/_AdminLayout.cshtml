@@ -1,3 +1,26 @@
+@using Microsoft.AspNetCore.Identity
+@using PeakLabs.Models.Identity
+@inject UserManager<PeakLabsUser> UserManager
+@{
+    var currentDashboardUser = await UserManager.GetUserAsync(User);
+    var currentDashboardUserName = currentDashboardUser is null
+        ? User.Identity?.Name ?? "کاربر داشبورد"
+        : $"{currentDashboardUser.FirstName} {currentDashboardUser.LastName}".Trim();
+    if (string.IsNullOrWhiteSpace(currentDashboardUserName))
+    {
+        currentDashboardUserName = currentDashboardUser?.UserName ?? User.Identity?.Name ?? "کاربر داشبورد";
+    }
+    var currentDashboardInitials = currentDashboardUser is null
+        ? ""
+        : string.Concat(currentDashboardUser.FirstName.FirstOrDefault(), currentDashboardUser.LastName.FirstOrDefault()).Trim('\0');
+    var currentDashboardRole = User.IsInRole(DashboardRoles.SuperAdmin)
+        ? DashboardRoles.SuperAdmin
+        : User.IsInRole(DashboardRoles.ContentManager)
+            ? DashboardRoles.ContentManager
+            : User.IsInRole(DashboardRoles.Editor)
+                ? DashboardRoles.Editor
+                : null;
+}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl" data-theme="dark">
 
@@ -76,11 +99,30 @@
             </nav>
             <div class="side-bottom">
                 <div class="user-mini">
-                    <div class="avatarDash">MR</div>
+                    @if (!string.IsNullOrWhiteSpace(currentDashboardUser?.ProfileImagePath))
+                    {
+                        <img class="avatarDash user-mini-avatar" src="@currentDashboardUser.ProfileImagePath" alt="تصویر پروفایل @currentDashboardUserName" />
+                    }
+                    else
+                    {
+                        <div class="avatarDash">@(string.IsNullOrWhiteSpace(currentDashboardInitials) ? "؟" : currentDashboardInitials)</div>
+                    }
                     <div>
-                        <strong>Mohammad . RST</strong><small>مالک · دسترسی کامل</small>
+                        <strong>@currentDashboardUserName</strong>
+                        <small>@DashboardRoles.GetDisplayName(currentDashboardRole)</small>
+                        @if (!string.IsNullOrWhiteSpace(currentDashboardUser?.UserName))
+                        {
+                            <small class="user-mini-username">@currentDashboardUser.UserName</small>
+                        }
                     </div>
                 </div>
+                <form method="post" action="@Url.Action("Logout", "Auth", new { area = "Admin" })">
+                    @Html.AntiForgeryToken()
+                    <button class="btn btn-ghost logout-button" type="submit">
+                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                        خروج از حساب
+                    </button>
+                </form>
             </div>
         </aside>
         <div class="main">
