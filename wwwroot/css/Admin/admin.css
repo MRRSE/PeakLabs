@@ -134,13 +134,34 @@
   font-size: 0.76rem;
   flex: none;
 }
+.user-mini-avatar {
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+}
+.user-mini > div:last-child {
+  min-width: 0;
+}
 .user-mini strong {
   display: block;
   font-size: 0.82rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .user-mini small {
+  display: block;
   color: var(--color-text-faint);
   font-size: 0.72rem;
+}
+.user-mini .user-mini-username {
+  direction: ltr;
+  text-align: right;
+  font-size: 0.65rem;
+}
+.logout-button {
+  width: 100%;
+  justify-content: flex-start;
+  font-size: 0.82rem;
 }
 .topbar {
   height: var(--topbar);

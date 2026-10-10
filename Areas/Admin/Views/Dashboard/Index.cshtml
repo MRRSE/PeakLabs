@@ -1,5 +1,6 @@
 @{
   Layout = "_AdminLayout";
+  var welcomeName = ViewData["WelcomeName"] as string ?? "کاربر";
 }
 
 <html lang="en">
@@ -18,7 +19,7 @@
       <i class="bi bi-activity"></i>
       <span>داشبورد</span>
     </span>
-    <h1>ظهر بخیر، محمد.</h1>
+    <h1 id="dashboardGreeting" data-first-name="@welcomeName">سلام، @welcomeName.</h1>
     <p class="muted">وضعیت فعلی وب‌سایت PeakLabs را اینجا می‌بینید.</p>
   </div>
 </div>
