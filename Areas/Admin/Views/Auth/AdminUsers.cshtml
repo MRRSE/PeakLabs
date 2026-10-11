@@ -1,3 +1,4 @@
+@model PeakLabs.Areas.Admin.Models.AdminUsersViewModel
 @{
     Layout = "_AdminLayout";
 }
@@ -13,6 +14,11 @@
 
 <body>
     <section class="page active">
+        <div id="accountAntiforgeryToken"
+             data-create-url="@Url.Action("CreateAccount", "Auth", new { area = "Admin" })"
+             data-delete-url="@Url.Action("DeleteAccount", "Auth", new { area = "Admin" })" hidden>
+            @Html.AntiForgeryToken()
+        </div>
         <div class="page-head">
             <div>
                 <span class="eyebrow">
@@ -32,20 +38,20 @@
         </div>
         <div class="account-summary">
             <div class="stat">
-                <span class="tiny">تعداد حساب‌ها</span><strong id="accountCount">0</strong>
+                <span class="tiny">تعداد حساب‌ها</span><strong id="accountCount">@Model.TotalCount</strong>
             </div>
             <div class="stat">
-                <span class="tiny">حساب‌های فعال</span><strong id="activeAccountCount">0</strong>
+                <span class="tiny">حساب‌های فعال</span><strong id="activeAccountCount">@Model.ActiveCount</strong>
             </div>
             <div class="stat">
-                <span class="tiny">حساب‌های غیرفعال</span><strong id="inactiveAccountCount">0</strong>
+                <span class="tiny">حساب‌های غیرفعال</span><strong id="inactiveAccountCount">@Model.InactiveCount</strong>
             </div>
         </div>
         <div class="panel">
             <div class="panel-head">
                 <div>
-                    <h2>حساب‌های دارای دسترسی</h2>
-                    <span class="tiny">این افراد می‌توانند وارد داشبورد شوند.</span>
+                    <h2>حساب‌های داشبورد</h2>
+                    <span class="tiny">نقش انتخاب‌شده برای هر حساب در این فهرست نمایش داده می‌شود.</span>
                 </div>
             </div>
             <div class="table-wrap">
@@ -60,32 +66,51 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>
-                                <div class="member">
-                                    <div class="avatar">م‌ر</div>
-                                    <div>
-                                        <div class="item-title">محمد رسته</div>
-                                        <div class="role">developer.rasteh@gmail.com</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>مدیر ارشد</td>
-                            <td>
-                                <div class="permissions">
-                                    <span class="permission">مدیریت مقالات</span>
-                                    <span class="permission">آمار و تحلیل</span>
-                                </div>
-                            </td>
-                            <td><span class="status published">فعال</span></td>
-                            <td>
-                                <div class="actions">
-                                    <button class="action" title="غیرفعال کردن" onclick="toggleAccount(1)">
-                                        <i class="bi bi-power"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                        @if (Model.Accounts.Count == 0)
+                        {
+                            <tr><td colspan="5" class="muted">هنوز حسابی ساخته نشده است.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var account in Model.Accounts)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="member">
+                                            @if (!string.IsNullOrWhiteSpace(account.ProfileImagePath))
+                                            {
+                                                <img class="avatar account-avatar" src="@account.ProfileImagePath" alt="تصویر @account.FirstName @account.LastName">
+                                            }
+                                            else
+                                            {
+                                                <div class="avatar account-avatar">@account.Initials</div>
+                                            }
+                                            <div>
+                                                <div class="item-title">@account.FirstName @account.LastName</div>
+                                                <div class="role">@account.UserName · @account.Email</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>@account.RoleDisplayName</td>
+                                    <td><span class="permission">@account.AccessDescription</span></td>
+                                    <td>
+                                        <span class="status @(account.IsActive ? "published" : "draft")">
+                                            @(account.IsActive ? "فعال" : "غیرفعال")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="icon-btn account-delete-button"
+                                                type="button"
+                                                data-account-id="@account.Id"
+                                                data-account-name="@account.FirstName @account.LastName"
+                                                aria-label="حذف حساب @account.FirstName @account.LastName"
+                                                title="حذف حساب">
+                                            <i class="bi bi-trash3" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
                     </tbody>
                 </table>
             </div>

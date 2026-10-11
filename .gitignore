@@ -1,6 +1,7 @@
 # Build
 **/bin/
 **/obj/
+wwwroot/uploads/admin-profiles/
 
 # Visual Studio
 .vs/

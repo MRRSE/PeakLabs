@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+    <section class="page active" id="settings">
+        <div class="page-head">
+            <div>
+                <span class="eyebrow">
+                    <i class="bi bi-sliders2"></i>
+                    <span data-t="settings">تنظیمات</span>
+                </span>
+                <h1 data-t="settingsTitle">تنظیمات داشبورد</h1>
+                <p class="muted" data-t="settingsDesc">هویت سایت، سئو و اطلاعات تماس را مدیریت کنید.</p>
+            </div>
+        </div>
+        <form id="settingsForm" onsubmit="event.preventDefault();saveSiteSettings()">
+            <div class="grid-2">
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2 data-t="siteIdentity">هویت سایت</h2>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-grid">
+                            <div class="field full">
+                                <label for="settingSiteTitle" data-t="siteTitle">
+                                    عنوان
+                                    سایت
+                                </label>
+                                <input id="settingSiteTitle" value="PeakLabs | Software &amp; Innovation" maxlength="70"
+                                       required="">
+                            </div>
+                            <div class="field full">
+                                <label for="settingSiteDescription" data-t="siteDescription">
+                                    توضیحات
+                                    سایت
+                                </label><textarea id="settingSiteDescription" maxlength="300"
+                                                  required="">PeakLabs is a software engineering studio sharing practical writing on architecture, cloud, AI and developer craft.</textarea>
+                            </div>
+                            <div class="field full">
+                                <label for="settingSiteUrl" data-t="siteUrl">
+                                    نشانی عمومی
+                                    سایت
+                                </label>
+                                <input id="settingSiteUrl" type="url" placeholder="https://peaklabs.dev"><small
+                                class="muted" data-t="siteUrlHint">
+                                نشانی
+                                کامل و اصلی سایت که بازدیدکنندگان با آن وارد می‌شوند؛ همراه با https:// وارد
+                                کنید.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <h2 data-t="appearance">ظاهر</h2>
+                </div>
+                <div class="panel-body">
+                    <p class="muted" data-t="appearanceDesc">
+                        این داشبورد از همان فونت‌های Inter / Vazirmatn، رنگ سبز
+                        زمردی و توکن‌های روشن/تیره سایت اصلی PeakLabs استفاده می‌کند.
+                    </p>
+                    <div style="display:flex;gap:10px;margin-top:18px">
+                        <button type="button" class="btn btn-outline" onclick="setTheme('light')"><i
+                            class="bi bi-sun"></i> Light</button>
+                            <button type="button" class="btn btn-outline" onclick="setTheme('dark')"><i
+                                class="bi bi-moon-stars"></i> Dark</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top:18px">
+                    <div class="panel">
+                        <div class="panel-head">
+                            <h2 data-t="seoSettings">سئو و اشتراک‌گذاری</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p class="muted" data-t="seoHint">
+                                این اطلاعات به موتورهای جست‌وجو و شبکه‌های اجتماعی کمک می‌کند
+                                سایت را معرفی کنند. اگر عنوان یا توضیح سئو خالی باشد، از عنوان یا توضیحات سایت استفاده
+                                می‌شود.
+                            </p>
+                            <div class="form-grid">
+                                <div class="field full">
+                                    <label for="settingSeoTitle" data-t="seoTitle">
+                                        عنوان نتیجهٔ
+                                        جست‌وجو
+                                    </label>
+                                    <input id="settingSeoTitle" maxlength="60"
+                                           placeholder="PeakLabs | Software &amp; Innovation">
+                                </div>
+                                <div class="field full">
+                                    <label for="settingSeoDescription" data-t="seoDescription">
+                                        توضیح
+                                        جست‌وجو و اشتراک‌گذاری
+                                    </label><textarea id="settingSeoDescription" maxlength="160"
+                                                      placeholder="Use the site description when left blank."></textarea>
+                                </div>
+                                <div class="field full">
+                                    <label for="settingOgImage" data-t="shareImage">
+                                        نشانی تصویر
+                                        اشتراک‌گذاری
+                                    </label>
+                                    <input id="settingOgImage" type="url"
+                                           placeholder="https://peaklabs.dev/images/share-card.jpg"
+                                           oninput="previewOgImage()"><small class="muted" data-t="shareImageHint">
+                                    اندازهٔ
+                                    پیشنهادی ۱۲۰۰×۶۳۰ پیکسل؛ از نشانی عمومی HTTPS استفاده کنید.
+                                </small><img id="ogImagePreview" alt=""
+                                             style="display:none;max-width:100%;max-height:180px;object-fit:contain;margin-top:10px;border-radius:10px"
+                                             src="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2 data-t="contactSettings">اطلاعات تماس و شبکه‌های اجتماعی</h2>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-grid">
+                            <div class="field full">
+                                <label for="settingContactEmail" data-t="contactEmail">
+                                    ایمیل
+                                    تماس
+                                </label>
+                                <input id="settingContactEmail" type="email" placeholder="hello@peaklabs.dev">
+                            </div>
+                            <div class="field full">
+                                <label for="settingContactPhone" data-t="contactPhone">
+                                    شماره
+                                    تماس
+                                </label>
+                                <input id="settingContactPhone" type="tel" placeholder="+98 …">
+                            </div>
+                            <div class="field full">
+                                <label for="settingAddress" data-t="postalAddress">
+                                    نشانی پستی
+                                    شرکت
+                                </label><textarea id="settingAddress" maxlength="300"
+                                                  placeholder="City, country"></textarea>
+                            </div>
+                            <div class="field full">
+                                <label for="settingLinkedin" data-t="linkedinUrl">
+                                    نشانی
+                                    LinkedIn
+                                </label>
+                                <input id="settingLinkedin" type="url"
+                                       placeholder="https://linkedin.com/company/peaklabs">
+                            </div>
+                            <div class="field full">
+                                <label for="settingGithub" data-t="githubUrl">
+                                    نشانی
+                                    GitHub
+                                </label>
+                                <input id="settingGithub" type="url" placeholder="https://github.com/peaklabs">
+                            </div>
+                            <div class="field full">
+                                <label for="settingInstagram" data-t="instagramUrl">
+                                    نشانی
+                                    Instagram
+                                </label>
+                                <input id="settingInstagram" type="url" placeholder="https://instagram.com/peaklabs">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel" style="margin-top:18px">
+                <div class="panel-head">
+                    <div>
+                        <h2 data-t="heroContent">محتوای Hero</h2>
+                        <span class="tiny" data-t="heroContentDesc">
+                            عنوان اصلی
+                            و معرفی کوتاه نمایش‌داده‌شده در ابتدای صفحهٔ اصلی را ویرایش کنید.
+                        </span>
+                    </div>
+                    <button class="btn btn-outline" type="button" onclick="openContentSettings('hero')">
+                        <i class="bi bi-pencil"></i>
+                        <span data-t="editContent">ویرایش محتوا</span>
+                    </button>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:18px">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check2"></i>
+                    <span data-t="saveChanges">
+                        ذخیره
+                        تغییرات
+                    </span>
+                </button>
+            </div>
+        </form>
+    </section>
+</body>
+
+</html>

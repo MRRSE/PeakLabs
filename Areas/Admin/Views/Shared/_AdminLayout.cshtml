@@ -74,7 +74,7 @@
             <nav class="nav">
                 <a class="@(IsCurrentPage("Auth", "Profile") ? "active" : "")" asp-area="Admin" asp-controller="Auth" asp-action="Profile">
                     <i class="bi bi-person-circle"></i>
-                    <span>پروفال من</span>
+                    <span>پروفایل من</span>
                 </a>
                 <a class="@(IsCurrentPage("System") ? "active" : "")" asp-area="Admin" asp-controller="System" asp-action="Index">
                     <i class="bi bi-sliders2"></i>
@@ -133,6 +133,7 @@
     <script src="~/js/admin/dashboard.js"></script>
     <script src="~/js/base/theme.js"></script>
     <script src="~/js/base/main.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 
 </html>
