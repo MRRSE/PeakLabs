@@ -171,6 +171,7 @@
           }
       }
 
+      @media (max-width: 700px) {
       .page.active {
           padding: 12px 22px 15px;
       }
@@ -317,6 +318,7 @@
       .profile-side-card .profile-section {
           margin-top: 12px;
           padding-top: 11px;
+      }
       }
 
 /* =========================
