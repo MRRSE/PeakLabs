@@ -145,6 +145,7 @@ function removeArticleSection(button) {
 
 let modalType = null;
 let pendingDeleteAccountId = null;
+let pendingDeletePortfolioId = null;
 let pendingAccountStatus = null;
 
 function openModal(type, account = {}) {
@@ -237,7 +238,15 @@ function openModal(type, account = {}) {
   }
 
   if (type === "portfolio")
-    body = `<div class="form-grid"><div class="field full"><label>تصویر کاور</label><div class="upload" onclick="this.querySelector('input').click()"><i class="bi bi-image"></i><strong style="display:block;margin-top:7px">برای آپلود کلیک کنید یا تصویر را اینجا رها کنید</strong><small>PNG، JPG یا WebP · اندازه پیشنهادی 1600×1000</small><input type="file" accept="image/*" hidden></div></div><div class="field"><label>عنوان · FA</label><input maxlength="60" placeholder="نام پروژه"></div><div class="field"><label>لینک</label><input maxlength="60" placeholder="exampel.com"></div><div class="field full"><label>توضیح کوتاه · FA</label><textarea maxlength="160"></textarea>`;
+    body = `<form id="portfolioForm" action="/Admin/Portfolio/Create" method="post" enctype="multipart/form-data">
+      <div id="portfolioFormErrors" class="portfolio-form-errors" role="alert" hidden></div>
+      <div class="form-grid">
+        <div class="field full"><label for="portfolioImage">تصویر پروژه</label><div class="upload" onclick="document.getElementById('portfolioImage').click()"><i class="bi bi-image"></i><strong style="display:block;margin-top:7px">برای آپلود تصویر کلیک کنید</strong><small>PNG، JPG یا WebP · حداکثر ۵ مگابایت</small><input id="portfolioImage" name="ProjectImage" type="file" accept="image/png,image/jpeg,image/webp" required hidden></div><small id="portfolioImageName" class="muted"></small></div>
+        <div class="field"><label for="portfolioName">نام پروژه</label><input id="portfolioName" name="ProjectName" maxlength="120" required placeholder="نام پروژه"></div>
+        <div class="field"><label for="portfolioLink">لینک پروژه</label><input id="portfolioLink" name="ProjectLink" type="url" maxlength="500" required placeholder="https://example.com"></div>
+        <div class="field full"><label for="portfolioDescription">توضیحات پروژه</label><textarea id="portfolioDescription" name="ProjectDescription" maxlength="1000" required placeholder="توضیح کوتاه درباره پروژه"></textarea></div>
+        <div class="field full"><small class="muted"><i class="bi bi-clock"></i> زمان ثبت پروژه هنگام ذخیره به‌صورت خودکار ثبت می‌شود.</small></div>
+      </div></form>`;
 
   if (type === "developer" || type === "admin")
     body = `
@@ -330,15 +339,24 @@ function closeModal() {
   }
   modalType = null;
   pendingDeleteAccountId = null;
+  pendingDeletePortfolioId = null;
   pendingAccountStatus = null;
 }
 function saveModal() {
+  if (modalType === "portfolio") {
+    document.getElementById("portfolioForm")?.requestSubmit();
+    return;
+  }
   if (modalType === "account" || modalType === "accountEdit") {
     document.getElementById("accountForm")?.requestSubmit();
     return;
   }
   if (modalType === "deleteAccount") {
     deletePendingAccount();
+    return;
+  }
+  if (modalType === "deletePortfolio") {
+    deletePendingPortfolio();
     return;
   }
   if (modalType === "setAccountStatus") {
@@ -348,6 +366,77 @@ function saveModal() {
 
   closeModal();
   toastMsg("ذخیره شد");
+}
+
+function openPortfolioDeleteModal(button) {
+  pendingDeletePortfolioId = button.dataset.portfolioId;
+  if (!pendingDeletePortfolioId) return;
+
+  modalType = "deletePortfolio";
+  const modal = document.getElementById("modal");
+  const dialog = modal.querySelector(".dialog");
+  const body = document.getElementById("modalBody");
+  const confirmButton = modal.querySelector(".dialog-foot .btn-primary");
+  dialog.classList.add("account-delete-dialog");
+  document.getElementById("modalTitle").textContent = "حذف نمونه‌کار";
+  body.replaceChildren();
+
+  const content = document.createElement("div");
+  content.className = "account-delete-confirmation";
+  const icon = document.createElement("i");
+  icon.className = "bi bi-trash3 account-delete-confirmation-icon";
+  icon.setAttribute("aria-hidden", "true");
+  const text = document.createElement("div");
+  const name = document.createElement("p");
+  name.className = "account-delete-confirmation-name";
+  name.textContent = `نمونه‌کار «${button.dataset.portfolioName || "انتخاب‌شده"}» حذف شود؟`;
+  const note = document.createElement("small");
+  note.textContent = "تصویر ذخیره‌شدهٔ این نمونه‌کار هم حذف می‌شود.";
+  text.append(name, note);
+  content.append(icon, text);
+  body.append(content);
+
+  if (confirmButton) {
+    confirmButton.dataset.defaultText ||= confirmButton.textContent.trim();
+    confirmButton.textContent = "حذف نمونه‌کار";
+    confirmButton.disabled = false;
+  }
+  modal.classList.add("open");
+}
+
+async function deletePendingPortfolio() {
+  if (!pendingDeletePortfolioId) return;
+
+  const token = document.querySelector(
+    "#portfolioAntiforgeryToken input[name='__RequestVerificationToken']",
+  )?.value;
+  const confirmButton = document.querySelector("#modal .dialog-foot .btn-primary");
+  if (!token) {
+    toastMsg("درخواست معتبر نیست. صفحه را تازه‌سازی کنید و دوباره تلاش کنید.");
+    return;
+  }
+
+  if (confirmButton) confirmButton.disabled = true;
+  const formData = new FormData();
+  formData.append("__RequestVerificationToken", token);
+  formData.append("id", pendingDeletePortfolioId);
+
+  try {
+    const response = await fetch("/Admin/Portfolio/Delete", {
+      method: "POST",
+      body: formData,
+      headers: { Accept: "application/json" },
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || "حذف نمونه‌کار انجام نشد.");
+
+    closeModal();
+    toastMsg(result.message || "نمونه‌کار حذف شد.");
+    window.setTimeout(() => window.location.reload(), 500);
+  } catch (error) {
+    toastMsg(error.message || "ارتباط با سرور برقرار نشد. دوباره تلاش کنید.");
+    if (confirmButton) confirmButton.disabled = false;
+  }
 }
 
 function escapeHtml(value) {

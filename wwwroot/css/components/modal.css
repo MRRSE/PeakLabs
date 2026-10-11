@@ -79,6 +79,17 @@
   line-height: 1.8;
 }
 
+.portfolio-form-errors {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--color-danger, #dc2626);
+  font-size: 0.78rem;
+  line-height: 1.8;
+}
+
 .account-form-grid #accountRoleDescription {
   min-height: 82px;
 }
