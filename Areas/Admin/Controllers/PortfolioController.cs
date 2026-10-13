@@ -97,6 +97,77 @@ public class PortfolioController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(MaxImageSize + 64 * 1024)]
+    public async Task<IActionResult> Update(UpdatePortfolioItemInputModel input)
+    {
+        var item = await _dbContext.Portfolio.FindAsync(input.Id);
+        if (item is null)
+        {
+            return NotFound(new { message = "نمونه‌کار موردنظر پیدا نشد." });
+        }
+
+        if (input.ProjectImage is { Length: > 0 } image)
+        {
+            if (image.Length > MaxImageSize || !IsSupportedImage(image))
+            {
+                return BadRequest(new { message = image.Length > MaxImageSize
+                    ? "حجم تصویر نباید بیشتر از ۵ مگابایت باشد."
+                    : "فایل انتخاب‌شده تصویر معتبر PNG، JPG یا WebP نیست." });
+            }
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new
+            {
+                message = string.Join(" ", ModelState.Values.SelectMany(value => value.Errors)
+                    .Select(error => error.ErrorMessage).Where(message => !string.IsNullOrWhiteSpace(message)))
+            });
+        }
+
+        var oldImagePath = item.ProjectImagePath;
+        string? newImagePath = null;
+        string? newRelativeImagePath = null;
+        if (input.ProjectImage is { Length: > 0 } replacement)
+        {
+            var extension = Path.GetExtension(replacement.FileName).ToLowerInvariant();
+            var fileName = $"{Guid.NewGuid():N}{extension}";
+            var uploadDirectory = Path.Combine(_environment.WebRootPath, "uploads", "portfolio");
+            Directory.CreateDirectory(uploadDirectory);
+            newImagePath = Path.Combine(uploadDirectory, fileName);
+            newRelativeImagePath = $"/uploads/portfolio/{fileName}";
+            await using var stream = System.IO.File.Create(newImagePath);
+            await replacement.CopyToAsync(stream);
+        }
+
+        item.ProjectName = input.ProjectName.Trim();
+        item.ProjectDescription = input.ProjectDescription.Trim();
+        item.ProjectLink = input.ProjectLink.Trim();
+        if (newRelativeImagePath is not null) item.ProjectImagePath = newRelativeImagePath;
+
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+        catch
+        {
+            if (newImagePath is not null && System.IO.File.Exists(newImagePath)) System.IO.File.Delete(newImagePath);
+            throw;
+        }
+
+        if (newImagePath is not null)
+        {
+            var oldPath = Path.Combine(_environment.WebRootPath, "uploads", "portfolio", Path.GetFileName(oldImagePath));
+            try { if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath); }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
+        }
+
+        return Ok(new { message = "تغییرات نمونه‌کار ذخیره شد." });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
         var item = await _dbContext.Portfolio.FindAsync(id);

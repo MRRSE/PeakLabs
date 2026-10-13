@@ -5,6 +5,17 @@ document.addEventListener("change", (event) => {
 });
 
 document.addEventListener("click", (event) => {
+  const editButton = event.target.closest(".portfolio-edit-button");
+  if (editButton) {
+    openModal("portfolioEdit", {
+      id: editButton.dataset.portfolioId,
+      name: editButton.dataset.portfolioName,
+      description: editButton.dataset.portfolioDescription,
+      link: editButton.dataset.portfolioLink,
+      imagePath: editButton.dataset.portfolioImage,
+    });
+  }
+
   const deleteButton = event.target.closest(".portfolio-delete-button");
   if (deleteButton) openPortfolioDeleteModal(deleteButton);
 });

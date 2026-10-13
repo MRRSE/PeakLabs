@@ -40,6 +40,13 @@
                     <div class="manage-foot">
                         <span class="muted">@item.AddedAt.ToLocalTime().ToString("yyyy/MM/dd")</span>
                         <div class="actions">
+                            <button class="action portfolio-edit-button" type="button"
+                                    data-portfolio-id="@item.Id" data-portfolio-name="@item.ProjectName"
+                                    data-portfolio-description="@item.ProjectDescription" data-portfolio-link="@item.ProjectLink"
+                                    data-portfolio-image="@item.ProjectImagePath"
+                                    title="ویرایش نمونه‌کار" aria-label="ویرایش نمونه‌کار @item.ProjectName">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
                             <a class="action" href="@item.ProjectLink" target="_blank" rel="noopener noreferrer" aria-label="لینک پروژه">
                                 <i class="bi bi-link-45deg"></i>
                             </a>

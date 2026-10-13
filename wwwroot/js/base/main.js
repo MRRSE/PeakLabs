@@ -155,6 +155,7 @@ function openModal(type, account = {}) {
   const title = {
     article: "ایجاد مقاله",
     portfolio: "نمونه کار جدید",
+    portfolioEdit: "ویرایش نمونه‌کار",
     developer: "توسعه دهنده جدید",
     account: "ایجاد حساب کاربری",
     accountEdit: "ویرایش حساب کاربری",
@@ -237,16 +238,19 @@ function openModal(type, account = {}) {
           </div>`;
   }
 
-  if (type === "portfolio")
-    body = `<form id="portfolioForm" action="/Admin/Portfolio/Create" method="post" enctype="multipart/form-data">
+  if (type === "portfolio" || type === "portfolioEdit") {
+    const editingPortfolio = type === "portfolioEdit";
+    body = `<form id="portfolioForm" action="/Admin/Portfolio/${editingPortfolio ? "Update" : "Create"}" method="post" enctype="multipart/form-data">
+      ${editingPortfolio ? `<input type="hidden" name="Id" value="${escapeHtml(account.id)}">` : ""}
       <div id="portfolioFormErrors" class="portfolio-form-errors" role="alert" hidden></div>
       <div class="form-grid">
-        <div class="field full"><label for="portfolioImage">تصویر پروژه</label><div class="upload" onclick="document.getElementById('portfolioImage').click()"><i class="bi bi-image"></i><strong style="display:block;margin-top:7px">برای آپلود تصویر کلیک کنید</strong><small>PNG، JPG یا WebP · حداکثر ۵ مگابایت</small><input id="portfolioImage" name="ProjectImage" type="file" accept="image/png,image/jpeg,image/webp" required hidden></div><small id="portfolioImageName" class="muted"></small></div>
-        <div class="field"><label for="portfolioName">نام پروژه</label><input id="portfolioName" name="ProjectName" maxlength="120" required placeholder="نام پروژه"></div>
-        <div class="field"><label for="portfolioLink">لینک پروژه</label><input id="portfolioLink" name="ProjectLink" type="url" maxlength="500" required placeholder="https://example.com"></div>
-        <div class="field full"><label for="portfolioDescription">توضیحات پروژه</label><textarea id="portfolioDescription" name="ProjectDescription" maxlength="1000" required placeholder="توضیح کوتاه درباره پروژه"></textarea></div>
-        <div class="field full"><small class="muted"><i class="bi bi-clock"></i> زمان ثبت پروژه هنگام ذخیره به‌صورت خودکار ثبت می‌شود.</small></div>
+        <div class="field full"><label for="portfolioImage">تصویر پروژه</label>${editingPortfolio ? `<img src="${escapeHtml(account.imagePath)}" alt="تصویر فعلی" style="display:block;max-width:160px;max-height:100px;object-fit:cover;border-radius:10px;margin-bottom:10px">` : ""}<div class="upload" onclick="document.getElementById('portfolioImage').click()"><i class="bi bi-image"></i><strong style="display:block;margin-top:7px">${editingPortfolio ? "برای جایگزینی تصویر کلیک کنید" : "برای آپلود تصویر کلیک کنید"}</strong><small>PNG، JPG یا WebP · حداکثر ۵ مگابایت</small><input id="portfolioImage" name="ProjectImage" type="file" accept="image/png,image/jpeg,image/webp" ${editingPortfolio ? "" : "required"} hidden></div><small id="portfolioImageName" class="muted"></small></div>
+        <div class="field"><label for="portfolioName">نام پروژه</label><input id="portfolioName" name="ProjectName" maxlength="120" required placeholder="نام پروژه" value="${escapeHtml(account.name || "")}"></div>
+        <div class="field"><label for="portfolioLink">لینک پروژه</label><input id="portfolioLink" name="ProjectLink" type="url" maxlength="500" required placeholder="https://example.com" value="${escapeHtml(account.link || "")}"></div>
+        <div class="field full"><label for="portfolioDescription">توضیحات پروژه</label><textarea id="portfolioDescription" name="ProjectDescription" maxlength="1000" required placeholder="توضیح کوتاه درباره پروژه">${escapeHtml(account.description || "")}</textarea></div>
+        ${editingPortfolio ? "" : `<div class="field full"><small class="muted"><i class="bi bi-clock"></i> زمان ثبت پروژه هنگام ذخیره به‌صورت خودکار ثبت می‌شود.</small></div>`}
       </div></form>`;
+  }
 
   if (type === "developer" || type === "admin")
     body = `
@@ -343,7 +347,7 @@ function closeModal() {
   pendingAccountStatus = null;
 }
 function saveModal() {
-  if (modalType === "portfolio") {
+  if (modalType === "portfolio" || modalType === "portfolioEdit") {
     document.getElementById("portfolioForm")?.requestSubmit();
     return;
   }
