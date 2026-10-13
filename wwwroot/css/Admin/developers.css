@@ -52,6 +52,16 @@
   cursor: wait;
   opacity: 0.6;
 }
+.account-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.account-actions .icon-btn {
+  width: 34px;
+  height: 34px;
+}
 .role {
   font-size: 0.69rem;
   color: var(--color-text-faint);
