@@ -1,5 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using PeakLabs.Areas.Admin.Models;
+using PeakLabs.Data;
+using PeakLabs.Models;
+using PeakLabs.Models.Identity;
 
 namespace PeakLabs.Areas.Admin.Controllers;
 
@@ -7,8 +13,259 @@ namespace PeakLabs.Areas.Admin.Controllers;
 [Authorize]
 public class ArticlesController : Controller
 {
-    public IActionResult Index()
+    private const long MaxImageSize = 5 * 1024 * 1024;
+    private readonly ApplicationDbContext _dbContext;
+    private readonly IWebHostEnvironment _environment;
+    private readonly UserManager<PeakLabsUser> _userManager;
+
+    public ArticlesController(ApplicationDbContext dbContext, IWebHostEnvironment environment, UserManager<PeakLabsUser> userManager)
     {
-        return View();
+        _dbContext = dbContext;
+        _environment = environment;
+        _userManager = userManager;
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        var model = new ArticleAdminIndexViewModel
+        {
+            Articles = await _dbContext.Articles.AsNoTracking()
+                .Include(article => article.Category)
+                .Include(article => article.Author)
+                .Include(article => article.Sections.OrderBy(section => section.Order))
+                .OrderByDescending(article => article.PublishedAt)
+                .ToListAsync(),
+            Categories = await _dbContext.ArticleCategories.AsNoTracking()
+                .OrderBy(category => category.Name).ToListAsync()
+        };
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [RequestSizeLimit(MaxImageSize + 1024 * 1024)]
+    public async Task<IActionResult> Create(CreateArticleInputModel input)
+    {
+        if (input.CoverImage is null || input.CoverImage.Length == 0)
+        {
+            ModelState.AddModelError(nameof(input.CoverImage), "انتخاب تصویر کاور الزامی است.");
+        }
+        else if (input.CoverImage.Length > MaxImageSize)
+        {
+            ModelState.AddModelError(nameof(input.CoverImage), "حجم تصویر نباید بیشتر از ۵ مگابایت باشد.");
+        }
+        else if (!IsSupportedImage(input.CoverImage))
+        {
+            ModelState.AddModelError(nameof(input.CoverImage), "فایل انتخاب‌شده تصویر معتبر PNG، JPG یا WebP نیست.");
+        }
+
+        if (!await _dbContext.ArticleCategories.AnyAsync(category => category.Id == input.CategoryId))
+        {
+            ModelState.AddModelError(nameof(input.CategoryId), "دسته‌بندی انتخاب‌شده معتبر نیست.");
+        }
+
+        if (input.Sections.Count == 0)
+        {
+            ModelState.AddModelError(nameof(input.Sections), "حداقل یک بخش برای مقاله اضافه کنید.");
+        }
+
+        for (var index = 0; index < input.Sections.Count; index++)
+        {
+            var section = input.Sections[index];
+            if (!string.IsNullOrWhiteSpace(section.HeadingType) && section.HeadingType is not ("H2" or "H3" or "H4"))
+            {
+                ModelState.AddModelError($"Sections[{index}].HeadingType", "نوع عنوان بخش معتبر نیست.");
+            }
+            if (string.IsNullOrWhiteSpace(section.HeadingType) && !string.IsNullOrWhiteSpace(section.Title))
+            {
+                ModelState.AddModelError($"Sections[{index}].Title", "برای عنوان بخش، نوع عنوان را هم انتخاب کنید.");
+            }
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new
+            {
+                message = string.Join(" ", ModelState.Values.SelectMany(value => value.Errors)
+                    .Select(error => error.ErrorMessage).Where(message => !string.IsNullOrWhiteSpace(message)))
+            });
+        }
+
+        var extension = Path.GetExtension(input.CoverImage!.FileName).ToLowerInvariant();
+        var fileName = $"{Guid.NewGuid():N}{extension}";
+        var uploadDirectory = Path.Combine(_environment.WebRootPath, "uploads", "articles");
+        Directory.CreateDirectory(uploadDirectory);
+        var imagePath = Path.Combine(uploadDirectory, fileName);
+
+        try
+        {
+            await using (var stream = System.IO.File.Create(imagePath))
+            {
+                await input.CoverImage.CopyToAsync(stream);
+            }
+
+            var article = new Article
+            {
+                Title = input.Title.Trim(),
+                ShortDescription = input.ShortDescription.Trim(),
+                CoverImage = $"/uploads/articles/{fileName}",
+                CategoryId = input.CategoryId,
+                AuthorId = _userManager.GetUserId(User),
+                Status = input.Status,
+                PublishedAt = DateTimeOffset.UtcNow,
+                Sections = input.Sections.Select((section, index) => new ArticleSection
+                {
+                    HeadingType = string.IsNullOrWhiteSpace(section.HeadingType) ? null : section.HeadingType,
+                    Title = string.IsNullOrWhiteSpace(section.Title) ? null : section.Title.Trim(),
+                    Content = section.Content.Trim(),
+                    Order = index + 1
+                }).ToList()
+            };
+
+            _dbContext.Articles.Add(article);
+            await _dbContext.SaveChangesAsync();
+            return Ok(new { message = "مقاله با موفقیت ذخیره شد." });
+        }
+        catch
+        {
+            if (System.IO.File.Exists(imagePath))
+            {
+                System.IO.File.Delete(imagePath);
+            }
+            throw;
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [RequestSizeLimit(MaxImageSize + 1024 * 1024)]
+    public async Task<IActionResult> Update(int id, CreateArticleInputModel input)
+    {
+        var article = await _dbContext.Articles.Include(item => item.Sections).FirstOrDefaultAsync(item => item.Id == id);
+        if (article is null)
+        {
+            return NotFound(new { message = "مقاله موردنظر پیدا نشد." });
+        }
+
+        if (input.CoverImage is { Length: > 0 } image)
+        {
+            if (image.Length > MaxImageSize)
+                ModelState.AddModelError(nameof(input.CoverImage), "حجم تصویر نباید بیشتر از ۵ مگابایت باشد.");
+            else if (!IsSupportedImage(image))
+                ModelState.AddModelError(nameof(input.CoverImage), "فایل انتخاب‌شده تصویر معتبر PNG، JPG یا WebP نیست.");
+        }
+
+        if (!await _dbContext.ArticleCategories.AnyAsync(category => category.Id == input.CategoryId))
+            ModelState.AddModelError(nameof(input.CategoryId), "دسته‌بندی انتخاب‌شده معتبر نیست.");
+        ValidateSections(input);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { message = ValidationMessage() });
+        }
+
+        var oldCover = article.CoverImage;
+        string? newImagePath = null;
+        try
+        {
+            if (input.CoverImage is { Length: > 0 } newImage)
+            {
+                var extension = Path.GetExtension(newImage.FileName).ToLowerInvariant();
+                var fileName = $"{Guid.NewGuid():N}{extension}";
+                var uploadDirectory = Path.Combine(_environment.WebRootPath, "uploads", "articles");
+                Directory.CreateDirectory(uploadDirectory);
+                newImagePath = Path.Combine(uploadDirectory, fileName);
+                await using var stream = System.IO.File.Create(newImagePath);
+                await newImage.CopyToAsync(stream);
+                article.CoverImage = $"/uploads/articles/{fileName}";
+            }
+
+            article.Title = input.Title.Trim();
+            article.ShortDescription = input.ShortDescription.Trim();
+            article.CategoryId = input.CategoryId;
+            article.Status = input.Status;
+            _dbContext.ArticleSections.RemoveRange(article.Sections);
+            article.Sections = MapSections(input);
+            await _dbContext.SaveChangesAsync();
+            if (newImagePath is not null) DeleteArticleImage(oldCover);
+            return Ok(new { message = "تغییرات مقاله ذخیره شد." });
+        }
+        catch
+        {
+            if (newImagePath is not null && System.IO.File.Exists(newImagePath)) System.IO.File.Delete(newImagePath);
+            throw;
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var article = await _dbContext.Articles.FindAsync(id);
+        if (article is null) return NotFound(new { message = "مقاله موردنظر پیدا نشد." });
+
+        _dbContext.Articles.Remove(article);
+        await _dbContext.SaveChangesAsync();
+        DeleteArticleImage(article.CoverImage);
+        return Ok(new { message = "مقاله حذف شد." });
+    }
+
+    private void ValidateSections(CreateArticleInputModel input)
+    {
+        if (input.Sections.Count == 0) return;
+        for (var index = 0; index < input.Sections.Count; index++)
+        {
+            var section = input.Sections[index];
+            if (!string.IsNullOrWhiteSpace(section.HeadingType) && section.HeadingType is not ("H2" or "H3" or "H4"))
+                ModelState.AddModelError($"Sections[{index}].HeadingType", "نوع عنوان بخش معتبر نیست.");
+            if (string.IsNullOrWhiteSpace(section.HeadingType) && !string.IsNullOrWhiteSpace(section.Title))
+                ModelState.AddModelError($"Sections[{index}].Title", "برای عنوان بخش، نوع عنوان را هم انتخاب کنید.");
+        }
+    }
+
+    private List<ArticleSection> MapSections(CreateArticleInputModel input) => input.Sections
+        .Select((section, index) => new ArticleSection
+        {
+            HeadingType = string.IsNullOrWhiteSpace(section.HeadingType) ? null : section.HeadingType,
+            Title = string.IsNullOrWhiteSpace(section.Title) ? null : section.Title.Trim(),
+            Content = section.Content.Trim(),
+            Order = index + 1
+        }).ToList();
+
+    private string ValidationMessage() => string.Join(" ", ModelState.Values.SelectMany(value => value.Errors)
+        .Select(error => error.ErrorMessage).Where(message => !string.IsNullOrWhiteSpace(message)));
+
+    private void DeleteArticleImage(string relativePath)
+    {
+        var path = Path.Combine(_environment.WebRootPath, "uploads", "articles", Path.GetFileName(relativePath));
+        try { if (System.IO.File.Exists(path)) System.IO.File.Delete(path); }
+        catch (IOException) { }
+        catch (UnauthorizedAccessException) { }
+    }
+
+    private static bool IsSupportedImage(IFormFile image)
+    {
+        var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
+        var expectedType = extension switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            _ => null
+        };
+        if (expectedType is null || !string.Equals(image.ContentType, expectedType, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        Span<byte> header = stackalloc byte[12];
+        using var stream = image.OpenReadStream();
+        var bytesRead = stream.Read(header);
+        return extension switch
+        {
+            ".jpg" or ".jpeg" => bytesRead >= 3 && header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF,
+            ".png" => bytesRead >= 8 && header[..8].SequenceEqual(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }),
+            ".webp" => bytesRead >= 12 && header[..4].SequenceEqual("RIFF"u8) && header[8..12].SequenceEqual("WEBP"u8),
+            _ => false
+        };
     }
 }

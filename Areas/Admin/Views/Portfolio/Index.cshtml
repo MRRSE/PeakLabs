@@ -50,6 +50,14 @@
                             <a class="action" href="@item.ProjectLink" target="_blank" rel="noopener noreferrer" aria-label="لینک پروژه">
                                 <i class="bi bi-link-45deg"></i>
                             </a>
+                            <button class="action portfolio-edit-button" type="button"
+                                    data-portfolio-id="@item.Id" data-portfolio-name="@item.ProjectName"
+                                    data-portfolio-description="@item.ProjectDescription"
+                                    data-portfolio-link="@item.ProjectLink"
+                                    data-portfolio-image="@item.ProjectImagePath"
+                                    title="ویرایش نمونه‌کار" aria-label="ویرایش نمونه‌کار @item.ProjectName">
+                                <i class="bi bi-pencil"></i>
+                            </button>
                             <button class="action portfolio-delete-button" type="button"
                                     data-portfolio-id="@item.Id" data-portfolio-name="@item.ProjectName"
                                     title="حذف نمونه‌کار" aria-label="حذف نمونه‌کار @item.ProjectName">
