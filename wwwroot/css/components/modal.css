@@ -79,6 +79,27 @@
   line-height: 1.8;
 }
 
+.portfolio-form-errors {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--color-danger, #dc2626);
+  font-size: 0.78rem;
+  line-height: 1.8;
+}
+
+.portfolio-image-preview {
+  display: block;
+  width: min(100%, 320px);
+  max-height: 180px;
+  margin: 8px auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}
+
 .account-form-grid #accountRoleDescription {
   min-height: 82px;
 }

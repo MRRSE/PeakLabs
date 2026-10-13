@@ -12,6 +12,9 @@
 </head>
 
 <body>
+<form id="articleAntiforgeryToken" hidden>
+  @Html.AntiForgeryToken()
+</form>
 <section class="page active">
 <div class="page-head">
   <div>
@@ -294,6 +297,15 @@
   </div>
 </div>
 </section>
+<script>
+  window.articleCategories = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+      ((IReadOnlyList<PeakLabs.Models.ArticleCategory>)ViewData["ArticleCategories"]!).Select(category => new { category.Id, category.Name }),
+      new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)));
+</script>
 </body>
 
 </html>
+
+@section Scripts {
+  <script src="~/js/Admin/articles.js" asp-append-version="true"></script>
+}
