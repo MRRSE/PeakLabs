@@ -1,10 +1,26 @@
 document.addEventListener("change", (event) => {
   if (event.target.id !== "portfolioImage") return;
   const name = document.getElementById("portfolioImageName");
-  if (name) name.textContent = event.target.files?.[0]?.name || "";
+  const file = event.target.files?.[0];
+  if (name) name.textContent = file?.name || "";
+
+  const preview = document.getElementById("portfolioImagePreview");
+  if (preview && file) preview.src = URL.createObjectURL(file);
 });
 
 document.addEventListener("click", (event) => {
+  const editButton = event.target.closest(".portfolio-edit-button");
+  if (editButton) {
+    openModal("portfolioEdit", {
+      id: editButton.dataset.portfolioId,
+      name: editButton.dataset.portfolioName,
+      description: editButton.dataset.portfolioDescription,
+      link: editButton.dataset.portfolioLink,
+      image: editButton.dataset.portfolioImage,
+    });
+    return;
+  }
+
   const deleteButton = event.target.closest(".portfolio-delete-button");
   if (deleteButton) openPortfolioDeleteModal(deleteButton);
 });

@@ -1,175 +1,91 @@
+@model PeakLabs.Areas.Admin.Models.ArticleAdminIndexViewModel
 @{
     Layout = "_AdminLayout";
+    ViewData["Title"] = "مدیریت مقالات";
 }
 
+<form id="articleAntiforgeryToken" hidden>@Html.AntiForgeryToken()</form>
 
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-
-<body>
-    <section class="page active">
-        <div class="page-head h1">
-            <div>
-                <span class="eyebrow">
-                    <i class="bi bi-journal-richtext"></i>
-                    <span>مقالات</span>
-                </span>
-                <h1>کتابخانه مقالات</h1>
-                <p class="muted">مقالات دوزبانه را ایجاد، ویرایش، زمان‌بندی و سازمان‌دهی کنید.</p>
-            </div>
-            <button class="btn btn-primary" onclick="openModal('article')">
-                <i class="bi bi-plus-lg"></i>
-                <span>مقاله جدید</span>
-            </button>
+<section class="page active">
+    <div class="page-head">
+        <div>
+            <span class="eyebrow"><i class="bi bi-journal-richtext"></i><span>مقالات</span></span>
+            <h1>کتابخانه مقالات</h1>
+            <p class="muted">مقالات و بخش‌های آن‌ها را مدیریت کنید.</p>
         </div>
-        <div class="toolbar">
-            <div class="search">
-                <i class="bi bi-search"></i>
-                <input placeholder="جستجوی مقاله...">
-            </div>
-            <select class="select">
-                <option value="New">جدید ترین</option>
-                <option value="Old">قدیمی ترین</option>
-            </select>
-            <select class="select">
-                <option>همه دسته بندی‌ها</option>
-                <option>Architecture</option>
-                <option>AI</option>
-                <option>Cloud</option>
-                <option>ASP.NET</option>
-            </select>
+        <button class="btn btn-primary" type="button" onclick="openModal('article')">
+            <i class="bi bi-plus-lg"></i><span>مقاله جدید</span>
+        </button>
+    </div>
+
+    <div class="toolbar">
+        <div class="search">
+            <i class="bi bi-search"></i>
+            <input id="articleSearch" type="search" placeholder="جستجوی مقاله..." aria-label="جستجوی مقاله">
         </div>
-        <div class="panel">
-            <div class="table-wrap">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>مقاله</th>
-                            <th>نویسنده</th>
-                            <th>بازدید</th>
-                            <th>آخرین تغییر</th>
-                            <th>عملیات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
+        <select id="articleStatusFilter" class="select" aria-label="فیلتر وضعیت">
+            <option value="">همه وضعیت‌ها</option>
+            <option value="published">منتشرشده</option>
+            <option value="draft">پیش‌نویس</option>
+        </select>
+        <select id="articleCategoryFilter" class="select" aria-label="فیلتر دسته‌بندی">
+            <option value="">همه دسته‌بندی‌ها</option>
+            @foreach (var category in Model.Categories)
+            {
+                <option value="@category.Id">@category.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="panel">
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>مقاله</th><th>نویسنده</th><th>بازدید</th><th>وضعیت</th><th>آخرین تغییر</th><th>عملیات</th></tr></thead>
+                <tbody id="articlesTableBody">
+                    @if (Model.Articles.Count == 0)
+                    {
+                        <tr><td colspan="6" class="muted">هنوز مقاله‌ای ثبت نشده است.</td></tr>
+                    }
+                    @foreach (var article in Model.Articles)
+                    {
+                        <tr class="article-row" data-article-id="@article.Id" data-category-id="@article.CategoryId"
+                            data-status="@article.Status" data-search="@article.Title @article.ShortDescription @article.Category.Name @(article.Author?.FirstName) @(article.Author?.LastName)">
                             <td>
                                 <div style="display:flex;align-items:center;gap:10px">
-                                    <div class="thumb cover-architecture">
-                                        <i class="bi bi-image"></i>
-                                    </div>
-                                    <div>
-                                        <div class="item-title">طراحی معماری تمیز برای سیستم‌های ماندگار ASP.NET Core
-                                        </div>
-                                        <div class="item-desc">راهنمای عملی برای مستقل نگه‌داشتن منطق کسب‌وکار.</div>
-                                    </div>
+                                    <img src="@article.CoverImage" alt="تصویر @article.Title" width="56" height="42" style="object-fit:cover;border-radius:8px" />
+                                    <div><div class="item-title">@article.Title</div><div class="item-desc">@article.ShortDescription</div><small class="muted">@article.Category.Name</small></div>
                                 </div>
                             </td>
-                            <td>Adnan Zarei</td>
-                            <td>12,840</td>
-                            <td>Jul 30, 2026</td>
+                            <td>@(article.Author is null ? "نامشخص" : $"{article.Author.FirstName} {article.Author.LastName}".Trim())</td>
+                            <td>۰</td>
+                            <td><span class="status @(article.Status == "published" ? "published" : "draft")">@(article.Status == "published" ? "منتشرشده" : "پیش‌نویس")</span></td>
+                            <td>@article.PublishedAt.ToLocalTime().ToString("yyyy/MM/dd")</td>
                             <td>
                                 <div class="actions">
-                                    <button class="action" title="ویرایش" onclick="openModal('article')">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="action" title="حذف" onclick="toastMsg('تغییرات ذخیره شد.')"><i
-                                        class="bi bi-trash3"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div style="display:flex;align-items:center;gap:10px">
-                                        <div class="thumb cover-architecture">
-                                            <i class="bi bi-image"></i>
-                                        </div>
-                                        <div>
-                                            <div class="item-title"> الگوهای طراحی پرامپت برای خروجی ساختاریافته قابل‌اعتماد
-                                            </div>
-                                            <div class="item-desc">تکنیک‌هایی برای دریافت JSON پایدار از مدل‌های زبانی.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>Armin Eydi</td>
-                                <td>13,444</td>
-                                <td>Jul 12, 2026</td>
-                                <td>
-                                    <div class="actions">
-                                        <button class="action" title="ویرایش" onclick="openModal('article')">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="action" title="حذف" onclick="toastMsg('تغییرات ذخیره شد.')"><i
-                                            class="bi bi-trash3"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div style="display:flex;align-items:center;gap:10px">
-                                            <div class="thumb cover-architecture">
-                                                <i class="bi bi-image"></i>
-                                            </div>
-                                            <div>
-                                                <div class="item-title">چه زمانی مونولیت ماژولار بهتر از مایکروسرویس است؟
-                                                </div>
-                                                <div class="item-desc">رویکردی مبتنی بر موازنه هزینه و مزایا برای مرزهای سرویس.
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>Hosein Sharifi</td>
-                                    <td>10,990</td>
-                                    <td>Jul 11, 2026</td>
-                                    <td>
-                                        <div class="actions">
-                                            <button class="action" title="ویرایش" onclick="openModal('article')">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button class="action" title="حذف" onclick="toastMsg('تغییرات ذخیره شد.')"><i
-                                                class="bi bi-trash3"></i></button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div style="display:flex;align-items:center;gap:10px">
-                                                <div class="thumb cover-architecture">
-                                                    <i class="bi bi-image"></i>
-                                                </div>
-                                                <div>
-                                                    <div class="item-title">لاگ‌گیری حرفه‌ای در ASP.NET Core
-                                                    </div>
-                                                    <div class="item-desc">الگوهای مشاهده‌پذیری که همراه با رشد برنامه مقیاس
-                                                        می‌گیرند.</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>Mohammad Rasteh</td>
-                                            <td>12,345</td>
-                                            <td>Jul 3, 2023</td>
-                                            <td>
-                                                <div class="actions">
-                                                    <button class="action" title="ویرایش" onclick="openModal('article')">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
-                                                    <button class="action" title="حذف" onclick="toastMsg('تغییرات ذخیره شد.')"><i
-                                                        class="bi bi-trash3"></i></button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-
-                                        </tbody>
-                                    </table>
+                                    <button class="action article-edit-button" type="button" data-article-id="@article.Id" title="ویرایش" aria-label="ویرایش @article.Title"><i class="bi bi-pencil"></i></button>
+                                    <button class="action article-delete-button" type="button" data-article-id="@article.Id" title="حذف" aria-label="حذف @article.Title"><i class="bi bi-trash3"></i></button>
                                 </div>
-                            </div>
+                            </td>
+                        </tr>
+                    }
+                    <tr id="articlesNoResults" hidden><td colspan="6" class="muted">مقاله‌ای با این جستجو پیدا نشد.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
-                        </section>
-                        </body>
+<script>
+    window.articleCategories = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        Model.Categories.Select(category => new { category.Id, category.Name }),
+        new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)));
+    window.articles = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        Model.Articles.Select(article => new { article.Id, article.Title, article.ShortDescription, article.CoverImage, article.CategoryId, article.Status,
+            AuthorName = article.Author is null ? "نامشخص" : $"{article.Author.FirstName} {article.Author.LastName}".Trim(),
+            Sections = article.Sections.OrderBy(section => section.Order).Select(section => new { section.HeadingType, section.Title, section.Content }) }),
+        new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)));
+</script>
 
-                    </html>
+@section Scripts {
+    <script src="~/js/Admin/articles.js" asp-append-version="true"></script>
+}

@@ -97,6 +97,77 @@ public class PortfolioController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(MaxImageSize + 64 * 1024)]
+    public async Task<IActionResult> Update(UpdatePortfolioItemInputModel input)
+    {
+        var item = await _dbContext.Portfolio.FindAsync(input.Id);
+        if (item is null)
+        {
+            return NotFound(new { message = "نمونه‌کار موردنظر پیدا نشد." });
+        }
+
+        if (input.ProjectImage is { Length: > 0 } image)
+        {
+            if (image.Length > MaxImageSize)
+            {
+                ModelState.AddModelError(nameof(input.ProjectImage), "حجم تصویر نباید بیشتر از ۵ مگابایت باشد.");
+            }
+            else if (!IsSupportedImage(image))
+            {
+                ModelState.AddModelError(nameof(input.ProjectImage), "فایل انتخاب‌شده تصویر معتبر PNG، JPG یا WebP نیست.");
+            }
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new
+            {
+                message = string.Join(" ", ModelState.Values.SelectMany(value => value.Errors)
+                    .Select(error => error.ErrorMessage).Where(message => !string.IsNullOrWhiteSpace(message)))
+            });
+        }
+
+        var oldImagePath = item.ProjectImagePath;
+        string? newImagePhysicalPath = null;
+        try
+        {
+            if (input.ProjectImage is { Length: > 0 } newImage)
+            {
+                var extension = Path.GetExtension(newImage.FileName).ToLowerInvariant();
+                var fileName = $"{Guid.NewGuid():N}{extension}";
+                var uploadDirectory = Path.Combine(_environment.WebRootPath, "uploads", "portfolio");
+                Directory.CreateDirectory(uploadDirectory);
+                newImagePhysicalPath = Path.Combine(uploadDirectory, fileName);
+                await using var stream = System.IO.File.Create(newImagePhysicalPath);
+                await newImage.CopyToAsync(stream);
+                item.ProjectImagePath = $"/uploads/portfolio/{fileName}";
+            }
+
+            item.ProjectName = input.ProjectName.Trim();
+            item.ProjectDescription = input.ProjectDescription.Trim();
+            item.ProjectLink = input.ProjectLink.Trim();
+            await _dbContext.SaveChangesAsync();
+
+            if (newImagePhysicalPath is not null)
+            {
+                DeletePortfolioImage(oldImagePath);
+            }
+
+            return Ok(new { message = "تغییرات نمونه‌کار ذخیره شد." });
+        }
+        catch
+        {
+            if (newImagePhysicalPath is not null && System.IO.File.Exists(newImagePhysicalPath))
+            {
+                System.IO.File.Delete(newImagePhysicalPath);
+            }
+
+            throw;
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
         var item = await _dbContext.Portfolio.FindAsync(id);
@@ -105,15 +176,20 @@ public class PortfolioController : Controller
             return NotFound(new { message = "نمونه‌کار موردنظر پیدا نشد." });
         }
 
+        _dbContext.Portfolio.Remove(item);
+        await _dbContext.SaveChangesAsync();
+        DeletePortfolioImage(item.ProjectImagePath);
+
+        return Ok(new { message = "نمونه‌کار حذف شد." });
+    }
+
+    private void DeletePortfolioImage(string relativePath)
+    {
         var imagePath = Path.Combine(
             _environment.WebRootPath,
             "uploads",
             "portfolio",
-            Path.GetFileName(item.ProjectImagePath));
-
-        _dbContext.Portfolio.Remove(item);
-        await _dbContext.SaveChangesAsync();
-
+            Path.GetFileName(relativePath));
         try
         {
             if (System.IO.File.Exists(imagePath))
@@ -123,14 +199,12 @@ public class PortfolioController : Controller
         }
         catch (IOException)
         {
-            // The database item is already deleted; a locked file can be cleaned up later.
+            // A locked file can be cleaned up later without undoing the database change.
         }
         catch (UnauthorizedAccessException)
         {
-            // The database item is already deleted; a file permission issue must not undo it.
+            // A file permission issue must not undo the database change.
         }
-
-        return Ok(new { message = "نمونه‌کار حذف شد." });
     }
 
     private static bool IsSupportedImage(IFormFile image)
