@@ -212,8 +212,94 @@ function openModal(type, account = {}) {
   if (type === "article") body = articleModalBody();
   if (type === "articleEdit") body = articleModalBody(account, true);
 
+<<<<<<< HEAD
+    body = `<div class="form-grid">
+            <div class="field full">
+              <label>تصویر کاور</label>
+              <div class="upload" onclick="this.querySelector('input').click()">
+                <i class="bi bi-cloud-arrow-up"></i>
+                <strong style="display:block;margin-top:7px">برای آپلود کلیک کنید یا تصویر را اینجا رها کنید</strong>
+                <small>PNG، JPG یا WebP · اندازه پیشنهادی 1600×1000</small>
+                <input type="file" accept="image/*" hidden>
+              </div>
+            </div>
+
+            <div class="field full">
+              <label>عنوان مقاله</label>
+              <input type="text" maxlength="60" placeholder="عنوان مقاله به فارسی">
+              <small class="muted">حداکثر ۶۰ کاراکتر</small>
+            </div>
+
+            <div class="field full">
+              <label>توضیح کوتاه</label>
+              <textarea maxlength="160" placeholder="توضیح کوتاه برای کارت..."></textarea>
+              <small class="muted">حداکثر ۱۶۰ کاراکتر</small>
+            </div>
+
+            <div class="field">
+              <label>دسته‌بندی</label>
+              <select>
+                <option>Architecture</option>
+                <option>AI</option>
+                <option>Cloud</option>
+                <option>ASP.NET</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>هشتگ</label>
+              <div style="display:flex;gap:8px">
+                <input id="articleTagInput" type="text" maxlength="30" placeholder="مثلاً ASP.NET">
+                <button type="button" class="btn btn-outline" onclick="addArticleTag()">
+                  <i class="bi bi-plus-lg"></i>
+                  افزودن
+                </button>
+              </div>
+              <div id="articleTags" class="article-tags"></div>
+            </div>
+
+            <div class="field full">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px">
+                <div>
+                  <label style="margin:0">بخش‌بندی مقاله</label>
+                  <small class="muted">مقاله را به چند بخش جدا تقسیم کنید و برای هر بخش عنوان انتخاب کنید.</small>
+                </div>
+                <span class="tiny">عنوان برای هر بخش</span>
+              </div>
+
+              <div id="articleSections" class="article-sections">
+                ${articleSectionTemplate(1)}
+              </div>
+
+              <button type="button" class="btn btn-outline section-add" onclick="addArticleSection()">
+                <i class="bi bi-plus-lg"></i>
+                افزودن قسمت جدید
+              </button>
+            </div>
+
+            <div class="field full">
+              <small class="muted"><i class="bi bi-clock"></i> تاریخ انتشار هنگام ذخیره مقاله به‌صورت خودکار توسط سیستم ثبت می‌شود.</small>
+            </div>
+          </div>`;
+  }
+
+  if (type === "portfolio" || type === "portfolioEdit") {
+    const editingPortfolio = type === "portfolioEdit";
+    body = `<form id="portfolioForm" action="/Admin/Portfolio/${editingPortfolio ? "Update" : "Create"}" method="post" enctype="multipart/form-data">
+      ${editingPortfolio ? `<input type="hidden" name="Id" value="${escapeHtml(account.id)}">` : ""}
+      <div id="portfolioFormErrors" class="portfolio-form-errors" role="alert" hidden></div>
+      <div class="form-grid">
+        <div class="field full"><label for="portfolioImage">تصویر پروژه</label>${editingPortfolio ? `<img src="${escapeHtml(account.imagePath)}" alt="تصویر فعلی" style="display:block;max-width:160px;max-height:100px;object-fit:cover;border-radius:10px;margin-bottom:10px">` : ""}<div class="upload" onclick="document.getElementById('portfolioImage').click()"><i class="bi bi-image"></i><strong style="display:block;margin-top:7px">${editingPortfolio ? "برای جایگزینی تصویر کلیک کنید" : "برای آپلود تصویر کلیک کنید"}</strong><small>PNG، JPG یا WebP · حداکثر ۵ مگابایت</small><input id="portfolioImage" name="ProjectImage" type="file" accept="image/png,image/jpeg,image/webp" ${editingPortfolio ? "" : "required"} hidden></div><small id="portfolioImageName" class="muted"></small></div>
+        <div class="field"><label for="portfolioName">نام پروژه</label><input id="portfolioName" name="ProjectName" maxlength="120" required placeholder="نام پروژه" value="${escapeHtml(account.name || "")}"></div>
+        <div class="field"><label for="portfolioLink">لینک پروژه</label><input id="portfolioLink" name="ProjectLink" type="url" maxlength="500" required placeholder="https://example.com" value="${escapeHtml(account.link || "")}"></div>
+        <div class="field full"><label for="portfolioDescription">توضیحات پروژه</label><textarea id="portfolioDescription" name="ProjectDescription" maxlength="1000" required placeholder="توضیح کوتاه درباره پروژه">${escapeHtml(account.description || "")}</textarea></div>
+        ${editingPortfolio ? "" : `<div class="field full"><small class="muted"><i class="bi bi-clock"></i> زمان ثبت پروژه هنگام ذخیره به‌صورت خودکار ثبت می‌شود.</small></div>`}
+      </div></form>`;
+  }
+=======
   if (type === "portfolio") body = portfolioModalBody();
   if (type === "portfolioEdit") body = portfolioModalBody(account, true);
+>>>>>>> develope
 
   if (type === "developer" || type === "admin")
     body = `
@@ -311,6 +397,8 @@ function closeModal() {
   pendingAccountStatus = null;
 }
 function saveModal() {
+<<<<<<< HEAD
+=======
   if (modalType === "article" || modalType === "articleEdit") {
     document.getElementById("articleForm")?.requestSubmit();
     return;
@@ -319,6 +407,7 @@ function saveModal() {
     deletePendingArticle();
     return;
   }
+>>>>>>> develope
   if (modalType === "portfolio" || modalType === "portfolioEdit") {
     document.getElementById("portfolioForm")?.requestSubmit();
     return;
