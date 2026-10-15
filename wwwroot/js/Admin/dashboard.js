@@ -7,6 +7,21 @@ hamburgerBtn.addEventListener("click", function () {
   mobilePanel.classList.toggle("open");
   hamburgerBtn.setAttribute("aria-expanded", open);
 });
+
+const dashboardGreeting = document.getElementById("dashboardGreeting");
+if (dashboardGreeting) {
+  const firstName = dashboardGreeting.dataset.firstName || "کاربر";
+  const hour = new Date().getHours();
+  const greeting = hour < 12
+    ? "صبح بخیر"
+    : hour < 17
+      ? "ظهر بخیر"
+      : hour < 20
+        ? "عصر بخیر"
+        : "شب بخیر";
+
+  dashboardGreeting.textContent = `${greeting}، ${firstName}.`;
+}
 mobilePanel.querySelectorAll("a").forEach(function (a) {
   a.addEventListener("click", function () {
     hamburgerBtn.classList.remove("open");

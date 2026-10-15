@@ -1,4 +1,34 @@
+@using Microsoft.AspNetCore.Identity
+@using PeakLabs.Models.Identity
+@inject UserManager<PeakLabsUser> UserManager
+@{
+    var currentDashboardUser = await UserManager.GetUserAsync(User);
+    var currentDashboardUserName = currentDashboardUser is null
+        ? User.Identity?.Name ?? "کاربر داشبورد"
+        : $"{currentDashboardUser.FirstName} {currentDashboardUser.LastName}".Trim();
+    if (string.IsNullOrWhiteSpace(currentDashboardUserName))
+    {
+        currentDashboardUserName = currentDashboardUser?.UserName ?? User.Identity?.Name ?? "کاربر داشبورد";
+    }
+    var currentDashboardInitials = currentDashboardUser is null
+        ? ""
+        : string.Concat(currentDashboardUser.FirstName.FirstOrDefault(), currentDashboardUser.LastName.FirstOrDefault()).Trim('\0');
+    var currentDashboardRole = User.IsInRole(DashboardRoles.SuperAdmin)
+        ? DashboardRoles.SuperAdmin
+        : User.IsInRole(DashboardRoles.ContentManager)
+            ? DashboardRoles.ContentManager
+            : User.IsInRole(DashboardRoles.Editor)
+                ? DashboardRoles.Editor
+                : null;
+}
 <!DOCTYPE html>
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    bool IsCurrentPage(string controller, string action = "Index") =>
+        string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
+}
 <html lang="fa" dir="rtl" data-theme="dark">
 
 <head>
@@ -7,7 +37,7 @@
     <title>@ViewData["Title"] - PeakLabs</title>
     <script type="importmap"></script>
 
-
+    <link rel="stylesheet" href="~/css/Admin/profile.css">
     <link rel="stylesheet" href="~/css/base/variables.css" />
     <link rel="stylesheet" href="~/css/base/reset.css" />
     <link rel="stylesheet" href="~/css/base/typography.css" />
@@ -19,6 +49,7 @@
     <link rel="stylesheet" href="~/css/components/modal.css">
     <link rel="stylesheet" href="~/css/components/navbar.css">
     <link rel="stylesheet" href="~/css/components/pages.css">
+    <link rel="stylesheet" href="~/css/Admin/card.css" asp-append-version="true">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
@@ -38,16 +69,16 @@
             </div>
             <div class="side-label">محیط کاری</div>
             <nav class="nav">
-                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                <a class="@(IsCurrentPage("Dashboard") ? "active" : "")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
                     <i class="bi bi-grid-1x2"></i>
                     <span>نمای کلی</span>
                 </a>
-                <a asp-area="Admin" asp-controller="Articles" asp-action="Index">
+                <a class="@(IsCurrentPage("Articles") ? "active" : "")" asp-area="Admin" asp-controller="Articles" asp-action="Index">
                     <i class="bi bi-journal-text"></i>
                     <span>مقالات</span>
                     <span class="badge">24</span>
                 </a>
-                <a asp-area="Admin" asp-controller="Portfolio" asp-action="Index">
+                <a class="@(IsCurrentPage("Portfolio") ? "active" : "")" asp-area="Admin" asp-controller="Portfolio" asp-action="Index">
                     <i class="bi bi-kanban"></i>
                     <span>نمونه‌کارها</span>
                     <span class="badge">8</span>
@@ -55,33 +86,52 @@
             </nav>
             <div class="side-label">تیم و دسترسی</div>
             <nav class="nav">
-                <a asp-area="Admin" asp-controller="Developers" asp-action="Index">
+                <a class="@(IsCurrentPage("Developers") ? "active" : "")" asp-area="Admin" asp-controller="Developers" asp-action="Index">
                     <i class="bi bi-code-slash"></i>
                     <span>توسعه‌دهندگان</span>
                 </a>
-                <a asp-area="Admin" asp-controller="Auth" asp-action="AdminUsers">
+                <a class="@(IsCurrentPage("Auth", "AdminUsers") ? "active" : "")" asp-area="Admin" asp-controller="Auth" asp-action="AdminUsers">
                     <i class="bi bi-person-lock"></i>
                     <span>حساب های داشبورد</span>
                 </a>
             </nav>
             <div class="side-label">سیستم</div>
             <nav class="nav">
-                <a asp-area="Admin" asp-controller="Auth" asp-action="Profile">
+                <a class="@(IsCurrentPage("Auth", "Profile") ? "active" : "")" asp-area="Admin" asp-controller="Auth" asp-action="Profile">
                     <i class="bi bi-person-circle"></i>
                     <span>پروفایل من</span>
                 </a>
-                <a asp-area="Admin" asp-controller="System" asp-action="Settings">
+                <a class="@(IsCurrentPage("System") ? "active" : "")" asp-area="Admin" asp-controller="System" asp-action="Index">
                     <i class="bi bi-sliders2"></i>
                     <span>تنظیمات</span>
                 </a>
             </nav>
             <div class="side-bottom">
                 <div class="user-mini">
-                    <div class="avatarDash">MR</div>
+                    @if (!string.IsNullOrWhiteSpace(currentDashboardUser?.ProfileImagePath))
+                    {
+                        <img class="avatarDash user-mini-avatar" src="@currentDashboardUser.ProfileImagePath" alt="تصویر پروفایل @currentDashboardUserName" />
+                    }
+                    else
+                    {
+                        <div class="avatarDash">@(string.IsNullOrWhiteSpace(currentDashboardInitials) ? "؟" : currentDashboardInitials)</div>
+                    }
                     <div>
-                        <strong>Mohammad . RST</strong><small>مالک · دسترسی کامل</small>
+                        <strong>@currentDashboardUserName</strong>
+                        <small>@DashboardRoles.GetDisplayName(currentDashboardRole)</small>
+                        @if (!string.IsNullOrWhiteSpace(currentDashboardUser?.UserName))
+                        {
+                            <small class="user-mini-username">@currentDashboardUser.UserName</small>
+                        }
                     </div>
                 </div>
+                <form method="post" action="@Url.Action("Logout", "Auth", new { area = "Admin" })">
+                    @Html.AntiForgeryToken()
+                    <button class="btn btn-ghost logout-button" type="submit">
+                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                        خروج از حساب
+                    </button>
+                </form>
             </div>
         </aside>
         <div class="main">

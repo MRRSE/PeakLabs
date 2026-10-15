@@ -16,6 +16,8 @@
     <section class="page active">
         <div id="accountAntiforgeryToken"
              data-create-url="@Url.Action("CreateAccount", "Auth", new { area = "Admin" })"
+             data-update-url="@Url.Action("UpdateAccount", "Auth", new { area = "Admin" })"
+             data-status-url="@Url.Action("SetAccountActive", "Auth", new { area = "Admin" })"
              data-delete-url="@Url.Action("DeleteAccount", "Auth", new { area = "Admin" })" hidden>
             @Html.AntiForgeryToken()
         </div>
@@ -32,13 +34,14 @@
                     مدیریت کنید.
                 </p>
             </div>
-            <button class="btn btn-primary" onclick="openModal('account')">
+            <button class="btn btn-primary" onclick="openModal('account')" disabled="@(Model.TotalCount >= 10)"
+                    title="@(Model.TotalCount >= 10 ? "حداکثر ۱۰ حساب قابل ساخت است." : "ایجاد حساب کاربری")">
                 <i class="bi bi-person-plus"></i>ایجاد حساب کاربری
             </button>
         </div>
         <div class="account-summary">
             <div class="stat">
-                <span class="tiny">تعداد حساب‌ها</span><strong id="accountCount">@Model.TotalCount</strong>
+                <span class="tiny">تعداد حساب‌ها</span><strong id="accountCount">@Model.TotalCount / 10</strong>
             </div>
             <div class="stat">
                 <span class="tiny">حساب‌های فعال</span><strong id="activeAccountCount">@Model.ActiveCount</strong>
@@ -99,14 +102,46 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <button class="icon-btn account-delete-button"
-                                                type="button"
-                                                data-account-id="@account.Id"
-                                                data-account-name="@account.FirstName @account.LastName"
-                                                aria-label="حذف حساب @account.FirstName @account.LastName"
-                                                title="حذف حساب">
-                                            <i class="bi bi-trash3" aria-hidden="true"></i>
-                                        </button>
+                                        <div class="account-actions">
+                                            @if (account.Id != Model.CurrentUserId)
+                                            {
+                                                <button class="icon-btn account-edit-button"
+                                                        type="button"
+                                                        data-account-id="@account.Id"
+                                                        data-first-name="@account.FirstName"
+                                                        data-last-name="@account.LastName"
+                                                        data-user-name="@account.UserName"
+                                                        data-email="@account.Email"
+                                                        data-role-name="@account.RoleName"
+                                                        data-author-description="@account.AuthorDescription"
+                                                        data-profile-image-path="@account.ProfileImagePath"
+                                                        aria-label="ویرایش حساب @account.FirstName @account.LastName"
+                                                        title="ویرایش حساب">
+                                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                                </button>
+                                                <button class="icon-btn account-status-button"
+                                                        type="button"
+                                                        data-account-id="@account.Id"
+                                                        data-account-name="@account.FirstName @account.LastName"
+                                                        data-target-active="@(account.IsActive ? "false" : "true")"
+                                                        aria-label="@(account.IsActive ? "غیرفعال‌کردن" : "فعال‌کردن") حساب @account.FirstName @account.LastName"
+                                                        title="@(account.IsActive ? "غیرفعال‌کردن حساب" : "فعال‌کردن حساب")">
+                                                    <i class="bi @(account.IsActive ? "bi-toggle-on" : "bi-toggle-off")" aria-hidden="true"></i>
+                                                </button>
+                                                <button class="icon-btn account-delete-button"
+                                                        type="button"
+                                                        data-account-id="@account.Id"
+                                                        data-account-name="@account.FirstName @account.LastName"
+                                                        aria-label="حذف حساب @account.FirstName @account.LastName"
+                                                        title="حذف حساب">
+                                                    <i class="bi bi-trash3" aria-hidden="true"></i>
+                                                </button>
+                                            }
+                                                else
+                                                {
+                                                    <p style="font-size: 0.68rem;">حساب شما</p>
+                                                }
+                                            </div>
                                     </td>
                                 </tr>
                             }
