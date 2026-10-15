@@ -225,3 +225,4 @@
   max-width: 1500px;
   margin: auto;
 }
+.category-create-form{display:flex;align-items:flex-end;gap:12px;margin-bottom:18px}.category-create-form .field{flex:1}.category-list{display:grid;gap:8px}.category-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--border-color,rgba(148,163,184,.2));border-radius:12px}.category-row form{margin:0}.category-delete{color:var(--danger,#ef4444)}.category-feedback{margin:0 0 14px;padding:10px 12px;border-radius:10px;background:rgba(239,68,68,.1)}

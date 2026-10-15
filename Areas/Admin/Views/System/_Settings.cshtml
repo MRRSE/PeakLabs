@@ -197,6 +197,45 @@
                 </button>
             </div>
         </form>
+        <section class="panel" style="margin-top:18px" aria-labelledby="articleCategoriesHeading">
+            <div class="panel-head">
+                <div>
+                    <h2 id="articleCategoriesHeading">دسته‌بندی مقاله‌ها</h2>
+                    <span class="tiny">دسته‌بندی‌های قابل انتخاب هنگام ثبت مقاله را مدیریت کنید.</span>
+                </div>
+            </div>
+            <div class="panel-body">
+                @if (TempData["CategoryError"] is string categoryError)
+                {
+                    <p class="category-feedback" role="alert">@categoryError</p>
+                }
+                @if (TempData["CategorySuccess"] is string categorySuccess)
+                {
+                    <p class="category-feedback" role="status">@categorySuccess</p>
+                }
+                <form asp-area="Admin" asp-controller="System" asp-action="CreateCategory" method="post" class="category-create-form">
+                    @Html.AntiForgeryToken()
+                    <div class="field">
+                        <label for="categoryName">نام دسته‌بندی جدید</label>
+                        <input id="categoryName" name="name" maxlength="80" required placeholder="مثلاً امنیت سایبری" />
+                    </div>
+                    <button class="btn btn-primary" type="submit"><i class="bi bi-plus-lg"></i> افزودن دسته‌بندی</button>
+                </form>
+                <div class="category-list">
+                    @foreach (var category in (IReadOnlyList<PeakLabs.Models.ArticleCategory>)ViewData["ArticleCategories"]!)
+                    {
+                        <div class="category-row">
+                            <span>@category.Name</span>
+                            <form asp-area="Admin" asp-controller="System" asp-action="DeleteCategory" method="post" onsubmit="return confirm('دسته‌بندی «@category.Name» حذف شود؟')">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@category.Id" />
+                                <button class="btn btn-outline category-delete" type="submit" aria-label="حذف دسته‌بندی @category.Name"><i class="bi bi-trash3"></i> حذف</button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
     </section>
 </body>
 
