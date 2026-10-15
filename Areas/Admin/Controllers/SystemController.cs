@@ -8,7 +8,7 @@ namespace PeakLabs.Areas.Admin.Controllers;
 public class SystemController : Controller
 {
 
-    public IActionResult Settings()
+    public IActionResult Index()
     {
         return View();
     }

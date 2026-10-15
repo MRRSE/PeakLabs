@@ -22,6 +22,13 @@
                 : null;
 }
 <!DOCTYPE html>
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    bool IsCurrentPage(string controller, string action = "Index") =>
+        string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
+}
 <html lang="fa" dir="rtl" data-theme="dark">
 
 <head>
@@ -30,7 +37,7 @@
     <title>@ViewData["Title"] - PeakLabs</title>
     <script type="importmap"></script>
 
-
+    <link rel="stylesheet" href="~/css/Admin/profile.css">
     <link rel="stylesheet" href="~/css/base/variables.css" />
     <link rel="stylesheet" href="~/css/base/reset.css" />
     <link rel="stylesheet" href="~/css/base/typography.css" />
@@ -47,6 +54,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
     <link rel="stylesheet" href="~/css/admin/admin.css">
+
 </head>
 
 <body>
@@ -61,16 +69,16 @@
             </div>
             <div class="side-label">محیط کاری</div>
             <nav class="nav">
-                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                <a class="@(IsCurrentPage("Dashboard") ? "active" : "")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
                     <i class="bi bi-grid-1x2"></i>
                     <span>نمای کلی</span>
                 </a>
-                <a asp-area="Admin" asp-controller="Articles" asp-action="Index">
+                <a class="@(IsCurrentPage("Articles") ? "active" : "")" asp-area="Admin" asp-controller="Articles" asp-action="Index">
                     <i class="bi bi-journal-text"></i>
                     <span>مقالات</span>
                     <span class="badge">24</span>
                 </a>
-                <a asp-area="Admin" asp-controller="Portfolio" asp-action="Index">
+                <a class="@(IsCurrentPage("Portfolio") ? "active" : "")" asp-area="Admin" asp-controller="Portfolio" asp-action="Index">
                     <i class="bi bi-kanban"></i>
                     <span>نمونه‌کارها</span>
                     <span class="badge">8</span>
@@ -78,22 +86,22 @@
             </nav>
             <div class="side-label">تیم و دسترسی</div>
             <nav class="nav">
-                <a asp-area="Admin" asp-controller="Developers" asp-action="Index">
+                <a class="@(IsCurrentPage("Developers") ? "active" : "")" asp-area="Admin" asp-controller="Developers" asp-action="Index">
                     <i class="bi bi-code-slash"></i>
                     <span>توسعه‌دهندگان</span>
                 </a>
-                <a asp-area="Admin" asp-controller="Auth" asp-action="AdminUsers">
+                <a class="@(IsCurrentPage("Auth", "AdminUsers") ? "active" : "")" asp-area="Admin" asp-controller="Auth" asp-action="AdminUsers">
                     <i class="bi bi-person-lock"></i>
                     <span>حساب های داشبورد</span>
                 </a>
             </nav>
             <div class="side-label">سیستم</div>
             <nav class="nav">
-                <a asp-area="Admin" asp-controller="Auth" asp-action="Profile">
+                <a class="@(IsCurrentPage("Auth", "Profile") ? "active" : "")" asp-area="Admin" asp-controller="Auth" asp-action="Profile">
                     <i class="bi bi-person-circle"></i>
                     <span>پروفایل من</span>
                 </a>
-                <a asp-area="Admin" asp-controller="System" asp-action="Settings">
+                <a class="@(IsCurrentPage("System") ? "active" : "")" asp-area="Admin" asp-controller="System" asp-action="Index">
                     <i class="bi bi-sliders2"></i>
                     <span>تنظیمات</span>
                 </a>
@@ -167,7 +175,7 @@
     </div>
     <link rel="stylesheet" href="~/css/admin/responsive.css">
     <script src="~/js/admin/dashboard.js"></script>
-    <script src="~/js/base/theme.js"></script>
+    <script src="~/js/base/theme.js" asp-append-version="true"></script>
     <script src="~/js/base/main.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -1,4 +1,11 @@
 ﻿<!DOCTYPE html>
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    bool IsCurrentPage(string controller, string action = "Index") =>
+        string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
+}
 <html lang="fa" dir="rtl" data-theme="dark">
 
 <head>
@@ -43,11 +50,11 @@
                 </span>
             </a>
             <nav class="nav-links">
-                <a asp-action="index" asp-controller="home">خانه</a>
-                <a asp-action="index" asp-controller="article">مقالات</a>
-                <a asp-action="index" asp-controller="portfolio">نمونه کارها</a>
-                <a asp-action="index" asp-controller="aboutus">درباره ما</a>
-                <a asp-action="index" asp-controller="contactus">تماس با ما</a>
+                <a class="@(IsCurrentPage("Home") ? "active" : "")" asp-action="index" asp-controller="home">خانه</a>
+                <a class="@(IsCurrentPage("Article") ? "active" : "")" asp-action="index" asp-controller="article">مقالات</a>
+                <a class="@(IsCurrentPage("Portfolio") ? "active" : "")" asp-action="index" asp-controller="portfolio">نمونه کارها</a>
+                <a class="@(IsCurrentPage("AboutUs") ? "active" : "")" asp-action="index" asp-controller="aboutus">درباره ما</a>
+                <a class="@(IsCurrentPage("ContactUs") ? "active" : "")" asp-action="index" asp-controller="contactus">تماس با ما</a>
             </nav>
             <div class="nav-actions">
                 <button id="themeToggle" class="icon-btn">
@@ -58,11 +65,11 @@
                 </button>
             </div>
             <nav class="mobile-panel" id="mobilePanel" aria-label="Mobile">
-                <a asp-action="index" asp-controller="home">خانه</a>
-                <a asp-action="index" asp-controller="article">مقالات</a>
-                <a asp-action="index" asp-controller="portfolio">نمونه کارها</a>
-                <a asp-action="index" asp-controller="aboutus">درباره ما</a>
-                <a asp-action="index" asp-controller="contactus">تماس با ما</a>
+                <a class="@(IsCurrentPage("Home") ? "active" : "")" asp-action="index" asp-controller="home">خانه</a>
+                <a class="@(IsCurrentPage("Article") ? "active" : "")" asp-action="index" asp-controller="article">مقالات</a>
+                <a class="@(IsCurrentPage("Portfolio") ? "active" : "")" asp-action="index" asp-controller="portfolio">نمونه کارها</a>
+                <a class="@(IsCurrentPage("AboutUs") ? "active" : "")" asp-action="index" asp-controller="aboutus">درباره ما</a>
+                <a class="@(IsCurrentPage("ContactUs") ? "active" : "")" asp-action="index" asp-controller="contactus">تماس با ما</a>
             </nav>
         </div>
     </header>
@@ -113,7 +120,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/components/navbar.js"></script>
-    <script src="~/js/base/theme.js"></script>
+    <script src="~/js/base/theme.js" asp-append-version="true"></script>
     <script src="~/js/base/main.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
