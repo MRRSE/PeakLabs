@@ -14,5 +14,6 @@ public class Article
     public PeakLabsUser? Author { get; set; }
     public string Status { get; set; } = "published";
     public DateTimeOffset PublishedAt { get; set; }
+    public int ViewCount { get; set; }
     public ICollection<ArticleSection> Sections { get; set; } = new List<ArticleSection>();
 }

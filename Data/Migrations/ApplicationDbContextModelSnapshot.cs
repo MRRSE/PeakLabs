@@ -194,6 +194,9 @@ namespace PeakLabs.Data.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
@@ -298,6 +301,29 @@ namespace PeakLabs.Data.Migrations
                     b.HasIndex("ArticleId");
 
                     b.ToTable("ArticleSection", (string)null);
+                });
+
+            modelBuilder.Entity("PeakLabs.Models.ArticleView", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("ViewedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleId");
+
+                    b.HasIndex("ViewedAt");
+
+                    b.ToTable("ArticleView", (string)null);
                 });
 
             modelBuilder.Entity("PeakLabs.Models.Identity.PeakLabsUser", b =>
@@ -501,6 +527,17 @@ namespace PeakLabs.Data.Migrations
                 {
                     b.HasOne("PeakLabs.Models.Article", "Article")
                         .WithMany("Sections")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+                });
+
+            modelBuilder.Entity("PeakLabs.Models.ArticleView", b =>
+                {
+                    b.HasOne("PeakLabs.Models.Article", "Article")
+                        .WithMany()
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

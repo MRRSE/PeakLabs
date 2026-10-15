@@ -1,11 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-<partial name="_ArticleMainSec"/>
-</body>
-</html>
+@model PeakLabs.Models.Article
+@using System.Globalization
+@{
+    ViewData["Title"] = Model.Title;
+    var authorName = Model.Author is null
+        ? "نویسنده نامشخص"
+        : $"{Model.Author.FirstName} {Model.Author.LastName}".Trim();
+    var initials = Model.Author is null
+        ? "؟"
+        : string.Concat(Model.Author.FirstName.FirstOrDefault(), Model.Author.LastName.FirstOrDefault()).Trim('\0');
+    var sections = Model.Sections.OrderBy(section => section.Order).ToList();
+}
+
+<section class="container section article-detail" style="padding-top:36px;">
+    <div class="article-detail-cover" style="background-image:linear-gradient(180deg,rgba(0,0,0,.06),rgba(0,0,0,.28)),url('@Model.CoverImage')" role="img" aria-label="تصویر مقاله"></div>
+    <div class="article-layout">
+        <aside class="toc">
+            @if (sections.Any(section => !string.IsNullOrWhiteSpace(section.Title)))
+            {
+                <h4>در این مقاله</h4>
+                @for (var index = 0; index < sections.Count; index++)
+                {
+                    if (!string.IsNullOrWhiteSpace(sections[index].Title))
+                    {
+                        <a href="#article-section-@index">@sections[index].Title</a>
+                    }
+                }
+            }
+        </aside>
+        <article>
+            <div class="article-meta-row">
+                <span class="card-cat">@Model.Category.Name</span>
+                <span>·</span>
+                <time datetime="@Model.PublishedAt.ToString("O")">@Model.PublishedAt.ToLocalTime().ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("fa-IR"))</time>
+                <span>·</span>
+                <span><i class="bi bi-eye"></i> @Model.ViewCount.ToString("N0", CultureInfo.GetCultureInfo("fa-IR")) بازدید</span>
+            </div>
+            <h1 class="article-title">@Model.Title</h1>
+            <p class="article-summary">@Model.ShortDescription</p>
+
+            <div class="article-body">
+                @for (var index = 0; index < sections.Count; index++)
+                {
+                    var articleSection = sections[index];
+                    if (!string.IsNullOrWhiteSpace(articleSection.Title))
+                    {
+                        var headingType = articleSection.HeadingType switch
+                        {
+                            "H3" => "h3",
+                            "H4" => "h4",
+                            _ => "h2"
+                        };
+                        if (headingType == "h3")
+                        {
+                            <h3 id="article-section-@index">@articleSection.Title</h3>
+                        }
+                        else if (headingType == "h4")
+                        {
+                            <h4 id="article-section-@index">@articleSection.Title</h4>
+                        }
+                        else
+                        {
+                            <h2 id="article-section-@index">@articleSection.Title</h2>
+                        }
+                    }
+                    <p class="article-section-content">@articleSection.Content</p>
+                }
+            </div>
+
+            <div class="author-box">
+                @if (!string.IsNullOrWhiteSpace(Model.Author?.ProfileImagePath))
+                {
+                    <img class="avatar" src="@Model.Author.ProfileImagePath" alt="تصویر @authorName" />
+                }
+                else
+                {
+                    <span class="avatar">@initials</span>
+                }
+                <div>
+                    <span class="tiny">نویسنده</span>
+                    <h4>@authorName</h4>
+                    @if (!string.IsNullOrWhiteSpace(Model.Author?.AuthorDescription))
+                    {
+                        <p>@Model.Author.AuthorDescription</p>
+                    }
+                    else
+                    {
+                        <p>نویسندهٔ تیم PeakLabs</p>
+                    }
+                </div>
+            </div>
+        </article>
+    </div>
+</section>

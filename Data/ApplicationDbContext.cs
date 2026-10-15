@@ -9,6 +9,7 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
 {
     public DbSet<PortfolioItem> Portfolio { get; set; } = null!;
     public DbSet<Article> Articles { get; set; } = null!;
+    public DbSet<ArticleView> ArticleViews { get; set; } = null!;
     public DbSet<ArticleCategory> ArticleCategories { get; set; } = null!;
     public DbSet<ArticleSection> ArticleSections { get; set; } = null!;
 
@@ -94,6 +95,16 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
             entity.Property(section => section.Order).HasColumnName("Order");
             entity.HasOne(section => section.Article).WithMany(article => article.Sections)
                 .HasForeignKey(section => section.ArticleId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ArticleView>(entity =>
+        {
+            entity.ToTable("ArticleView");
+            entity.HasKey(view => view.Id);
+            entity.Property(view => view.ViewedAt).IsRequired();
+            entity.HasIndex(view => view.ViewedAt);
+            entity.HasOne(view => view.Article).WithMany()
+                .HasForeignKey(view => view.ArticleId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

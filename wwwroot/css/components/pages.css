@@ -423,6 +423,16 @@ h4 {
   gap: 48px;
   align-items: start;
 }
+.article-detail-cover {
+  aspect-ratio: 1200 / 460;
+  border-radius: var(--radius-lg);
+  margin-bottom: 32px;
+  background-position: center;
+  background-size: cover;
+}
+.article-summary { color: var(--color-text-muted); font-size: 1.1rem; margin-bottom: 24px; }
+.article-section-content { white-space: pre-line; }
+.article-detail .author-box .avatar { width: 58px; height: 58px; object-fit: cover; }
 .toc {
   position: sticky;
   top: calc(var(--nav-h) + 24px);

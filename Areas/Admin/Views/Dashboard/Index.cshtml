@@ -1,6 +1,8 @@
 @{
   Layout = "_AdminLayout";
   var welcomeName = ViewData["WelcomeName"] as string ?? "کاربر";
+  var topArticles = (IReadOnlyList<PeakLabs.Models.Article>)ViewData["TopArticles"]!;
+  var numberFormat = System.Globalization.CultureInfo.GetCultureInfo("fa-IR");
 }
 
 <html lang="en">
@@ -36,12 +38,10 @@
         <i class="bi bi-eye"></i>
       </span>
     </div>
-    <strong>
-      84.6K
-    </strong>
+    <strong>@(((long)ViewData["ArticleViewTotal"]!).ToString("N0", numberFormat))</strong>
     <span class="trend">
-      <i class="bi bi-arrow-up"></i> 18.4%
-      <span>نسبت به ماه قبل</span>
+      <i class="bi bi-eye"></i>
+      <span>بازدید ثبت‌شدهٔ مقاله‌های منتشرشده</span>
     </span>
   </div>
   <div class="stat">
@@ -54,12 +54,10 @@
         </i>
       </span>
     </div>
-    <strong>
-      24
-    </strong>
+    <strong>@(((int)ViewData["PublishedArticleCount"]!).ToString("N0", numberFormat))</strong>
     <span class="trend">
-      <i class="bi bi-plus"></i> 4
-      <span data-t="thisMonth">این ماه</span>
+      <i class="bi bi-journal-check"></i>
+      <span>منتشرشده</span>
     </span>
   </div>
   <div class="stat">
@@ -101,26 +99,30 @@
   <div class="panel">
     <div class="panel-head">
       <div>
-        <h2>بازدید  سایت</h2>
-        <span class="tiny">۳۰ روز گذشته</span>
+        <h2>بازدید مقاله‌ها</h2>
+        <span class="tiny">دسته‌بندی و بازهٔ زمانی را برای بررسی کلیک‌ها انتخاب کنید.</span>
       </div>
-      <select class="select">
-        <option value="30">۳۰ روز</option>
-        <option value="90">۹۰ روز</option>
-        <option value="180">۱۸۰ روز</option>
-      </select>
+      <div class="chart-filters">
+        <select class="select" id="articleViewCategory" aria-label="دسته‌بندی نمودار بازدید">
+          <option value="all">همهٔ دسته‌بندی‌ها</option>
+          @foreach (var category in (IReadOnlyList<string>)ViewData["ArticleViewCategories"]!)
+          {
+            <option value="@category">@category</option>
+          }
+        </select>
+        <select class="select" id="articleViewPeriod" aria-label="بازهٔ نمودار بازدید">
+          <option value="daily">روزانه</option>
+          <option value="weekly">هفتگی</option>
+          <option value="monthly" selected>ماهانه</option>
+          <option value="yearly">سالانه</option>
+        </select>
+      </div>
     </div>
     <div class="panel-body">
       <div class="chart">
         <canvas id="articleViewsChart"></canvas>
       </div>
-      <div class="chart-labels">
-        <span>Jun 30</span><span>Jul 7</span>
-        <span>
-          Jul 14
-        </span
-        ><span>Jul 21</span><span>Jul 30</span>
-      </div>
+      <div class="chart-labels" id="articleViewChartLabels" aria-hidden="true"></div>
     </div>
   </div>
   <div class="panel">
@@ -176,7 +178,7 @@
   <div class="panel-head">
     <div>
       <h2>مقالات پربازدید</h2>
-      <span class="tiny">پربازدیدترین محتوا در این ماه</span>
+      <span class="tiny">مقاله‌های منتشرشده بر اساس مجموع بازدید</span>
     </div>
     <button class="btn btn-outline btn-sm" onclick="go('articles')" data-t="manage">مدیریت</button>
   </div>
@@ -188,110 +190,29 @@
       </tr>
       </thead>
       <tbody id="topRows">
-      <tr>
-        <td>
-          <div style="display:flex;align-items:center;gap:10px">
-            <div class="thumb cover-architecture">
-              <i class="bi bi-journal-text"></i>
+      @foreach (var article in topArticles)
+      {
+        var authorName = article.Author is null ? "نویسنده نامشخص" : $"{article.Author.FirstName} {article.Author.LastName}".Trim();
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="thumb"><i class="bi bi-journal-text"></i></div>
+              <div>
+                <div class="item-title">@article.Title</div>
+                <div class="item-desc">@article.ShortDescription</div>
+              </div>
             </div>
-            <div>
-              <div class="item-title">طراحی معماری تمیز برای سیستم‌های ماندگار ASP.NET Core</div>
-              <div class="item-desc">راهنمای عملی برای مستقل نگه‌داشتن منطق کسب‌وکار.</div>
-            </div>
-          </div>
-        </td><td>Sara Rezaei</td>
-        <td>
-          <strong>12,840</strong>
-        </td>
-        <td>
-          <span class="status published">منتشرشده</span>
-        </td>
-        <td>
-          <div class="actions">
-            <button class="action" onclick="openModal('article')">
-              <i class="bi bi-pencil"></i>
-            </button>
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <div style="display:flex;align-items:center;gap:10px">
-            <div class="thumb ai">
-              <i class="bi bi-journal-text"></i>
-            </div>
-            <div>
-              <div class="item-title">الگوهای طراحی پرامپت برای خروجی ساختاریافته قابل‌اعتماد</div>
-              <div class="item-desc">تکنیک‌هایی برای دریافت JSON پایدار از مدل‌های زبانی.</div>
-            </div>
-          </div>
-        </td><td>Sara Rezaei</td>
-        <td>
-          <strong>9,420</strong>
-        </td>
-        <td>
-          <span class="status published">منتشرشده</span>
-        </td>
-        <td>
-          <div class="actions">
-            <button class="action" onclick="openModal('article')">
-              <i class="bi bi-pencil"></i>
-            </button>
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <div style="display:flex;align-items:center;gap:10px">
-            <div class="thumb cloud">
-              <i class="bi bi-journal-text"></i>
-            </div>
-            <div>
-              <div class="item-title">چه زمانی مونولیت ماژولار بهتر از مایکروسرویس است؟</div>
-              <div class="item-desc">رویکردی مبتنی بر موازنه هزینه و مزایا برای مرزهای سرویس.</div>
-            </div>
-          </div>
-        </td><td>Reza Hosseini</td>
-        <td>
-          <strong>8,760</strong>
-        </td>
-        <td>
-          <span class="status published">منتشرشده</span>
-        </td>
-        <td>
-          <div class="actions">
-            <button class="action" onclick="openModal('article')">
-              <i class="bi bi-pencil"></i>
-            </button>
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <div style="display:flex;align-items:center;gap:10px">
-            <div class="thumb cover-architecture">
-              <i class="bi bi-journal-text"></i>
-            </div>
-            <div>
-              <div class="item-title">لاگ‌گیری حرفه‌ای در ASP.NET Core</div>
-              <div class="item-desc">الگوهای مشاهده‌پذیری که همراه با رشد برنامه مقیاس می‌گیرند.</div>
-            </div>
-          </div>
-        </td><td>Milad Jafari</td>
-        <td>
-          <strong>6,910</strong>
-        </td>
-        <td>
-          <span class="status draft">پیش‌نویس</span>
-        </td>
-        <td>
-          <div class="actions">
-            <button class="action" onclick="openModal('article')">
-              <i class="bi bi-pencil"></i>
-            </button>
-          </div>
-        </td>
-      </tr>
+          </td>
+          <td>@authorName</td>
+          <td><strong>@article.ViewCount.ToString("N0", numberFormat)</strong></td>
+          <td><span class="status published">منتشرشده</span></td>
+          <td><a class="action" asp-area="Admin" asp-controller="Articles" asp-action="Index" aria-label="مدیریت مقاله‌ها"><i class="bi bi-arrow-up-left"></i></a></td>
+        </tr>
+      }
+      @if (topArticles.Count == 0)
+      {
+        <tr><td colspan="5" class="muted">هنوز مقالهٔ منتشرشده‌ای وجود ندارد.</td></tr>
+      }
       </tbody>
     </table>
   </div>
@@ -300,6 +221,12 @@
 <script>
   window.articleCategories = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
       ((IReadOnlyList<PeakLabs.Models.ArticleCategory>)ViewData["ArticleCategories"]!).Select(category => new { category.Id, category.Name }),
+      new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)));
+  window.articleViewsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+      topArticles.Select(article => new { label = article.Title, value = article.ViewCount }),
+      new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)));
+  window.articleViewsTrends = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+      ViewData["ArticleViewTrends"],
       new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)));
 </script>
 </body>

@@ -35,85 +35,41 @@ mobilePanel.querySelectorAll("a").forEach(function (a) {
   const canvas = document.getElementById("articleViewsChart");
   if (!canvas) return;
 
-  /*
-   * ============================================================
-   * SAMPLE DATA — فقط برای دیدن طرز کار نمودار
-   * ============================================================
-   *
-   * labels = مسیر محور X
-   * data   = مقدار هر نقطه روی محور Y
-   *
-   * بعداً همین قسمت را با داده واقعی Database/API جایگزین می‌کنیم.
-   */
-
-  const sampleData = {
-    "30 days": {
-      labels: [
-        "Sep 1",
-        "Sep 3",
-        "Sep 5",
-        "Sep 7",
-        "Sep 9",
-        "Sep 11",
-        "Sep 13",
-        "Sep 15",
-        "Sep 17",
-        "Sep 19",
-        "Sep 21",
-        "Sep 23",
-        "Sep 25",
-        "Sep 27",
-        "Sep 29",
-      ],
-      values: [
-        120, 180, 145, 260, 310, 275, 390, 460, 420, 560, 610, 590, 720, 810,
-        940,
-      ],
-    },
-
-    "90 days": {
-      labels: [
-        "Jul 1",
-        "Jul 8",
-        "Jul 15",
-        "Jul 22",
-        "Jul 29",
-        "Aug 5",
-        "Aug 12",
-        "Aug 19",
-        "Aug 26",
-        "Sep 2",
-        "Sep 9",
-        "Sep 16",
-        "Sep 23",
-        "Sep 30",
-      ],
-      values: [
-        420, 510, 470, 650, 720, 680, 840, 910, 870, 1020, 1180, 1090, 1320,
-        1480,
-      ],
-    },
-
-    "12 months": {
-      labels: [
-        "Oct",
-        "Nov",
-        "Dec",
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-      ],
-      values: [
-        850, 1100, 980, 1350, 1500, 1420, 1750, 2100, 1980, 2450, 2800, 3250,
-      ],
-    },
+  const trends = window.articleViewsTrends || {};
+  const initialTrend = trends.monthly || { labels: [], datasets: [] };
+  const categorySelect = document.getElementById("articleViewCategory");
+  const buildDatasets = (trend) => {
+    const series = trend.datasets || [];
+    const selectedCategory = categorySelect?.value || "all";
+    const data = selectedCategory === "all"
+      ? trend.labels.map((_, index) => series.reduce((total, item) => total + (item.data[index] || 0), 0))
+      : (series.find((item) => item.label === selectedCategory)?.data || trend.labels.map(() => 0));
+    return {
+      label: selectedCategory === "all" ? "همهٔ دسته‌بندی‌ها" : selectedCategory,
+      data,
+      borderColor: colors.primary,
+      backgroundColor: "rgba(16, 185, 129, 0.12)",
+      borderWidth: 3,
+      tension: 0.35,
+      fill: true,
+      pointRadius: 4,
+      pointHoverRadius: 7,
+      pointBorderWidth: 2,
+      pointBackgroundColor: colors.primary,
+      pointBorderColor: colors.bg,
+    };
   };
+  const renderChartLabels = (labels) => {
+    const container = document.getElementById("articleViewChartLabels");
+    if (!container || labels.length === 0) return;
+    const indexes = [0, Math.floor((labels.length - 1) / 4), Math.floor((labels.length - 1) / 2), Math.floor(3 * (labels.length - 1) / 4), labels.length - 1];
+    container.replaceChildren(...[...new Set(indexes)].map((index) => {
+      const label = document.createElement("span");
+      label.textContent = labels[index];
+      return label;
+    }));
+  };
+  renderChartLabels(initialTrend.labels);
 
   const getThemeColors = () => {
     const styles = getComputedStyle(document.documentElement);
@@ -132,41 +88,14 @@ mobilePanel.querySelectorAll("a").forEach(function (a) {
     type: "line",
 
     data: {
-      labels: sampleData["30 days"].labels,
+      labels: initialTrend.labels,
 
-      datasets: [
-        {
-          label: "Article Views",
-
-          // این آرایه مسیر واقعی نمودار را می‌سازد.
-          data: sampleData["30 days"].values,
-
-          borderColor: colors.primary,
-
-          // فضای زیر خط
-          backgroundColor: "rgba(16, 185, 129, 0.12)",
-
-          borderWidth: 3,
-
-          // هرچه عدد بیشتر باشد مسیر نرم‌تر می‌شود.
-          tension: 0.35,
-
-          fill: true,
-
-          // نقطه‌های روی مسیر
-          pointRadius: 4,
-          pointHoverRadius: 7,
-          pointBorderWidth: 2,
-          pointBackgroundColor: colors.primary,
-          pointBorderColor: colors.bg,
-        },
-      ],
+      datasets: [buildDatasets(initialTrend)],
     },
 
     options: {
       responsive: true,
       maintainAspectRatio: false,
-
       interaction: {
         mode: "index",
         intersect: false,
@@ -180,7 +109,7 @@ mobilePanel.querySelectorAll("a").forEach(function (a) {
         tooltip: {
           callbacks: {
             label: (context) => {
-              return ` ${context.parsed.y.toLocaleString()} views`;
+              return ` ${context.parsed.y.toLocaleString("fa-IR")} بازدید`;
             },
           },
         },
@@ -226,34 +155,31 @@ mobilePanel.querySelectorAll("a").forEach(function (a) {
     },
   });
 
-  /*
-   * انتخاب 30 / 90 روز / 12 ماه
-   */
-  const periodSelect = document.querySelector(".panel .select");
-
-  if (periodSelect) {
-    periodSelect.addEventListener("change", () => {
-      const selected = sampleData[periodSelect.value];
-
-      if (!selected) return;
-
-      chart.data.labels = selected.labels;
-      chart.data.datasets[0].data = selected.values;
-
-      chart.update();
-    });
-  }
+  const periodSelect = document.getElementById("articleViewPeriod");
+  periodSelect?.addEventListener("change", () => {
+    const selected = trends[periodSelect.value];
+    if (!selected) return;
+    chart.data.labels = selected.labels;
+    chart.data.datasets = [buildDatasets(selected)];
+    renderChartLabels(selected.labels);
+    chart.update();
+  });
+  categorySelect?.addEventListener("change", () => {
+    const selected = trends[periodSelect?.value || "monthly"];
+    if (!selected) return;
+    chart.data.datasets = [buildDatasets(selected)];
+    chart.update();
+  });
 
   /*
-   * اگر Theme عوض شد، رنگ‌های Chart هم دوباره از CSS Variables خوانده شوند.
+   * اگر Theme عوض شد، رنگ‌های نمودار هم دوباره از CSS Variables خوانده شوند.
    */
   const themeObserver = new MutationObserver(() => {
     colors = getThemeColors();
 
     chart.data.datasets[0].borderColor = colors.primary;
-    chart.data.datasets[0].backgroundColor = "rgba(16, 185, 129, 0.12)";
-    chart.data.datasets[0].pointBackgroundColor = colors.primary;
     chart.data.datasets[0].pointBorderColor = colors.bg;
+    chart.data.datasets[0].pointBackgroundColor = colors.primary;
 
     chart.options.scales.x.ticks.color = colors.text;
     chart.options.scales.y.ticks.color = colors.text;
