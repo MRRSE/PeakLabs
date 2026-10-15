@@ -1,9 +1,7 @@
 @model IReadOnlyList<PeakLabs.Models.Article>
-@using System.Globalization
 
 <section class="section" style="padding-top:0;">
     <div class="container">
-        <div hidden>@Html.AntiForgeryToken()</div>
         <div class="section-title-row reveal">
             <div>
                 <span class="eyebrow">تازه‌های تیم</span>
@@ -14,25 +12,7 @@
         <div class="article-grid">
             @foreach (var article in Model)
             {
-                var authorName = article.Author is null
-                    ? "نویسنده نامشخص"
-                    : $"{article.Author.FirstName} {article.Author.LastName}".Trim();
-                var initials = article.Author is null
-                    ? "؟"
-                    : string.Concat(article.Author.FirstName.FirstOrDefault(), article.Author.LastName.FirstOrDefault()).Trim('\0');
-                <article class="card">
-                    <a asp-controller="Article" asp-action="SingleArticle" asp-route-id="@article.Id" class="card-cover js-article-view" data-article-id="@article.Id" aria-label="مطالعه @article.Title" style="background-image:linear-gradient(180deg,transparent,rgba(0,0,0,.2)),url('@article.CoverImage');background-size:cover;background-position:center">
-                    </a>
-                    <div class="card-body">
-                        <span class="card-cat">@article.Category.Name</span>
-                        <h3><a class="js-article-view" data-article-id="@article.Id" asp-controller="Article" asp-action="SingleArticle" asp-route-id="@article.Id">@article.Title</a></h3>
-                        <p class="card-desc">@article.ShortDescription</p>
-                        <div class="card-meta">
-                            <div class="who"><span class="avatar">@initials</span> @authorName</div>
-                            <time datetime="@article.PublishedAt.ToString("O")">@article.PublishedAt.ToLocalTime().ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("fa-IR"))</time>
-                        </div>
-                    </div>
-                </article>
+                <partial name="~/Views/Article/_ArticleCard.cshtml" model="article" />
             }
         </div>
         @if (Model.Count == 0)

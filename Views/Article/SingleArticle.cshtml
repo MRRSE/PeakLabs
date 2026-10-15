@@ -1,18 +1,34 @@
-@model PeakLabs.Models.Article
+@model PeakLabs.Models.ArticleDetailViewModel
 @using System.Globalization
+@using System.Linq
 @{
-    ViewData["Title"] = Model.Title;
-    var authorName = Model.Author is null
+    var article = Model.Article;
+    ViewData["Title"] = article.Title;
+    var authorName = article.Author is null
         ? "نویسنده نامشخص"
-        : $"{Model.Author.FirstName} {Model.Author.LastName}".Trim();
-    var initials = Model.Author is null
+        : $"{article.Author.FirstName} {article.Author.LastName}".Trim();
+    var initials = article.Author is null
         ? "؟"
-        : string.Concat(Model.Author.FirstName.FirstOrDefault(), Model.Author.LastName.FirstOrDefault()).Trim('\0');
-    var sections = Model.Sections.OrderBy(section => section.Order).ToList();
+        : string.Concat(article.Author.FirstName.FirstOrDefault(), article.Author.LastName.FirstOrDefault()).Trim('\0');
+    var sections = article.Sections.OrderBy(section => section.Order).ToList();
 }
 
-<section class="container section article-detail" style="padding-top:36px;">
-    <div class="article-detail-cover" style="background-image:linear-gradient(180deg,rgba(0,0,0,.06),rgba(0,0,0,.28)),url('@Model.CoverImage')" role="img" aria-label="تصویر مقاله"></div>
+<section class="container section article-detail">
+    <div class="article-hero" role="img" aria-label="طرح سبز مقاله PeakLabs">
+        <svg viewBox="0 0 1200 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+            <defs>
+                <linearGradient id="articleHeroGradient" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#0F172A" />
+                    <stop offset="0.6" stop-color="#0F766E" />
+                    <stop offset="1" stop-color="#10B981" />
+                </linearGradient>
+            </defs>
+            <rect width="1200" height="460" fill="url(#articleHeroGradient)" />
+            <path d="M0 380 L200 220 L320 320 L520 140 L680 300 L860 200 L1200 380 Z" fill="rgba(255,255,255,.06)" />
+            <path d="M0 420 L260 280 L400 360 L620 200 L800 340 L1000 250 L1200 420 Z" fill="rgba(255,255,255,.10)" />
+        </svg>
+    </div>
+
     <div class="article-layout">
         <aside class="toc">
             @if (sections.Any(section => !string.IsNullOrWhiteSpace(section.Title)))
@@ -27,16 +43,17 @@
                 }
             }
         </aside>
+
         <article>
             <div class="article-meta-row">
-                <span class="card-cat">@Model.Category.Name</span>
-                <span>·</span>
-                <time datetime="@Model.PublishedAt.ToString("O")">@Model.PublishedAt.ToLocalTime().ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("fa-IR"))</time>
-                <span>·</span>
-                <span><i class="bi bi-eye"></i> @Model.ViewCount.ToString("N0", CultureInfo.GetCultureInfo("fa-IR")) بازدید</span>
+                <span class="card-cat">@article.Category.Name</span>
+                <span aria-hidden="true">·</span>
+                <time datetime="@article.PublishedAt.ToString("O")">@article.PublishedAt.ToLocalTime().ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("fa-IR"))</time>
+                <span aria-hidden="true">·</span>
+                <span><i class="bi bi-eye" aria-hidden="true"></i> <span id="articleViewCount">@article.ViewCount.ToString("N0", CultureInfo.GetCultureInfo("fa-IR"))</span> بازدید</span>
             </div>
-            <h1 class="article-title">@Model.Title</h1>
-            <p class="article-summary">@Model.ShortDescription</p>
+            <h1 class="article-title">@article.Title</h1>
+            <p class="article-summary">@article.ShortDescription</p>
 
             <div class="article-body">
                 @for (var index = 0; index < sections.Count; index++)
@@ -67,28 +84,64 @@
                 }
             </div>
 
-            <div class="author-box">
-                @if (!string.IsNullOrWhiteSpace(Model.Author?.ProfileImagePath))
+            <div class="share-bar" aria-label="اشتراک‌گذاری مقاله">
+                <span>اشتراک‌گذاری این مقاله</span>
+                <div class="article-share-actions">
+                    <button class="icon-btn article-share-button" type="button" data-share="x" aria-label="اشتراک در ایکس" title="اشتراک در ایکس"><i class="bi bi-twitter-x"></i></button>
+                    <button class="icon-btn article-share-button" type="button" data-share="linkedin" aria-label="اشتراک در لینکدین" title="اشتراک در لینکدین"><i class="bi bi-linkedin"></i></button>
+                    <button class="icon-btn article-share-button" type="button" data-share="copy" aria-label="کپی پیوند مقاله" title="کپی پیوند"><i class="bi bi-link-45deg"></i></button>
+                </div>
+            </div>
+
+            <section class="author-box article-author-card" aria-label="درباره نویسنده">
+                @if (!string.IsNullOrWhiteSpace(article.Author?.ProfileImagePath))
                 {
-                    <img class="avatar" src="@Model.Author.ProfileImagePath" alt="تصویر @authorName" />
+                    <img class="avatar article-author-avatar" src="@article.Author.ProfileImagePath" alt="تصویر @authorName" loading="lazy">
                 }
                 else
                 {
-                    <span class="avatar">@initials</span>
+                    <span class="avatar article-author-avatar">@initials</span>
                 }
-                <div>
-                    <span class="tiny">نویسنده</span>
-                    <h4>@authorName</h4>
-                    @if (!string.IsNullOrWhiteSpace(Model.Author?.AuthorDescription))
+                <div class="article-author-copy">
+                    <h2>@authorName</h2>
+                    <p>@(string.IsNullOrWhiteSpace(article.Author?.AuthorDescription) ? "نویسندهٔ تیم PeakLabs" : article.Author.AuthorDescription)</p>
+                    @if (!string.IsNullOrWhiteSpace(article.Author?.LinkedInUrl) || !string.IsNullOrWhiteSpace(article.Author?.GitHubUrl))
                     {
-                        <p>@Model.Author.AuthorDescription</p>
-                    }
-                    else
-                    {
-                        <p>نویسندهٔ تیم PeakLabs</p>
+                        <div class="socials article-author-socials" aria-label="پیوندهای نویسنده">
+                            @if (!string.IsNullOrWhiteSpace(article.Author?.LinkedInUrl))
+                            {
+                                <a class="icon-btn" href="@article.Author.LinkedInUrl" target="_blank" rel="noopener noreferrer" aria-label="پروفایل LinkedIn نویسنده" title="LinkedIn"><i class="bi bi-linkedin" aria-hidden="true"></i></a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(article.Author?.GitHubUrl))
+                            {
+                                <a class="icon-btn" href="@article.Author.GitHubUrl" target="_blank" rel="noopener noreferrer" aria-label="پروفایل GitHub نویسنده" title="GitHub"><i class="bi bi-github" aria-hidden="true"></i></a>
+                            }
+                        </div>
                     }
                 </div>
-            </div>
+            </section>
+
+            @if (Model.RelatedArticles.Count > 0)
+            {
+                <section class="article-related" aria-labelledby="relatedArticlesTitle">
+                    <div class="section-head article-related-heading">
+                        <h2 id="relatedArticlesTitle">مقالات مرتبط</h2>
+                    </div>
+                    <div class="related-grid">
+                        @foreach (var relatedArticle in Model.RelatedArticles)
+                        {
+                            <partial name="_ArticleCard" model="relatedArticle" />
+                        }
+                    </div>
+                </section>
+            }
         </article>
     </div>
 </section>
+
+<form id="articleViewToken" hidden>@Html.AntiForgeryToken()</form>
+
+@section Scripts {
+    <script>window.peakLabsArticleId = @article.Id;</script>
+    <script src="~/js/pages/single-article.js" asp-append-version="true"></script>
+}

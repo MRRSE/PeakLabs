@@ -21,6 +21,7 @@ public class HomeController : Controller
             .Where(article => article.Status == "published")
             .Include(article => article.Category)
             .Include(article => article.Author)
+            .Include(article => article.Hashtags)
             .OrderByDescending(article => article.PublishedAt)
             .Take(6)
             .ToListAsync();

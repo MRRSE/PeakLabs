@@ -269,6 +269,20 @@ namespace PeakLabs.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PeakLabs.Models.ArticleHashtag", b =>
+                {
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Tag")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.HasKey("ArticleId", "Tag");
+
+                    b.ToTable("ArticleHashtag", (string)null);
+                });
+
             modelBuilder.Entity("PeakLabs.Models.ArticleSection", b =>
                 {
                     b.Property<int>("Id")
@@ -356,6 +370,9 @@ namespace PeakLabs.Data.Migrations
                         .HasColumnType("nvarchar(60)")
                         .HasDefaultValue("");
 
+                    b.Property<string>("GitHubUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -367,6 +384,9 @@ namespace PeakLabs.Data.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)")
                         .HasDefaultValue("");
+
+                    b.Property<string>("LinkedInUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -523,6 +543,17 @@ namespace PeakLabs.Data.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("PeakLabs.Models.ArticleHashtag", b =>
+                {
+                    b.HasOne("PeakLabs.Models.Article", "Article")
+                        .WithMany("Hashtags")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+                });
+
             modelBuilder.Entity("PeakLabs.Models.ArticleSection", b =>
                 {
                     b.HasOne("PeakLabs.Models.Article", "Article")
@@ -547,6 +578,8 @@ namespace PeakLabs.Data.Migrations
 
             modelBuilder.Entity("PeakLabs.Models.Article", b =>
                 {
+                    b.Navigation("Hashtags");
+
                     b.Navigation("Sections");
                 });
 
