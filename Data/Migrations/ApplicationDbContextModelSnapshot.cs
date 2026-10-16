@@ -385,6 +385,14 @@ namespace PeakLabs.Data.Migrations
                         .HasColumnType("nvarchar(80)")
                         .HasDefaultValue("");
 
+                    b.Property<DateTimeOffset>("ArticlesLastViewedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<DateTimeOffset>("PortfolioLastViewedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
                     b.Property<string>("LinkedInUrl")
                         .HasColumnType("nvarchar(max)");
 

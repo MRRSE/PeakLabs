@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using PeakLabs.Areas.Admin.Models;
 using PeakLabs.Data;
 using PeakLabs.Models;
+using PeakLabs.Models.Identity;
+using Microsoft.AspNetCore.Identity;
 
 namespace PeakLabs.Areas.Admin.Controllers;
 
@@ -14,15 +16,24 @@ public class PortfolioController : Controller
     private const long MaxImageSize = 5 * 1024 * 1024;
     private readonly ApplicationDbContext _dbContext;
     private readonly IWebHostEnvironment _environment;
+    private readonly UserManager<PeakLabsUser> _userManager;
 
-    public PortfolioController(ApplicationDbContext dbContext, IWebHostEnvironment environment)
+    public PortfolioController(ApplicationDbContext dbContext, IWebHostEnvironment environment, UserManager<PeakLabsUser> userManager)
     {
         _dbContext = dbContext;
         _environment = environment;
+        _userManager = userManager;
     }
 
     public async Task<IActionResult> Index()
     {
+        var dashboardUser = await _userManager.GetUserAsync(User);
+        if (dashboardUser is not null)
+        {
+            dashboardUser.PortfolioLastViewedAt = DateTimeOffset.UtcNow;
+            await _userManager.UpdateAsync(dashboardUser);
+        }
+
         var items = await _dbContext.Portfolio
             .AsNoTracking()
             .OrderByDescending(item => item.AddedAt)

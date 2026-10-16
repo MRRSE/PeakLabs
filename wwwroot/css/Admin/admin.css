@@ -122,6 +122,12 @@
   text-align: center;
 }
 
+.nav a .badge-new {
+  background: #10b981;
+  color: #03251b;
+  font-weight: 700;
+}
+
 .nav button.active .badge {
   background: var(--color-primary);
   color: #03140d;

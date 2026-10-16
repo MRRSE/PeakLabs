@@ -27,6 +27,13 @@ public class ArticlesController : Controller
 
     public async Task<IActionResult> Index()
     {
+        var dashboardUser = await _userManager.GetUserAsync(User);
+        if (dashboardUser is not null)
+        {
+            dashboardUser.ArticlesLastViewedAt = DateTimeOffset.UtcNow;
+            await _userManager.UpdateAsync(dashboardUser);
+        }
+
         var model = new ArticleAdminIndexViewModel
         {
             Articles = await _dbContext.Articles.AsNoTracking()
