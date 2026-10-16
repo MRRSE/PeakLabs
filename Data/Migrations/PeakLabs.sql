@@ -141,3 +141,14 @@ VALUES (N'20261012120000_AddPortfolio', N'10.0.10');
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+ALTER TABLE [AspNetUsers] ADD [ArticlesLastViewedAt] datetimeoffset NOT NULL DEFAULT (SYSUTCDATETIME());
+
+ALTER TABLE [AspNetUsers] ADD [PortfolioLastViewedAt] datetimeoffset NOT NULL DEFAULT (SYSUTCDATETIME());
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'20261016190000_AddDashboardContentLastViewedAt', N'10.0.10');
+
+COMMIT;
+GO
+

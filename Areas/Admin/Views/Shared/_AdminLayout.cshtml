@@ -1,8 +1,11 @@
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
 @using PeakLabs.Models.Identity
 @inject UserManager<PeakLabsUser> UserManager
+@inject PeakLabs.Data.ApplicationDbContext DbContext
 @{
     var currentDashboardUser = await UserManager.GetUserAsync(User);
+    var unseenArticlesCount = currentDashboardUser is null ? 0 : await DbContext.Articles.CountAsync(article => article.PublishedAt > currentDashboardUser.ArticlesLastViewedAt);
     var currentDashboardUserName = currentDashboardUser is null
         ? User.Identity?.Name ?? "کاربر داشبورد"
         : $"{currentDashboardUser.FirstName} {currentDashboardUser.LastName}".Trim();
@@ -76,12 +79,15 @@
                 <a class="@(IsCurrentPage("Articles") ? "active" : "")" asp-area="Admin" asp-controller="Articles" asp-action="Index">
                     <i class="bi bi-journal-text"></i>
                     <span>مقالات</span>
-                    <span class="badge">24</span>
+                    @if (unseenArticlesCount > 0)
+                    {
+                        <span class="badge badge-new">@unseenArticlesCount</span>
+                    }
                 </a>
                 <a class="@(IsCurrentPage("Portfolio") ? "active" : "")" asp-area="Admin" asp-controller="Portfolio" asp-action="Index">
                     <i class="bi bi-kanban"></i>
                     <span>نمونه‌کارها</span>
-                    <span class="badge">8</span>
+                    <span class="badge badge-new">10</span>
                 </a>
             </nav>
             <div class="side-label">تیم و دسترسی</div>
@@ -174,7 +180,7 @@
         <partial name="_Toast" />
     </div>
     <link rel="stylesheet" href="~/css/admin/responsive.css">
-    <script src="~/js/admin/dashboard.js"></script>
+    <script src="~/js/admin/dashboard.js" asp-append-version="true"></script>
     <script src="~/js/base/theme.js" asp-append-version="true"></script>
     <script src="~/js/base/main.js"></script>
     @await RenderSectionAsync("Scripts", required: false)

@@ -131,6 +131,8 @@ public class AuthController : Controller
                 Email = user.Email ?? string.Empty,
                 ProfileImagePath = user.ProfileImagePath,
                 AuthorDescription = user.AuthorDescription,
+                LinkedInUrl = user.LinkedInUrl,
+                GitHubUrl = user.GitHubUrl,
                 IsActive = user.IsActive,
                 RoleDisplayName = DashboardRoles.GetDisplayName(roleName),
                 AccessDescription = DashboardRoles.GetAccessDescription(roleName),
@@ -200,6 +202,8 @@ public class AuthController : Controller
             AuthorDescription = string.IsNullOrWhiteSpace(input.AuthorDescription)
                 ? null
                 : input.AuthorDescription.Trim(),
+            LinkedInUrl = NormalizeSocialUrl(input.LinkedInUrl),
+            GitHubUrl = NormalizeSocialUrl(input.GitHubUrl),
             ProfileImagePath = profileImagePath,
             IsActive = input.IsActive,
         };
@@ -337,6 +341,8 @@ public class AuthController : Controller
         user.AuthorDescription = string.IsNullOrWhiteSpace(input.AuthorDescription)
             ? null
             : input.AuthorDescription.Trim();
+        user.LinkedInUrl = NormalizeSocialUrl(input.LinkedInUrl);
+        user.GitHubUrl = NormalizeSocialUrl(input.GitHubUrl);
         if (newImagePath is not null)
         {
             user.ProfileImagePath = newImagePath;
@@ -459,6 +465,16 @@ public class AuthController : Controller
         {
             System.IO.File.Delete(physicalPath);
         }
+    }
+
+    private static string? NormalizeSocialUrl(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        var trimmed = value.Trim();
+        return Uri.TryCreate(trimmed, UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+                ? uri.ToString()
+                : null;
     }
 
     private static bool IsSupportedImage(IFormFile image, string extension)

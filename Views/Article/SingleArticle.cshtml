@@ -1,11 +1,147 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-<partial name="_ArticleMainSec"/>
-</body>
-</html>
+@model PeakLabs.Models.ArticleDetailViewModel
+@using System.Globalization
+@using System.Linq
+@{
+    var article = Model.Article;
+    ViewData["Title"] = article.Title;
+    var authorName = article.Author is null
+        ? "نویسنده نامشخص"
+        : $"{article.Author.FirstName} {article.Author.LastName}".Trim();
+    var initials = article.Author is null
+        ? "؟"
+        : string.Concat(article.Author.FirstName.FirstOrDefault(), article.Author.LastName.FirstOrDefault()).Trim('\0');
+    var sections = article.Sections.OrderBy(section => section.Order).ToList();
+}
+
+<section class="container section article-detail">
+    <div class="article-hero" role="img" aria-label="طرح سبز مقاله PeakLabs">
+        <svg viewBox="0 0 1200 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+            <defs>
+                <linearGradient id="articleHeroGradient" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#0F172A" />
+                    <stop offset="0.6" stop-color="#0F766E" />
+                    <stop offset="1" stop-color="#10B981" />
+                </linearGradient>
+            </defs>
+            <rect width="1200" height="460" fill="url(#articleHeroGradient)" />
+            <path d="M0 380 L200 220 L320 320 L520 140 L680 300 L860 200 L1200 380 Z" fill="rgba(255,255,255,.06)" />
+            <path d="M0 420 L260 280 L400 360 L620 200 L800 340 L1000 250 L1200 420 Z" fill="rgba(255,255,255,.10)" />
+        </svg>
+    </div>
+
+    <div class="article-layout">
+        <aside class="toc">
+            @if (sections.Any(section => !string.IsNullOrWhiteSpace(section.Title)))
+            {
+                <h4>در این مقاله</h4>
+                @for (var index = 0; index < sections.Count; index++)
+                {
+                    if (!string.IsNullOrWhiteSpace(sections[index].Title))
+                    {
+                        <a href="#article-section-@index">@sections[index].Title</a>
+                    }
+                }
+            }
+        </aside>
+
+        <article>
+            <div class="article-meta-row">
+                <span class="card-cat">@article.Category.Name</span>
+                <span aria-hidden="true">·</span>
+                <time datetime="@article.PublishedAt.ToString("O")">@article.PublishedAt.ToLocalTime().ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("fa-IR"))</time>
+                <span aria-hidden="true">·</span>
+                <span><i class="bi bi-eye" aria-hidden="true"></i> <span id="articleViewCount">@article.ViewCount.ToString("N0", CultureInfo.GetCultureInfo("fa-IR"))</span> بازدید</span>
+            </div>
+            <h1 class="article-title">@article.Title</h1>
+            <p class="article-summary">@article.ShortDescription</p>
+
+            <div class="article-body">
+                @for (var index = 0; index < sections.Count; index++)
+                {
+                    var articleSection = sections[index];
+                    if (!string.IsNullOrWhiteSpace(articleSection.Title))
+                    {
+                        var headingType = articleSection.HeadingType switch
+                        {
+                            "H3" => "h3",
+                            "H4" => "h4",
+                            _ => "h2"
+                        };
+                        if (headingType == "h3")
+                        {
+                            <h3 id="article-section-@index">@articleSection.Title</h3>
+                        }
+                        else if (headingType == "h4")
+                        {
+                            <h4 id="article-section-@index">@articleSection.Title</h4>
+                        }
+                        else
+                        {
+                            <h2 id="article-section-@index">@articleSection.Title</h2>
+                        }
+                    }
+                    <p class="article-section-content">@articleSection.Content</p>
+                }
+            </div>
+
+            <div class="share-bar" aria-label="اشتراک‌گذاری مقاله">
+                <span>اشتراک‌گذاری این مقاله</span>
+                <div class="article-share-actions">
+                    <button class="icon-btn article-share-button" type="button" data-share="x" aria-label="اشتراک در ایکس" title="اشتراک در ایکس"><i class="bi bi-twitter-x"></i></button>
+                    <button class="icon-btn article-share-button" type="button" data-share="linkedin" aria-label="اشتراک در لینکدین" title="اشتراک در لینکدین"><i class="bi bi-linkedin"></i></button>
+                    <button class="icon-btn article-share-button" type="button" data-share="copy" aria-label="کپی پیوند مقاله" title="کپی پیوند"><i class="bi bi-link-45deg"></i></button>
+                </div>
+            </div>
+
+            <section class="author-box article-author-card" aria-label="درباره نویسنده">
+                @if (!string.IsNullOrWhiteSpace(article.Author?.ProfileImagePath))
+                {
+                    <img class="avatar article-author-avatar" src="@article.Author.ProfileImagePath" alt="تصویر @authorName" loading="lazy">
+                }
+                else
+                {
+                    <span class="avatar article-author-avatar">@initials</span>
+                }
+                <div class="article-author-copy">
+                    <h2>@authorName</h2>
+                    <p>@(string.IsNullOrWhiteSpace(article.Author?.AuthorDescription) ? "نویسندهٔ تیم PeakLabs" : article.Author.AuthorDescription)</p>
+                    @if (!string.IsNullOrWhiteSpace(article.Author?.LinkedInUrl) || !string.IsNullOrWhiteSpace(article.Author?.GitHubUrl))
+                    {
+                        <div class="socials article-author-socials" aria-label="پیوندهای نویسنده">
+                            @if (!string.IsNullOrWhiteSpace(article.Author?.LinkedInUrl))
+                            {
+                                <a class="icon-btn" href="@article.Author.LinkedInUrl" target="_blank" rel="noopener noreferrer" aria-label="پروفایل LinkedIn نویسنده" title="LinkedIn"><i class="bi bi-linkedin" aria-hidden="true"></i></a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(article.Author?.GitHubUrl))
+                            {
+                                <a class="icon-btn" href="@article.Author.GitHubUrl" target="_blank" rel="noopener noreferrer" aria-label="پروفایل GitHub نویسنده" title="GitHub"><i class="bi bi-github" aria-hidden="true"></i></a>
+                            }
+                        </div>
+                    }
+                </div>
+            </section>
+
+            @if (Model.RelatedArticles.Count > 0)
+            {
+                <section class="article-related" aria-labelledby="relatedArticlesTitle">
+                    <div class="section-head article-related-heading">
+                        <h2 id="relatedArticlesTitle">مقالات مرتبط</h2>
+                    </div>
+                    <div class="related-grid">
+                        @foreach (var relatedArticle in Model.RelatedArticles)
+                        {
+                            <partial name="_ArticleCard" model="relatedArticle" />
+                        }
+                    </div>
+                </section>
+            }
+        </article>
+    </div>
+</section>
+
+<form id="articleViewToken" hidden>@Html.AntiForgeryToken()</form>
+
+@section Scripts {
+    <script>window.peakLabsArticleId = @article.Id;</script>
+    <script src="~/js/pages/single-article.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,47 @@
+@model PeakLabs.Models.Article
+@using System.Globalization
+@using System.Linq
+@{
+    var authorName = Model.Author is null
+        ? "نویسنده نامشخص"
+        : $"{Model.Author.FirstName} {Model.Author.LastName}".Trim();
+    var initials = Model.Author is null
+        ? "؟"
+        : string.Concat(Model.Author.FirstName.FirstOrDefault(), Model.Author.LastName.FirstOrDefault()).Trim('\0');
+    var searchableText = $"{Model.Title} {Model.ShortDescription} {Model.Category.Name} {string.Join(" ", Model.Hashtags.Select(tag => tag.Tag))}";
+}
+
+<article class="card article-card" data-article-card data-category-id="@Model.CategoryId" data-search="@searchableText">
+    <a class="card-cover article-card-cover" asp-controller="Article" asp-action="SingleArticle" asp-route-id="@Model.Id" aria-label="مطالعه @Model.Title">
+        <img src="@Model.CoverImage" alt="تصویر @Model.Title" loading="lazy">
+    </a>
+    <div class="card-body">
+        <span class="card-cat">@Model.Category.Name</span>
+        <h3><a asp-controller="Article" asp-action="SingleArticle" asp-route-id="@Model.Id">@Model.Title</a></h3>
+        <p class="card-desc article-card-description">@Model.ShortDescription</p>
+        @if (Model.Hashtags.Count > 0)
+        {
+            <div class="article-tags article-card-tags" aria-label="هشتگ‌های مقاله">
+                @foreach (var hashtag in Model.Hashtags.OrderBy(tag => tag.Tag))
+                {
+                    <span class="article-tag">#@hashtag.Tag</span>
+                }
+            </div>
+        }
+        <div class="card-meta article-card-meta">
+            <div class="who">
+                @if (!string.IsNullOrWhiteSpace(Model.Author?.ProfileImagePath))
+                {
+                    <img class="avatar article-card-avatar" src="@Model.Author.ProfileImagePath" alt="تصویر @authorName" loading="lazy">
+                }
+                else
+                {
+                    <span class="avatar">@initials</span>
+                }
+                <span>@authorName</span>
+            </div>
+            <time datetime="@Model.PublishedAt.ToString("O")">@Model.PublishedAt.ToLocalTime().ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("fa-IR"))</time>
+            <span class="article-card-views"><i class="bi bi-eye" aria-hidden="true"></i> @Model.ViewCount.ToString("N0", CultureInfo.GetCultureInfo("fa-IR"))</span>
+        </div>
+    </div>
+</article>

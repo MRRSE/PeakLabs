@@ -31,6 +31,10 @@ public sealed class DashboardAccountListItemViewModel
 
     public string? AuthorDescription { get; init; }
 
+    public string? LinkedInUrl { get; init; }
+
+    public string? GitHubUrl { get; init; }
+
     public bool IsActive { get; init; }
 
     public string RoleDisplayName { get; init; } = string.Empty;

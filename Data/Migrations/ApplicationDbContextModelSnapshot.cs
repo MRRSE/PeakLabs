@@ -194,6 +194,9 @@ namespace PeakLabs.Data.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
@@ -266,6 +269,20 @@ namespace PeakLabs.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PeakLabs.Models.ArticleHashtag", b =>
+                {
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Tag")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.HasKey("ArticleId", "Tag");
+
+                    b.ToTable("ArticleHashtag", (string)null);
+                });
+
             modelBuilder.Entity("PeakLabs.Models.ArticleSection", b =>
                 {
                     b.Property<int>("Id")
@@ -300,6 +317,29 @@ namespace PeakLabs.Data.Migrations
                     b.ToTable("ArticleSection", (string)null);
                 });
 
+            modelBuilder.Entity("PeakLabs.Models.ArticleView", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("ViewedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleId");
+
+                    b.HasIndex("ViewedAt");
+
+                    b.ToTable("ArticleView", (string)null);
+                });
+
             modelBuilder.Entity("PeakLabs.Models.Identity.PeakLabsUser", b =>
                 {
                     b.Property<string>("Id")
@@ -307,6 +347,10 @@ namespace PeakLabs.Data.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("ArticlesLastViewedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
 
                     b.Property<string>("AuthorDescription")
                         .HasMaxLength(240)
@@ -330,6 +374,9 @@ namespace PeakLabs.Data.Migrations
                         .HasColumnType("nvarchar(60)")
                         .HasDefaultValue("");
 
+                    b.Property<string>("GitHubUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -341,6 +388,9 @@ namespace PeakLabs.Data.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)")
                         .HasDefaultValue("");
+
+                    b.Property<string>("LinkedInUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -364,6 +414,10 @@ namespace PeakLabs.Data.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("PortfolioLastViewedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
 
                     b.Property<string>("ProfileImagePath")
                         .HasMaxLength(500)
@@ -497,6 +551,17 @@ namespace PeakLabs.Data.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("PeakLabs.Models.ArticleHashtag", b =>
+                {
+                    b.HasOne("PeakLabs.Models.Article", "Article")
+                        .WithMany("Hashtags")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+                });
+
             modelBuilder.Entity("PeakLabs.Models.ArticleSection", b =>
                 {
                     b.HasOne("PeakLabs.Models.Article", "Article")
@@ -508,8 +573,21 @@ namespace PeakLabs.Data.Migrations
                     b.Navigation("Article");
                 });
 
+            modelBuilder.Entity("PeakLabs.Models.ArticleView", b =>
+                {
+                    b.HasOne("PeakLabs.Models.Article", "Article")
+                        .WithMany()
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+                });
+
             modelBuilder.Entity("PeakLabs.Models.Article", b =>
                 {
+                    b.Navigation("Hashtags");
+
                     b.Navigation("Sections");
                 });
 

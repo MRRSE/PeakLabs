@@ -9,6 +9,8 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
 {
     public DbSet<PortfolioItem> Portfolio { get; set; } = null!;
     public DbSet<Article> Articles { get; set; } = null!;
+    public DbSet<ArticleView> ArticleViews { get; set; } = null!;
+    public DbSet<ArticleHashtag> ArticleHashtags { get; set; } = null!;
     public DbSet<ArticleCategory> ArticleCategories { get; set; } = null!;
     public DbSet<ArticleSection> ArticleSections { get; set; } = null!;
 
@@ -23,6 +25,12 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
 
         builder.Entity<PeakLabsUser>(entity =>
         {
+            entity.Property(user => user.ArticlesLastViewedAt)
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+
+            entity.Property(user => user.PortfolioLastViewedAt)
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+
             entity.Property(user => user.FirstName)
                 .HasMaxLength(60)
                 .HasDefaultValue(string.Empty);
@@ -94,6 +102,25 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
             entity.Property(section => section.Order).HasColumnName("Order");
             entity.HasOne(section => section.Article).WithMany(article => article.Sections)
                 .HasForeignKey(section => section.ArticleId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ArticleHashtag>(entity =>
+        {
+            entity.ToTable("ArticleHashtag");
+            entity.HasKey(hashtag => new { hashtag.ArticleId, hashtag.Tag });
+            entity.Property(hashtag => hashtag.Tag).HasMaxLength(40).IsRequired();
+            entity.HasOne(hashtag => hashtag.Article).WithMany(article => article.Hashtags)
+                .HasForeignKey(hashtag => hashtag.ArticleId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ArticleView>(entity =>
+        {
+            entity.ToTable("ArticleView");
+            entity.HasKey(view => view.Id);
+            entity.Property(view => view.ViewedAt).IsRequired();
+            entity.HasIndex(view => view.ViewedAt);
+            entity.HasOne(view => view.Article).WithMany()
+                .HasForeignKey(view => view.ArticleId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

@@ -12,5 +12,13 @@ public class PeakLabsUser : IdentityUser
 
     public string? AuthorDescription { get; set; }
 
+    public string? LinkedInUrl { get; set; }
+
+    public string? GitHubUrl { get; set; }
+
     public bool IsActive { get; set; } = true;
+
+    public DateTimeOffset ArticlesLastViewedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public DateTimeOffset PortfolioLastViewedAt { get; set; } = DateTimeOffset.UtcNow;
 }
