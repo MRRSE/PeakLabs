@@ -17,7 +17,7 @@ namespace PeakLabs.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -349,6 +349,7 @@ namespace PeakLabs.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("ArticlesLastViewedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetimeoffset")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
@@ -416,6 +417,7 @@ namespace PeakLabs.Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTimeOffset>("PortfolioLastViewedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetimeoffset")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
@@ -477,9 +479,37 @@ namespace PeakLabs.Data.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
+                    b.Property<int>("ViewCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.HasKey("Id");
 
                     b.ToTable("Portfolio", (string)null);
+                });
+
+            modelBuilder.Entity("PeakLabs.Models.PortfolioView", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PortfolioItemId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("ViewedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PortfolioItemId");
+
+                    b.HasIndex("ViewedAt");
+
+                    b.ToTable("PortfolioView", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -582,6 +612,17 @@ namespace PeakLabs.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Article");
+                });
+
+            modelBuilder.Entity("PeakLabs.Models.PortfolioView", b =>
+                {
+                    b.HasOne("PeakLabs.Models.PortfolioItem", "PortfolioItem")
+                        .WithMany()
+                        .HasForeignKey("PortfolioItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PortfolioItem");
                 });
 
             modelBuilder.Entity("PeakLabs.Models.Article", b =>

@@ -6,6 +6,9 @@
 @{
     var currentDashboardUser = await UserManager.GetUserAsync(User);
     var unseenArticlesCount = currentDashboardUser is null ? 0 : await DbContext.Articles.CountAsync(article => article.PublishedAt > currentDashboardUser.ArticlesLastViewedAt);
+    var unseenPortfolioCount = currentDashboardUser is null
+        ? 0
+        : await DbContext.Portfolio.CountAsync(item => item.AddedAt > currentDashboardUser.PortfolioLastViewedAt);
     var currentDashboardUserName = currentDashboardUser is null
         ? User.Identity?.Name ?? "کاربر داشبورد"
         : $"{currentDashboardUser.FirstName} {currentDashboardUser.LastName}".Trim();
@@ -87,7 +90,10 @@
                 <a class="@(IsCurrentPage("Portfolio") ? "active" : "")" asp-area="Admin" asp-controller="Portfolio" asp-action="Index">
                     <i class="bi bi-kanban"></i>
                     <span>نمونه‌کارها</span>
-                    <span class="badge badge-new">10</span>
+                    @if (unseenPortfolioCount > 0)
+                    {
+                        <span class="badge badge-new">@unseenPortfolioCount</span>
+                    }
                 </a>
             </nav>
             <div class="side-label">تیم و دسترسی</div>

@@ -33,6 +33,7 @@ public class DashboardController : Controller
             .Where(article => article.Status == "published");
         ViewData["PublishedArticleCount"] = await publishedArticles.CountAsync();
         ViewData["ArticleViewTotal"] = await publishedArticles.SumAsync(article => (long?)article.ViewCount) ?? 0;
+        ViewData["PortfolioItemCount"] = await _dbContext.Portfolio.AsNoTracking().CountAsync();
         ViewData["TopArticles"] = await publishedArticles
             .Include(article => article.Author)
             .OrderByDescending(article => article.ViewCount)
