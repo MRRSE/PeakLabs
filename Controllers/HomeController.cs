@@ -25,6 +25,11 @@ public class HomeController : Controller
             .OrderByDescending(article => article.PublishedAt)
             .Take(6)
             .ToListAsync();
+
+        ViewBag.PublishedArticleCount = await _dbContext.Articles.AsNoTracking()
+            .CountAsync(article => article.Status == "published");
+        ViewBag.PortfolioItemCount = await _dbContext.Portfolio.AsNoTracking().CountAsync();
+
         return View(articles);
     }
 
