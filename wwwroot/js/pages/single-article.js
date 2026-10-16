@@ -6,13 +6,14 @@
   async function recordArticleView() {
     if (!articleId || !token || !countElement) return;
 
-    const key = `peaklabs:article-view:${articleId}`;
+    let clickIntent;
     try {
-      if (sessionStorage.getItem(key)) return;
-      sessionStorage.setItem(key, "pending");
+      clickIntent = JSON.parse(sessionStorage.getItem("peakLabs:article-click") || "null");
+      sessionStorage.removeItem("peakLabs:article-click");
     } catch {
       return;
     }
+    if (!clickIntent || String(clickIntent.id) !== String(articleId) || Date.now() - clickIntent.at > 15000) return;
 
     const body = new FormData();
     body.append("__RequestVerificationToken", token);
@@ -26,9 +27,7 @@
       if (!response.ok) throw new Error("View could not be recorded");
       const result = await response.json();
       countElement.textContent = Number(result.viewCount).toLocaleString("fa-IR");
-      sessionStorage.setItem(key, "recorded");
     } catch (error) {
-      try { sessionStorage.removeItem(key); } catch { /* Storage may be unavailable. */ }
       console.warn("Article view count could not be updated.", error);
     }
   }

@@ -25,6 +25,12 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
 
         builder.Entity<PeakLabsUser>(entity =>
         {
+            entity.Property(user => user.ArticlesLastViewedAt)
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+
+            entity.Property(user => user.PortfolioLastViewedAt)
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+
             entity.Property(user => user.FirstName)
                 .HasMaxLength(60)
                 .HasDefaultValue(string.Empty);

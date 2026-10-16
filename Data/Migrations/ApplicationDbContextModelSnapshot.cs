@@ -348,6 +348,10 @@ namespace PeakLabs.Data.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<DateTimeOffset>("ArticlesLastViewedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
                     b.Property<string>("AuthorDescription")
                         .HasMaxLength(240)
                         .HasColumnType("nvarchar(240)");
@@ -385,14 +389,6 @@ namespace PeakLabs.Data.Migrations
                         .HasColumnType("nvarchar(80)")
                         .HasDefaultValue("");
 
-                    b.Property<DateTimeOffset>("ArticlesLastViewedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
-
-                    b.Property<DateTimeOffset>("PortfolioLastViewedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
-
                     b.Property<string>("LinkedInUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -418,6 +414,10 @@ namespace PeakLabs.Data.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("PortfolioLastViewedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
 
                     b.Property<string>("ProfileImagePath")
                         .HasMaxLength(500)

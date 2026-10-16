@@ -68,10 +68,6 @@ public class ArticleController : Controller
             .SingleOrDefaultAsync();
         if (articleExists is null) return NotFound();
 
-        var cookieName = $"peaklabs-article-view-{id}";
-        if (Request.Cookies.ContainsKey(cookieName))
-            return Ok(new { viewCount = articleExists.ViewCount });
-
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         _dbContext.ArticleViews.Add(new ArticleView { ArticleId = id, ViewedAt = DateTimeOffset.UtcNow });
         await _dbContext.SaveChangesAsync();
@@ -91,16 +87,6 @@ public class ArticleController : Controller
             .Where(article => article.Id == id)
             .Select(article => article.ViewCount)
             .SingleAsync();
-
-        Response.Cookies.Append(cookieName, "1", new CookieOptions
-        {
-            HttpOnly = true,
-            IsEssential = true,
-            MaxAge = TimeSpan.FromMinutes(30),
-            SameSite = SameSiteMode.Lax,
-            Secure = Request.IsHttps,
-            Path = "/"
-        });
 
         return Ok(new { viewCount });
     }
