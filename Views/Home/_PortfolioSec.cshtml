@@ -1,4 +1,3 @@
-@using System.Globalization
 @{
     var portfolioItems = ViewBag.PortfolioItems as IReadOnlyList<PeakLabs.Models.PortfolioItem>
         ?? Array.Empty<PeakLabs.Models.PortfolioItem>();
@@ -11,29 +10,12 @@
                 <span class="eyebrow">نمونه‌کارها</span>
                 <h2 style="margin-top:14px;">محصولاتی که ساخته‌ایم</h2>
             </div>
+            <a asp-controller="Portfolio" asp-action="Index" class="btn btn-outline btn-sm">مشاهده همه نمونه‌کارها</a>
         </div>
         <div class="article-grid">
             @foreach (var item in portfolioItems)
             {
-                <article class="card js-portfolio-card" data-portfolio-id="@item.Id" data-project-url="@item.ProjectLink" tabindex="0" role="link" aria-label="مشاهده پروژه @item.ProjectName">
-                    <div class="portfolio-cover">
-                        <img src="@item.ProjectImagePath" alt="@item.ProjectName" loading="lazy" />
-                    </div>
-                    <div class="card-body">
-                        <h3>@item.ProjectName</h3>
-                        <p class="card-desc">@item.ProjectDescription</p>
-                        <div class="card-meta article-card-meta">
-                            <time datetime="@item.AddedAt.ToString("O")">@item.AddedAt.ToLocalTime().ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("fa-IR"))</time>
-                            <span class="article-card-views" aria-label="@item.ViewCount.ToString("N0", CultureInfo.GetCultureInfo("fa-IR")) بازدید">
-                                <i class="bi bi-eye" aria-hidden="true"></i>
-                                <span data-portfolio-view-number>@item.ViewCount.ToString("N0", CultureInfo.GetCultureInfo("fa-IR"))</span>
-                            </span>
-                        </div>
-                        <a href="@item.ProjectLink" class="card-link js-portfolio-view" data-portfolio-id="@item.Id" target="_blank" rel="noopener noreferrer">
-                            مشاهده پروژه <i class="bi bi-arrow-left"></i>
-                        </a>
-                    </div>
-                </article>
+                <partial name="~/Views/Portfolio/_PortfolioCard.cshtml" model="item" />
             }
         </div>
         @if (portfolioItems.Count == 0)

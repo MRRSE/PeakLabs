@@ -15,9 +15,27 @@ public class PortfolioController : Controller
         _dbContext = dbContext;
     }
 
-    public IActionResult Index()
+    private const int PageSize = 9;
+
+    public async Task<IActionResult> Index(int page = 1)
     {
-        return View();
+        var totalCount = await _dbContext.Portfolio.AsNoTracking().CountAsync();
+        var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)PageSize));
+        page = Math.Clamp(page, 1, totalPages);
+        var items = await _dbContext.Portfolio.AsNoTracking()
+            .OrderByDescending(item => item.AddedAt)
+            .ThenByDescending(item => item.Id)
+            .Skip((page - 1) * PageSize)
+            .Take(PageSize)
+            .ToListAsync();
+
+        return View(new PortfolioIndexViewModel
+        {
+            Items = items,
+            CurrentPage = page,
+            TotalPages = totalPages,
+            TotalCount = totalCount
+        });
     }
 
     [HttpPost]
