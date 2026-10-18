@@ -16,14 +16,9 @@ document.addEventListener("click", (event) => {
       name: editButton.dataset.portfolioName,
       description: editButton.dataset.portfolioDescription,
       link: editButton.dataset.portfolioLink,
-<<<<<<< HEAD
-      imagePath: editButton.dataset.portfolioImage,
-    });
-=======
       image: editButton.dataset.portfolioImage,
     });
     return;
->>>>>>> develope
   }
 
   const deleteButton = event.target.closest(".portfolio-delete-button");

@@ -482,6 +482,23 @@ namespace PeakLabs.Data.Migrations
                     b.ToTable("Portfolio", (string)null);
                 });
 
+            modelBuilder.Entity("PeakLabs.Models.Developer", b =>
+                {
+                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Bio").IsRequired().HasMaxLength(1000).HasColumnType("nvarchar(1000)");
+                    b.Property<DateTimeOffset>("CreatedAt").HasColumnType("datetimeoffset");
+                    b.Property<string>("Email").IsRequired().HasMaxLength(254).HasColumnType("nvarchar(254)");
+                    b.Property<string>("GitHubUrl").HasMaxLength(500).HasColumnType("nvarchar(500)");
+                    b.Property<bool>("IsActive").HasColumnType("bit");
+                    b.Property<string>("JobTitle").IsRequired().HasMaxLength(120).HasColumnType("nvarchar(120)");
+                    b.Property<string>("LinkedInUrl").HasMaxLength(500).HasColumnType("nvarchar(500)");
+                    b.Property<string>("Name").IsRequired().HasMaxLength(120).HasColumnType("nvarchar(120)");
+                    b.HasKey("Id");
+                    b.HasIndex("IsActive");
+                    b.ToTable("Developers", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)

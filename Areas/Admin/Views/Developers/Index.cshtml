@@ -1,78 +1,67 @@
+@model IReadOnlyList<PeakLabs.Models.Developer>
 @{
     Layout = "_AdminLayout";
+    ViewData["Title"] = "مدیریت توسعه‌دهندگان";
 }
 
-
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="~/css/admin/developers.css">
-</head>
-
-<body>
-    <section class="page active">
-        <div class="page-head">
-            <div>
-                <span class="eyebrow">
-                    <i class="bi bi-code-slash"></i>
-                    <span>توسعه‌دهندگان</span>
-                </span>
-                <h1>اعضای نمایش داده‌شده در سایت</h1>
-                <p class="muted">اطلاعات افرادی را که قرار است در سایت اصلی نمایش داده شوند، مستقل از حساب‌های داشبورد مدیریت کنید.</p>
-            </div>
-            <button class="btn btn-primary" onclick="openModal('teamMember')">
-                <i class="bi bi-person-plus"></i><span>اضافه کردن توسعه‌دهنده</span>
-            </button>
+<form id="developerAntiforgeryToken" hidden>@Html.AntiForgeryToken()</form>
+<section class="page active" id="developerPage"
+         data-save-url="@Url.Action("Save", "Developers", new { area = "Admin" })"
+         data-toggle-url="@Url.Action("ToggleActive", "Developers", new { area = "Admin" })"
+         data-delete-url="@Url.Action("Delete", "Developers", new { area = "Admin" })">
+    <div class="page-head">
+        <div>
+            <span class="eyebrow"><i class="bi bi-code-slash"></i><span>توسعه‌دهندگان</span></span>
+            <h1>اعضای نمایش داده‌شده در سایت</h1>
+            <p class="muted">اطلاعات اعضای تیم را مدیریت کنید. حداکثر چهار عضو فعال در بخش «دربارهٔ ما» نمایش داده می‌شوند.</p>
         </div>
-        <div class="panel">
-            <div class="panel-head">
-                <h2>همه توسعه‌دهندگان</h2>
-                <span class="tiny">8 توسعه‌دهنده</span>
-            </div>
-            <div class="table-wrap">
-                <table class="table">
-                    <thead>
+        <button class="btn btn-primary" type="button" id="developerAddButton"><i class="bi bi-person-plus"></i><span>اضافه کردن توسعه‌دهنده</span></button>
+    </div>
+    <div class="panel">
+        <div class="panel-head"><h2>همه توسعه‌دهندگان</h2><span class="tiny">@Model.Count توسعه‌دهنده</span></div>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>عضو</th><th>عنوان شغلی</th><th>ایمیل</th><th>وضعیت نمایش</th><th>عملیات</th></tr></thead>
+                <tbody>
+                    @if (Model.Count == 0)
+                    {
+                        <tr><td colspan="5" class="muted">هنوز توسعه‌دهنده‌ای ثبت نشده است.</td></tr>
+                    }
+                    @foreach (var developer in Model)
+                    {
+                        var initials = string.Concat(developer.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(part => part[0]));
                         <tr>
-                            <th>عضو</th>
-                            <th>عنوان شغلی</th>
-                            <th>ایمیل</th>
-                            <th>وضعیت</th>
-                            <th>عملیات</th>
+                            <td><div class="member"><div class="avatar">@initials</div><div class="item-title">@developer.Name</div></div></td>
+                            <td>@developer.JobTitle</td><td>@(string.IsNullOrWhiteSpace(developer.Email) ? "—" : developer.Email)</td>
+                            <td><button type="button" class="developer-toggle status @(developer.IsActive ? "published" : "archived")" data-id="@developer.Id" aria-pressed="@developer.IsActive">@(developer.IsActive ? "فعال" : "غیرفعال")</button></td>
+                            <td><div class="actions">
+                                <button type="button" class="action developer-edit" title="ویرایش" data-id="@developer.Id" data-name="@developer.Name" data-job-title="@developer.JobTitle" data-email="@developer.Email" data-bio="@developer.Bio" data-linkedin="@developer.LinkedInUrl" data-github="@developer.GitHubUrl" data-active="@developer.IsActive"><i class="bi bi-pencil"></i></button>
+                                <button type="button" class="action developer-delete" title="حذف" data-id="@developer.Id" data-name="@developer.Name"><i class="bi bi-trash3"></i></button>
+                            </div></td>
                         </tr>
-                    </thead>
-                    <tbody id="developerRows">
-                        <tr>
-                            <td>
-                                <div class="member">
-                                    <div class="avatar">MR</div>
-                                    <div>
-                                        <div class="item-title">Mohammad Rasteh</div>
-                                        <div class="role">developer.rasteh@gmail.com</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>مدیر ارشد</td>
-                            <td>developer.rasteh@gmail.com</td>
-                            <td><span class="status published">فعال</span></td>
-                            <td>
-                                <div class="actions">
-                                    <button class="action" onclick="openModal('teamMember')"><i class="bi bi-pencil"></i></button>
-                                    <button class="action"><i class="bi bi-trash3"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                        @* <tr></tr>
-                        <tr></tr>
-                        <tr></tr> *@
-                    </tbody>
-                </table>
-            </div>
+                    }
+                </tbody>
+            </table>
         </div>
-    </section>
-</body>
-<script src="~/js/admin/developers.js"></script>
+    </div>
+</section>
 
-</html>
+<div id="developerEditor" class="developer-editor" hidden>
+    <form id="developerForm">
+        <input type="hidden" name="Id" value="0" />
+        <label>نام و نام خانوادگی<input name="Name" maxlength="120" required /></label>
+        <label>عنوان شغلی<input name="JobTitle" maxlength="120" required /></label>
+        <label>ایمیل<input name="Email" type="email" maxlength="254" /></label>
+        <label>معرفی کوتاه<textarea name="Bio" maxlength="1000" rows="4"></textarea></label>
+        <label>LinkedIn URL<input name="LinkedInUrl" type="url" maxlength="500" /></label>
+        <label>GitHub URL<input name="GitHubUrl" type="url" maxlength="500" /></label>
+        <label class="developer-active-field"><input name="IsActive" type="checkbox" value="true" /> نمایش در بخش دربارهٔ ما <span class="muted">حداکثر چهار نفر</span></label>
+        <div id="developerFormError" class="form-error" hidden></div>
+        <div class="developer-form-actions"><button class="btn btn-outline" type="button" id="developerCancel">انصراف</button><button class="btn btn-primary" type="submit">ذخیره</button></div>
+    </form>
+</div>
+
+<div id="developerToast" class="developer-toast" role="status" aria-live="polite"></div>
+@section Scripts {
+    <script src="~/js/Admin/developers.js" asp-append-version="true"></script>
+}

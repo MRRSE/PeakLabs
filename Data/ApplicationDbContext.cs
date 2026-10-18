@@ -13,6 +13,7 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
     public DbSet<ArticleHashtag> ArticleHashtags { get; set; } = null!;
     public DbSet<ArticleCategory> ArticleCategories { get; set; } = null!;
     public DbSet<ArticleSection> ArticleSections { get; set; } = null!;
+    public DbSet<Developer> Developers { get; set; } = null!;
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -58,6 +59,20 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
             entity.Property(item => item.ProjectDescription).HasMaxLength(1000).IsRequired();
             entity.Property(item => item.ProjectLink).HasMaxLength(500).IsRequired();
             entity.Property(item => item.AddedAt).IsRequired();
+        });
+
+        builder.Entity<Developer>(entity =>
+        {
+            entity.ToTable("Developers");
+            entity.HasKey(developer => developer.Id);
+            entity.Property(developer => developer.Name).HasMaxLength(120).IsRequired();
+            entity.Property(developer => developer.JobTitle).HasMaxLength(120).IsRequired();
+            entity.Property(developer => developer.Email).HasMaxLength(254).IsRequired();
+            entity.Property(developer => developer.Bio).HasMaxLength(1000).IsRequired();
+            entity.Property(developer => developer.LinkedInUrl).HasMaxLength(500);
+            entity.Property(developer => developer.GitHubUrl).HasMaxLength(500);
+            entity.Property(developer => developer.CreatedAt).IsRequired();
+            entity.HasIndex(developer => developer.IsActive);
         });
 
         builder.Entity<ArticleCategory>(entity =>

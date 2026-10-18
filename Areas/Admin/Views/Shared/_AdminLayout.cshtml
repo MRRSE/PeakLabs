@@ -53,6 +53,10 @@
     <link rel="stylesheet" href="~/css/components/navbar.css">
     <link rel="stylesheet" href="~/css/components/pages.css">
     <link rel="stylesheet" href="~/css/Admin/card.css" asp-append-version="true">
+    @if (string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Developers", StringComparison.OrdinalIgnoreCase))
+    {
+        <link rel="stylesheet" href="~/css/Admin/developers.css" asp-append-version="true" />
+    }
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
