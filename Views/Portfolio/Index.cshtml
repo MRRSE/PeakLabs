@@ -1,15 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
+@model PortfolioIndexViewModel
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-
-<body>
-    <partial name="_PortfolioHeroSec" />
-    <partial name="_PortfolioSec" />
-    <partial name="_PageCounter" />
-</body>
-
-</html>
+<partial name="_PortfolioHeroSec" model="Model.TotalItems" />
+<partial name="_PortfolioSec" model="Model.Items" />
+<partial name="_PageCounter" model="Model" />
