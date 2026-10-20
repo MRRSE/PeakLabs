@@ -71,6 +71,7 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
             entity.Property(developer => developer.Bio).HasMaxLength(1000).IsRequired();
             entity.Property(developer => developer.LinkedInUrl).HasMaxLength(500);
             entity.Property(developer => developer.GitHubUrl).HasMaxLength(500);
+            entity.Property(developer => developer.ProfileImagePath).HasMaxLength(500);
             entity.Property(developer => developer.CreatedAt).IsRequired();
             entity.HasIndex(developer => developer.IsActive);
         });

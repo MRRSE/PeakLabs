@@ -7,6 +7,8 @@
   const token = document.querySelector("#developerAntiforgeryToken input[name='__RequestVerificationToken']")?.value;
   const errorBox = document.getElementById("developerFormError");
   const toast = document.getElementById("developerToast");
+  const imagePreview = document.getElementById("developerImagePreview");
+  let previewUrl;
   const fields = Object.fromEntries([...form.elements].filter((element) => element.name).map((element) => [element.name, element]));
   let toastTimer;
 
@@ -19,6 +21,10 @@
 
   function open(item = {}) {
     form.reset();
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    previewUrl = null;
+    imagePreview.hidden = !item.profileImage;
+    imagePreview.src = item.profileImage || "";
     fields.Id.value = item.id || 0;
     fields.Name.value = item.name || "";
     fields.JobTitle.value = item.jobTitle || "";
@@ -33,6 +39,13 @@
   }
   function close() { editor.hidden = true; }
 
+  fields.ProfileImage.addEventListener("change", () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    previewUrl = fields.ProfileImage.files[0] ? URL.createObjectURL(fields.ProfileImage.files[0]) : null;
+    imagePreview.src = previewUrl || "";
+    imagePreview.hidden = !previewUrl;
+  });
+
   document.getElementById("developerAddButton").addEventListener("click", () => open());
   document.getElementById("developerCancel").addEventListener("click", close);
   editor.addEventListener("click", (event) => { if (event.target === editor) close(); });
@@ -40,7 +53,7 @@
   document.addEventListener("click", async (event) => {
     const edit = event.target.closest(".developer-edit");
     if (edit) {
-      open({ id: edit.dataset.id, name: edit.dataset.name, jobTitle: edit.dataset.jobTitle, email: edit.dataset.email, bio: edit.dataset.bio, linkedin: edit.dataset.linkedin, github: edit.dataset.github, active: edit.dataset.active });
+      open({ id: edit.dataset.id, name: edit.dataset.name, jobTitle: edit.dataset.jobTitle, email: edit.dataset.email, bio: edit.dataset.bio, linkedin: edit.dataset.linkedin, github: edit.dataset.github, profileImage: edit.dataset.profileImage, active: edit.dataset.active });
       return;
     }
 

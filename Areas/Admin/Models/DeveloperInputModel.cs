@@ -25,4 +25,6 @@ public class DeveloperInputModel
     public string? GitHubUrl { get; set; }
 
     public bool IsActive { get; set; }
+
+    public IFormFile? ProfileImage { get; set; }
 }

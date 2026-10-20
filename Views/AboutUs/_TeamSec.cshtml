@@ -9,7 +9,7 @@
                 {
                     var initials = string.Concat(developer.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(part => part[0]));
                     <article class="team-card reveal">
-                        <div class="team-photo">@initials</div>
+                        <div class="team-photo">@if (!string.IsNullOrWhiteSpace(developer.ProfileImagePath)) { <img src="@developer.ProfileImagePath" alt="تصویر پروفایل @developer.Name" loading="lazy" /> } else { @initials }</div>
                         <h4>@developer.Name</h4>
                         <span class="team-role">@developer.JobTitle</span>
                         @if (!string.IsNullOrWhiteSpace(developer.Bio)) { <p class="team-bio">@developer.Bio</p> }

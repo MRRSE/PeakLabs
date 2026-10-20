@@ -494,6 +494,7 @@ namespace PeakLabs.Data.Migrations
                     b.Property<string>("JobTitle").IsRequired().HasMaxLength(120).HasColumnType("nvarchar(120)");
                     b.Property<string>("LinkedInUrl").HasMaxLength(500).HasColumnType("nvarchar(500)");
                     b.Property<string>("Name").IsRequired().HasMaxLength(120).HasColumnType("nvarchar(120)");
+                    b.Property<string>("ProfileImagePath").HasMaxLength(500).HasColumnType("nvarchar(500)");
                     b.HasKey("Id");
                     b.HasIndex("IsActive");
                     b.ToTable("Developers", (string)null);

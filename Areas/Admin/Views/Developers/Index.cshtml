@@ -31,11 +31,11 @@
                     {
                         var initials = string.Concat(developer.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(part => part[0]));
                         <tr>
-                            <td><div class="member"><div class="avatar">@initials</div><div class="item-title">@developer.Name</div></div></td>
+                            <td><div class="member">@if (!string.IsNullOrWhiteSpace(developer.ProfileImagePath)) { <img class="avatar account-avatar" src="@developer.ProfileImagePath" alt="تصویر پروفایل @developer.Name" /> } else { <div class="avatar">@initials</div> }<div class="item-title">@developer.Name</div></div></td>
                             <td>@developer.JobTitle</td><td>@(string.IsNullOrWhiteSpace(developer.Email) ? "—" : developer.Email)</td>
                             <td><button type="button" class="developer-toggle status @(developer.IsActive ? "published" : "archived")" data-id="@developer.Id" aria-pressed="@developer.IsActive">@(developer.IsActive ? "فعال" : "غیرفعال")</button></td>
                             <td><div class="actions">
-                                <button type="button" class="action developer-edit" title="ویرایش" data-id="@developer.Id" data-name="@developer.Name" data-job-title="@developer.JobTitle" data-email="@developer.Email" data-bio="@developer.Bio" data-linkedin="@developer.LinkedInUrl" data-github="@developer.GitHubUrl" data-active="@developer.IsActive"><i class="bi bi-pencil"></i></button>
+                                <button type="button" class="action developer-edit" title="ویرایش" data-id="@developer.Id" data-name="@developer.Name" data-job-title="@developer.JobTitle" data-email="@developer.Email" data-bio="@developer.Bio" data-linkedin="@developer.LinkedInUrl" data-github="@developer.GitHubUrl" data-profile-image="@developer.ProfileImagePath" data-active="@developer.IsActive"><i class="bi bi-pencil"></i></button>
                                 <button type="button" class="action developer-delete" title="حذف" data-id="@developer.Id" data-name="@developer.Name"><i class="bi bi-trash3"></i></button>
                             </div></td>
                         </tr>
@@ -52,6 +52,7 @@
         <label>نام و نام خانوادگی<input name="Name" maxlength="120" required /></label>
         <label>عنوان شغلی<input name="JobTitle" maxlength="120" required /></label>
         <label>ایمیل<input name="Email" type="email" maxlength="254" /></label>
+        <label class="developer-image-field">تصویر پروفایل<input name="ProfileImage" type="file" accept="image/png,image/jpeg,image/webp" /><span class="muted">PNG، JPG یا WebP؛ حداکثر ۵ مگابایت</span><img id="developerImagePreview" alt="پیش‌نمایش تصویر پروفایل" hidden /></label>
         <label>معرفی کوتاه<textarea name="Bio" maxlength="1000" rows="4"></textarea></label>
         <label>LinkedIn URL<input name="LinkedInUrl" type="url" maxlength="500" /></label>
         <label>GitHub URL<input name="GitHubUrl" type="url" maxlength="500" /></label>
