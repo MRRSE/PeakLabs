@@ -51,7 +51,14 @@ public class DashboardController : Controller
             _dbContext.Portfolio.Select(item => item.AddedAt), currentMonth, previousMonth);
         ViewData["AccountsTrend"] = await CalculateTrendAsync(
             _userManager.Users.Where(user => user.IsActive).Select(user => user.CreatedAt), currentMonth, previousMonth);
-        ViewData["TopArticles"] = await publishedArticles
+        var topArticlesQuery = publishedArticles;
+        if (User.IsInRole(DashboardRoles.Editor))
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            topArticlesQuery = topArticlesQuery.Where(article => article.AuthorId == currentUserId);
+        }
+
+        ViewData["TopArticles"] = await topArticlesQuery
             .Include(article => article.Author)
             .OrderByDescending(article => article.ViewCount)
             .ThenByDescending(article => article.PublishedAt)

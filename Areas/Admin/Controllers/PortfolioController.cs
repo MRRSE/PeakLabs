@@ -25,6 +25,7 @@ public class PortfolioController : Controller
         _userManager = userManager;
     }
 
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
     public async Task<IActionResult> Index()
     {
         var dashboardUser = await _userManager.GetUserAsync(User);
@@ -42,6 +43,7 @@ public class PortfolioController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager)]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(MaxImageSize + 64 * 1024)]
     public async Task<IActionResult> Create(CreatePortfolioItemInputModel input)
@@ -107,6 +109,7 @@ public class PortfolioController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager)]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(MaxImageSize + 64 * 1024)]
     public async Task<IActionResult> Update(UpdatePortfolioItemInputModel input)
@@ -178,6 +181,7 @@ public class PortfolioController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {

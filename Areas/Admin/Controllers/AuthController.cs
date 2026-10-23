@@ -109,7 +109,7 @@ public class AuthController : Controller
         return RedirectToAction("Profile", "Account", new { area = "Admin" });
     }
 
-    [Authorize(Roles = DashboardRoles.SuperAdmin)]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
     public async Task<IActionResult> AdminUsers()
     {
         var users = await _userManager.Users
