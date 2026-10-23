@@ -208,6 +208,7 @@ public class AuthController : Controller
             GitHubUrl = NormalizeSocialUrl(input.GitHubUrl),
             ProfileImagePath = profileImagePath,
             IsActive = input.IsActive,
+            CreatedAt = DateTimeOffset.UtcNow,
         };
 
         var createResult = await _userManager.CreateAsync(user, input.Password);

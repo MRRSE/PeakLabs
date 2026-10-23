@@ -13,6 +13,7 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
     public DbSet<ArticleHashtag> ArticleHashtags { get; set; } = null!;
     public DbSet<ArticleCategory> ArticleCategories { get; set; } = null!;
     public DbSet<ArticleSection> ArticleSections { get; set; } = null!;
+    public DbSet<SiteVisit> SiteVisits { get; set; } = null!;
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -47,6 +48,9 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
 
             entity.Property(user => user.IsActive)
                 .HasDefaultValue(true);
+
+            entity.Property(user => user.CreatedAt)
+                .HasDefaultValueSql("SYSUTCDATETIME()");
         });
 
         builder.Entity<PortfolioItem>(entity =>
@@ -121,6 +125,15 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
             entity.HasIndex(view => view.ViewedAt);
             entity.HasOne(view => view.Article).WithMany()
                 .HasForeignKey(view => view.ArticleId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<SiteVisit>(entity =>
+        {
+            entity.ToTable("SiteVisit");
+            entity.HasKey(visit => visit.Id);
+            entity.Property(visit => visit.Path).HasMaxLength(500).IsRequired();
+            entity.Property(visit => visit.VisitedAt).IsRequired();
+            entity.HasIndex(visit => visit.VisitedAt);
         });
     }
 }

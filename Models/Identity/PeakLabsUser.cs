@@ -18,6 +18,8 @@ public class PeakLabsUser : IdentityUser
 
     public bool IsActive { get; set; } = true;
 
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
     public DateTimeOffset ArticlesLastViewedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public DateTimeOffset PortfolioLastViewedAt { get; set; } = DateTimeOffset.UtcNow;
