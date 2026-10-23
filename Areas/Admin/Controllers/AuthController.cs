@@ -103,10 +103,12 @@ public class AuthController : Controller
         return RedirectToAction(nameof(Login));
     }
 
+    [HttpGet]
     public IActionResult Profile()
     {
-        return View();
+        return RedirectToAction("Profile", "Account", new { area = "Admin" });
     }
+
     [Authorize(Roles = DashboardRoles.SuperAdmin)]
     public async Task<IActionResult> AdminUsers()
     {
