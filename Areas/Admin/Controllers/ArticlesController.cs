@@ -25,6 +25,7 @@ public class ArticlesController : Controller
         _userManager = userManager;
     }
 
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
     public async Task<IActionResult> Index()
     {
         var dashboardUser = await _userManager.GetUserAsync(User);
@@ -34,13 +35,18 @@ public class ArticlesController : Controller
             await _userManager.UpdateAsync(dashboardUser);
         }
 
-        var model = new ArticleAdminIndexViewModel
-        {
-            Articles = await _dbContext.Articles.AsNoTracking()
+        var isEditor = User.IsInRole(DashboardRoles.Editor);
+        var currentUserId = _userManager.GetUserId(User);
+        var articlesQuery = _dbContext.Articles.AsNoTracking()
                 .Include(article => article.Category)
                 .Include(article => article.Author)
                 .Include(article => article.Sections.OrderBy(section => section.Order))
                 .Include(article => article.Hashtags)
+                .Where(article => !isEditor || article.AuthorId == currentUserId);
+
+        var model = new ArticleAdminIndexViewModel
+        {
+            Articles = await articlesQuery
                 .OrderByDescending(article => article.PublishedAt)
                 .ToListAsync(),
             Categories = await _dbContext.ArticleCategories.AsNoTracking()
@@ -50,6 +56,7 @@ public class ArticlesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(MaxImageSize + 1024 * 1024)]
     public async Task<IActionResult> Create(CreateArticleInputModel input)
@@ -147,6 +154,7 @@ public class ArticlesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(MaxImageSize + 1024 * 1024)]
     public async Task<IActionResult> Update(int id, CreateArticleInputModel input)
@@ -158,6 +166,11 @@ public class ArticlesController : Controller
         if (article is null)
         {
             return NotFound(new { message = "مقاله موردنظر پیدا نشد." });
+        }
+
+        if (User.IsInRole(DashboardRoles.Editor) && article.AuthorId != _userManager.GetUserId(User))
+        {
+            return Forbid();
         }
 
         if (input.CoverImage is { Length: > 0 } image)
@@ -212,6 +225,7 @@ public class ArticlesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
