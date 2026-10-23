@@ -52,7 +52,7 @@
         <label>نام و نام خانوادگی<input name="Name" maxlength="120" required /></label>
         <label>عنوان شغلی<input name="JobTitle" maxlength="120" required /></label>
         <label>ایمیل<input name="Email" type="email" maxlength="254" /></label>
-        <label class="developer-image-field">تصویر پروفایل<input name="ProfileImage" type="file" accept="image/png,image/jpeg,image/webp" /><span class="muted">PNG، JPG یا WebP؛ حداکثر ۵ مگابایت</span><img id="developerImagePreview" alt="پیش‌نمایش تصویر پروفایل" hidden /></label>
+        <div class="developer-image-field field full"><label for="developerProfileImage">تصویر پروفایل</label><div class="upload" onclick="if(event.target.id !== 'developerProfileImage') document.getElementById('developerProfileImage').click()"><i class="bi bi-cloud-arrow-up"></i><strong style="display:block;margin-top:7px">برای آپلود تصویر کلیک کنید</strong><small>PNG، JPG یا WebP · حداکثر ۵ مگابایت</small><input id="developerProfileImage" name="ProfileImage" type="file" accept="image/png,image/jpeg,image/webp" hidden /></div><small id="developerImageName" class="muted"></small><img id="developerImagePreview" class="portfolio-image-preview" alt="پیش‌نمایش تصویر پروفایل" hidden /></div>
         <label>معرفی کوتاه<textarea name="Bio" maxlength="1000" rows="4"></textarea></label>
         <label>LinkedIn URL<input name="LinkedInUrl" type="url" maxlength="500" /></label>
         <label>GitHub URL<input name="GitHubUrl" type="url" maxlength="500" /></label>

@@ -8,6 +8,7 @@
   const errorBox = document.getElementById("developerFormError");
   const toast = document.getElementById("developerToast");
   const imagePreview = document.getElementById("developerImagePreview");
+  const imageName = document.getElementById("developerImageName");
   let previewUrl;
   const fields = Object.fromEntries([...form.elements].filter((element) => element.name).map((element) => [element.name, element]));
   let toastTimer;
@@ -25,6 +26,7 @@
     previewUrl = null;
     imagePreview.hidden = !item.profileImage;
     imagePreview.src = item.profileImage || "";
+    imageName.textContent = "";
     fields.Id.value = item.id || 0;
     fields.Name.value = item.name || "";
     fields.JobTitle.value = item.jobTitle || "";
@@ -41,7 +43,9 @@
 
   fields.ProfileImage.addEventListener("change", () => {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
-    previewUrl = fields.ProfileImage.files[0] ? URL.createObjectURL(fields.ProfileImage.files[0]) : null;
+    const file = fields.ProfileImage.files[0];
+    previewUrl = file ? URL.createObjectURL(file) : null;
+    imageName.textContent = file?.name || "";
     imagePreview.src = previewUrl || "";
     imagePreview.hidden = !previewUrl;
   });
