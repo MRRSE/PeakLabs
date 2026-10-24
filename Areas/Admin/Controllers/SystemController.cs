@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using PeakLabs.Data;
 using PeakLabs.Models;
 using PeakLabs.Models.Identity;
+using PeakLabs.Infrastructure;
 
 namespace PeakLabs.Areas.Admin.Controllers;
 
@@ -12,10 +14,14 @@ namespace PeakLabs.Areas.Admin.Controllers;
 public class SystemController : Controller
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly DashboardActivityLogger _activityLogger;
+    private readonly UserManager<PeakLabsUser> _userManager;
 
-    public SystemController(ApplicationDbContext dbContext)
+    public SystemController(ApplicationDbContext dbContext, DashboardActivityLogger activityLogger, UserManager<PeakLabsUser> userManager)
     {
         _dbContext = dbContext;
+        _activityLogger = activityLogger;
+        _userManager = userManager;
     }
 
     public async Task<IActionResult> Index()
@@ -44,6 +50,7 @@ public class SystemController : Controller
 
         _dbContext.ArticleCategories.Add(new ArticleCategory { Name = name });
         await _dbContext.SaveChangesAsync();
+        await _activityLogger.LogAsync($"دسته‌بندی مقاله «{name}» اضافه شده", _userManager.GetUserId(User));
         TempData["CategorySuccess"] = "دسته‌بندی اضافه شد.";
         return RedirectToAction(nameof(Index));
     }
@@ -63,6 +70,7 @@ public class SystemController : Controller
 
         _dbContext.ArticleCategories.Remove(category);
         await _dbContext.SaveChangesAsync();
+        await _activityLogger.LogAsync($"دسته‌بندی مقاله «{category.Name}» حذف شده", _userManager.GetUserId(User));
         TempData["CategorySuccess"] = "دسته‌بندی حذف شد.";
         return RedirectToAction(nameof(Index));
     }

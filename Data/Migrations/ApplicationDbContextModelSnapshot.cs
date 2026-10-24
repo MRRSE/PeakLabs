@@ -340,6 +340,34 @@ namespace PeakLabs.Data.Migrations
                     b.ToTable("ArticleView", (string)null);
                 });
 
+            modelBuilder.Entity("PeakLabs.Models.DashboardActivity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OccurredAt");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DashboardActivities", (string)null);
+                });
+
             modelBuilder.Entity("PeakLabs.Models.Identity.PeakLabsUser", b =>
                 {
                     b.Property<string>("Id")
@@ -612,6 +640,16 @@ namespace PeakLabs.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Article");
+                });
+
+            modelBuilder.Entity("PeakLabs.Models.DashboardActivity", b =>
+                {
+                    b.HasOne("PeakLabs.Models.Identity.PeakLabsUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PeakLabs.Models.Article", b =>

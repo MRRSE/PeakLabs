@@ -5,6 +5,7 @@ using PeakLabs.Areas.Admin.Models;
 using PeakLabs.Data;
 using PeakLabs.Models;
 using PeakLabs.Models.Identity;
+using PeakLabs.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 
 namespace PeakLabs.Areas.Admin.Controllers;
@@ -17,12 +18,14 @@ public class PortfolioController : Controller
     private readonly ApplicationDbContext _dbContext;
     private readonly IWebHostEnvironment _environment;
     private readonly UserManager<PeakLabsUser> _userManager;
+    private readonly DashboardActivityLogger _activityLogger;
 
-    public PortfolioController(ApplicationDbContext dbContext, IWebHostEnvironment environment, UserManager<PeakLabsUser> userManager)
+    public PortfolioController(ApplicationDbContext dbContext, IWebHostEnvironment environment, UserManager<PeakLabsUser> userManager, DashboardActivityLogger activityLogger)
     {
         _dbContext = dbContext;
         _environment = environment;
         _userManager = userManager;
+        _activityLogger = activityLogger;
     }
 
     [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
@@ -95,6 +98,7 @@ public class PortfolioController : Controller
 
             _dbContext.Portfolio.Add(item);
             await _dbContext.SaveChangesAsync();
+            await _activityLogger.LogAsync($"نمونه‌کار «{item.ProjectName}» اضافه شده", _userManager.GetUserId(User));
             return Ok(new { message = "نمونه‌کار با موفقیت ذخیره شد." });
         }
         catch
@@ -161,6 +165,7 @@ public class PortfolioController : Controller
             item.ProjectDescription = input.ProjectDescription.Trim();
             item.ProjectLink = input.ProjectLink.Trim();
             await _dbContext.SaveChangesAsync();
+            await _activityLogger.LogAsync($"نمونه‌کار «{item.ProjectName}» ویرایش شده", _userManager.GetUserId(User));
 
             if (newImagePhysicalPath is not null)
             {
@@ -193,6 +198,7 @@ public class PortfolioController : Controller
 
         _dbContext.Portfolio.Remove(item);
         await _dbContext.SaveChangesAsync();
+        await _activityLogger.LogAsync($"نمونه‌کار «{item.ProjectName}» حذف شده", _userManager.GetUserId(User));
         DeletePortfolioImage(item.ProjectImagePath);
 
         return Ok(new { message = "نمونه‌کار حذف شد." });
