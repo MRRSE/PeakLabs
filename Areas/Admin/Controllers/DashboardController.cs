@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using PeakLabs.Data;
 using PeakLabs.Models.Identity;
+using PeakLabs.Infrastructure;
 
 namespace PeakLabs.Areas.Admin.Controllers;
 
@@ -14,11 +15,13 @@ public class DashboardController : Controller
 {
     private readonly UserManager<PeakLabsUser> _userManager;
     private readonly ApplicationDbContext _dbContext;
+    private readonly DashboardActivityLogger _activityLogger;
 
-    public DashboardController(UserManager<PeakLabsUser> userManager, ApplicationDbContext dbContext)
+    public DashboardController(UserManager<PeakLabsUser> userManager, ApplicationDbContext dbContext, DashboardActivityLogger activityLogger)
     {
         _userManager = userManager;
         _dbContext = dbContext;
+        _activityLogger = activityLogger;
     }
 
     public async Task<IActionResult> Index()
@@ -27,6 +30,7 @@ public class DashboardController : Controller
         ViewData["WelcomeName"] = string.IsNullOrWhiteSpace(user?.FirstName)
             ? user?.UserName ?? User.Identity?.Name ?? "کاربر"
             : user.FirstName;
+        ViewData["RecentActivities"] = await _dbContext.DashboardActivities.AsNoTracking().Include(x => x.User).OrderByDescending(x => x.OccurredAt).Take(5).ToListAsync();
         ViewData["ArticleCategories"] = await _dbContext.ArticleCategories.AsNoTracking()
             .OrderBy(category => category.Name).ToListAsync();
         var publishedArticles = _dbContext.Articles.AsNoTracking()
@@ -93,6 +97,18 @@ public class DashboardController : Controller
             ["yearly"] = BuildSimpleTrend(trafficEvents, "yearly")
         };
         return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Activities(int page = 1)
+    {
+        page = Math.Max(1, page);
+        const int pageSize = 10;
+        var query = _dbContext.DashboardActivities.AsNoTracking().OrderByDescending(x => x.OccurredAt);
+        var total = await query.CountAsync();
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize)
+            .Select(x => new { x.Message, x.OccurredAt }).ToListAsync();
+        return Json(new { items, page, pageSize, total, hasNext = page * pageSize < total });
     }
 
     private async Task<TrendSummary> CalculateTrendAsync(IQueryable<DateTimeOffset> dates, DateTimeOffset currentMonth, DateTimeOffset previousMonth)

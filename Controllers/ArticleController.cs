@@ -2,16 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PeakLabs.Data;
 using PeakLabs.Models;
+using PeakLabs.Infrastructure;
 
 namespace PeakLabs.Controllers;
 
 public class ArticleController : Controller
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly DashboardActivityLogger _activityLogger;
 
-    public ArticleController(ApplicationDbContext dbContext)
+    public ArticleController(ApplicationDbContext dbContext, DashboardActivityLogger activityLogger)
     {
         _dbContext = dbContext;
+        _activityLogger = activityLogger;
     }
 
     public async Task<IActionResult> Index()
@@ -87,6 +90,8 @@ public class ArticleController : Controller
             .Where(article => article.Id == id)
             .Select(article => article.ViewCount)
             .SingleAsync();
+        if (viewCount >= 1000 && articleExists.ViewCount < 1000)
+            await _activityLogger.LogAsync($"بازدید مقاله از ۱۰۰۰ عبور کرد");
 
         return Ok(new { viewCount });
     }

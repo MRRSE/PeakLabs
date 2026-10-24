@@ -6,6 +6,7 @@ using PeakLabs.Areas.Admin.Models;
 using PeakLabs.Data;
 using PeakLabs.Models;
 using PeakLabs.Models.Identity;
+using PeakLabs.Infrastructure;
 
 namespace PeakLabs.Areas.Admin.Controllers;
 
@@ -17,12 +18,14 @@ public class ArticlesController : Controller
     private readonly ApplicationDbContext _dbContext;
     private readonly IWebHostEnvironment _environment;
     private readonly UserManager<PeakLabsUser> _userManager;
+    private readonly DashboardActivityLogger _activityLogger;
 
-    public ArticlesController(ApplicationDbContext dbContext, IWebHostEnvironment environment, UserManager<PeakLabsUser> userManager)
+    public ArticlesController(ApplicationDbContext dbContext, IWebHostEnvironment environment, UserManager<PeakLabsUser> userManager, DashboardActivityLogger activityLogger)
     {
         _dbContext = dbContext;
         _environment = environment;
         _userManager = userManager;
+        _activityLogger = activityLogger;
     }
 
     [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
@@ -141,6 +144,7 @@ public class ArticlesController : Controller
 
             _dbContext.Articles.Add(article);
             await _dbContext.SaveChangesAsync();
+            await _activityLogger.LogAsync($"مقاله «{article.Title}» ثبت شده", _userManager.GetUserId(User));
             return Ok(new { message = "مقاله با موفقیت ذخیره شد." });
         }
         catch
@@ -214,6 +218,7 @@ public class ArticlesController : Controller
             article.Sections = MapSections(input);
             SyncHashtags(article, input);
             await _dbContext.SaveChangesAsync();
+            await _activityLogger.LogAsync($"مقاله «{article.Title}» ویرایش شده", _userManager.GetUserId(User));
             if (newImagePath is not null) DeleteArticleImage(oldCover);
             return Ok(new { message = "تغییرات مقاله ذخیره شد." });
         }
@@ -234,6 +239,7 @@ public class ArticlesController : Controller
 
         _dbContext.Articles.Remove(article);
         await _dbContext.SaveChangesAsync();
+        await _activityLogger.LogAsync($"مقاله «{article.Title}» حذف شده", _userManager.GetUserId(User));
         DeleteArticleImage(article.CoverImage);
         return Ok(new { message = "مقاله حذف شد." });
     }
