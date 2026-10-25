@@ -17,15 +17,28 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var articles = await _dbContext.Articles.AsNoTracking()
-            .Where(article => article.Status == "published")
-            .Include(article => article.Category)
-            .Include(article => article.Author)
-            .Include(article => article.Hashtags)
-            .OrderByDescending(article => article.PublishedAt)
-            .Take(6)
-            .ToListAsync();
-        return View(articles);
+        var model = new HomeIndexViewModel
+        {
+            Articles = await _dbContext.Articles.AsNoTracking()
+                .Where(article => article.Status == "published")
+                .Include(article => article.Category)
+                .Include(article => article.Author)
+                .Include(article => article.Hashtags)
+                .OrderByDescending(article => article.PublishedAt)
+                .Take(6)
+                .ToListAsync(),
+            Categories = await _dbContext.ArticleCategories.AsNoTracking()
+                .OrderBy(category => category.Id)
+                .Select(category => new ArticleCategorySummary
+                {
+                    Id = category.Id,
+                    Name = category.Name,
+                    ArticleCount = category.Articles.Count(article => article.Status == "published")
+                })
+                .ToListAsync()
+        };
+
+        return View(model);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -14,12 +14,13 @@ public class ArticleController : Controller
         _dbContext = dbContext;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int? categoryId)
     {
         var model = new ArticleIndexViewModel
         {
             Articles = await _dbContext.Articles.AsNoTracking()
-                .Where(article => article.Status == "published")
+                .Where(article => article.Status == "published"
+                    && (!categoryId.HasValue || article.CategoryId == categoryId.Value))
                 .Include(article => article.Category)
                 .Include(article => article.Author)
                 .Include(article => article.Hashtags)

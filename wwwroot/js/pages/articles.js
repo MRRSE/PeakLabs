@@ -4,7 +4,10 @@
   const categoryButtons = [...document.querySelectorAll(".filter-pills [data-category-id]")];
   const count = document.getElementById("articleResultsCount");
   const empty = document.getElementById("articleListEmpty");
-  let activeCategory = "";
+  const requestedCategory = new URLSearchParams(window.location.search).get("categoryId") || "";
+  let activeCategory = categoryButtons.some((button) => button.dataset.categoryId === requestedCategory)
+    ? requestedCategory
+    : "";
 
   function filterArticles() {
     const query = (searchInput?.value || "").trim().toLocaleLowerCase();
@@ -24,12 +27,23 @@
     }
   }
 
+  categoryButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.categoryId === activeCategory);
+  });
+
   searchInput?.addEventListener("input", filterArticles);
   categoryButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      activeCategory = button.dataset.categoryId || "";
-      categoryButtons.forEach((item) => item.classList.toggle("active", item === button));
-      filterArticles();
+      const categoryId = button.dataset.categoryId || "";
+      const url = new URL(window.location.href);
+
+      if (categoryId) {
+        url.searchParams.set("categoryId", categoryId);
+      } else {
+        url.searchParams.delete("categoryId");
+      }
+
+      window.location.assign(url);
     });
   });
 
