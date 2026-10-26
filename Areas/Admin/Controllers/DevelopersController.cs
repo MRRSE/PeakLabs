@@ -5,11 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using PeakLabs.Areas.Admin.Models;
 using PeakLabs.Data;
 using PeakLabs.Models;
+using PeakLabs.Models.Identity;
 
 namespace PeakLabs.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager)]
 public class DevelopersController : Controller
 {
     private const int MaxActiveDevelopers = 4;

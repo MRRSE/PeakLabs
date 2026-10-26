@@ -1,13 +1,19 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using PeakLabs.Models;
+using Microsoft.EntityFrameworkCore;
+using PeakLabs.Data;
 
 namespace PeakLabs.Controllers;
 
 public class PortfolioController : Controller
 {
-    public IActionResult Index()
+    private readonly ApplicationDbContext _dbContext;
+
+    public PortfolioController(ApplicationDbContext dbContext) => _dbContext = dbContext;
+
+    public async Task<IActionResult> Index()
     {
-        return View();
+        var items = await _dbContext.Portfolio.AsNoTracking()
+            .OrderByDescending(item => item.AddedAt).ToListAsync();
+        return View(items);
     }
 }

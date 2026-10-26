@@ -14,6 +14,7 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
     public DbSet<ArticleCategory> ArticleCategories { get; set; } = null!;
     public DbSet<ArticleSection> ArticleSections { get; set; } = null!;
     public DbSet<Developer> Developers { get; set; } = null!;
+    public DbSet<ContactMessage> ContactMessages { get; set; } = null!;
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -137,6 +138,18 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
             entity.HasIndex(view => view.ViewedAt);
             entity.HasOne(view => view.Article).WithMany()
                 .HasForeignKey(view => view.ArticleId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ContactMessage>(entity =>
+        {
+            entity.ToTable("ContactMessages");
+            entity.HasKey(message => message.Id);
+            entity.Property(message => message.Name).HasMaxLength(120).IsRequired();
+            entity.Property(message => message.Email).HasMaxLength(254).IsRequired();
+            entity.Property(message => message.Subject).HasMaxLength(160).IsRequired();
+            entity.Property(message => message.Message).HasMaxLength(5000).IsRequired();
+            entity.Property(message => message.SentAt).IsRequired();
+            entity.HasIndex(message => message.SentAt);
         });
     }
 }

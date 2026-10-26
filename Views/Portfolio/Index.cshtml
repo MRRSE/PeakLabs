@@ -1,15 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-
-<body>
-    <partial name="_PortfolioHeroSec" />
-    <partial name="_PortfolioSec" />
-    <partial name="_PageCounter" />
-</body>
-
-</html>
+@model IReadOnlyList<PeakLabs.Models.PortfolioItem>
+@{ ViewData["Title"] = "نمونه‌کارها"; }
+<partial name="_PortfolioHeroSec" model="Model" />
+<partial name="_PortfolioSec" model="Model" />

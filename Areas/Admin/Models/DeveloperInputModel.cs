@@ -12,7 +12,7 @@ public class DeveloperInputModel
     [Required, StringLength(120)]
     public string JobTitle { get; set; } = string.Empty;
 
-    [EmailAddress, StringLength(254)]
+    [Required, EmailAddress, StringLength(254)]
     public string Email { get; set; } = string.Empty;
 
     [StringLength(1000)]

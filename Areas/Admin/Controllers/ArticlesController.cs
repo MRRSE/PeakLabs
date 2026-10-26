@@ -10,7 +10,7 @@ using PeakLabs.Models.Identity;
 namespace PeakLabs.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
 public class ArticlesController : Controller
 {
     private const long MaxImageSize = 5 * 1024 * 1024;
@@ -37,6 +37,7 @@ public class ArticlesController : Controller
         var model = new ArticleAdminIndexViewModel
         {
             Articles = await _dbContext.Articles.AsNoTracking()
+                .Where(article => !User.IsInRole(DashboardRoles.Editor) || article.AuthorId == _userManager.GetUserId(User))
                 .Include(article => article.Category)
                 .Include(article => article.Author)
                 .Include(article => article.Sections.OrderBy(section => section.Order))
@@ -159,6 +160,8 @@ public class ArticlesController : Controller
         {
             return NotFound(new { message = "مقاله موردنظر پیدا نشد." });
         }
+        if (User.IsInRole(DashboardRoles.Editor) && article.AuthorId != _userManager.GetUserId(User))
+            return Forbid();
 
         if (input.CoverImage is { Length: > 0 } image)
         {
@@ -217,6 +220,7 @@ public class ArticlesController : Controller
     {
         var article = await _dbContext.Articles.FindAsync(id);
         if (article is null) return NotFound(new { message = "مقاله موردنظر پیدا نشد." });
+        if (User.IsInRole(DashboardRoles.Editor) && article.AuthorId != _userManager.GetUserId(User)) return Forbid();
 
         _dbContext.Articles.Remove(article);
         await _dbContext.SaveChangesAsync();

@@ -9,7 +9,7 @@ using PeakLabs.Models.Identity;
 namespace PeakLabs.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
 public class DashboardController : Controller
 {
     private readonly UserManager<PeakLabsUser> _userManager;
@@ -32,6 +32,7 @@ public class DashboardController : Controller
         var publishedArticles = _dbContext.Articles.AsNoTracking()
             .Where(article => article.Status == "published");
         ViewData["PublishedArticleCount"] = await publishedArticles.CountAsync();
+        ViewData["PortfolioCount"] = await _dbContext.Portfolio.CountAsync();
         ViewData["ArticleViewTotal"] = await publishedArticles.SumAsync(article => (long?)article.ViewCount) ?? 0;
         ViewData["TopArticles"] = await publishedArticles
             .Include(article => article.Author)
@@ -41,6 +42,7 @@ public class DashboardController : Controller
             .ToListAsync();
         var trendEvents = await _dbContext.ArticleViews.AsNoTracking()
             .Where(view => view.ViewedAt >= DateTimeOffset.UtcNow.AddYears(-1).AddDays(-1))
+            .Where(view => view.Article.Status == "published")
             .Select(view => new ArticleViewPoint(view.ViewedAt, view.Article.Category.Name))
             .ToListAsync();
         var categories = await _dbContext.ArticleCategories.AsNoTracking()

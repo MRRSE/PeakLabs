@@ -88,22 +88,34 @@
                         <span class="badge badge-new">@unseenArticlesCount</span>
                     }
                 </a>
-                <a class="@(IsCurrentPage("Portfolio") ? "active" : "")" asp-area="Admin" asp-controller="Portfolio" asp-action="Index">
-                    <i class="bi bi-kanban"></i>
-                    <span>نمونه‌کارها</span>
-                    <span class="badge badge-new">10</span>
-                </a>
+                @if (User.IsInRole(DashboardRoles.SuperAdmin) || User.IsInRole(DashboardRoles.ContentManager))
+                {
+                    <a class="@(IsCurrentPage("Portfolio") ? "active" : "")" asp-area="Admin" asp-controller="Portfolio" asp-action="Index">
+                        <i class="bi bi-kanban"></i>
+                        <span>نمونه‌کارها</span>
+                    </a>
+                }
             </nav>
             <div class="side-label">تیم و دسترسی</div>
             <nav class="nav">
-                <a class="@(IsCurrentPage("Developers") ? "active" : "")" asp-area="Admin" asp-controller="Developers" asp-action="Index">
-                    <i class="bi bi-code-slash"></i>
-                    <span>توسعه‌دهندگان</span>
-                </a>
-                <a class="@(IsCurrentPage("Auth", "AdminUsers") ? "active" : "")" asp-area="Admin" asp-controller="Auth" asp-action="AdminUsers">
-                    <i class="bi bi-person-lock"></i>
-                    <span>حساب های داشبورد</span>
-                </a>
+                @if (User.IsInRole(DashboardRoles.SuperAdmin) || User.IsInRole(DashboardRoles.ContentManager))
+                {
+                    <a class="@(IsCurrentPage("Developers") ? "active" : "")" asp-area="Admin" asp-controller="Developers" asp-action="Index">
+                        <i class="bi bi-code-slash"></i>
+                        <span>توسعه‌دهندگان</span>
+                    </a>
+                    <a class="@(IsCurrentPage("ContactMessages") ? "active" : "")" asp-area="Admin" asp-controller="ContactMessages" asp-action="Index">
+                        <i class="bi bi-envelope"></i>
+                        <span>پیام‌های تماس</span>
+                    </a>
+                }
+                @if (User.IsInRole(DashboardRoles.SuperAdmin))
+                {
+                    <a class="@(IsCurrentPage("Auth", "AdminUsers") ? "active" : "")" asp-area="Admin" asp-controller="Auth" asp-action="AdminUsers">
+                        <i class="bi bi-person-lock"></i>
+                        <span>حساب های داشبورد</span>
+                    </a>
+                }
             </nav>
             <div class="side-label">سیستم</div>
             <nav class="nav">
@@ -111,10 +123,13 @@
                     <i class="bi bi-person-circle"></i>
                     <span>پروفایل من</span>
                 </a>
-                <a class="@(IsCurrentPage("System") ? "active" : "")" asp-area="Admin" asp-controller="System" asp-action="Index">
-                    <i class="bi bi-sliders2"></i>
-                    <span>تنظیمات</span>
-                </a>
+                @if (User.IsInRole(DashboardRoles.SuperAdmin) || User.IsInRole(DashboardRoles.ContentManager))
+                {
+                    <a class="@(IsCurrentPage("System") ? "active" : "")" asp-area="Admin" asp-controller="System" asp-action="Index">
+                        <i class="bi bi-sliders2"></i>
+                        <span>تنظیمات</span>
+                    </a>
+                }
             </nav>
             <div class="side-bottom">
                 <div class="user-mini">
