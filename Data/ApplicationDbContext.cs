@@ -11,6 +11,7 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
     public DbSet<Article> Articles { get; set; } = null!;
     public DbSet<ArticleCategory> ArticleCategories { get; set; } = null!;
     public DbSet<ArticleSection> ArticleSections { get; set; } = null!;
+    public DbSet<SiteSettings> SiteSettings { get; set; } = null!;
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -67,6 +68,25 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
                 new ArticleCategory { Id = 6, Name = "برنامه‌نویسی" },
                 new ArticleCategory { Id = 7, Name = "مسیر شغلی" },
                 new ArticleCategory { Id = 8, Name = "معماری نرم‌افزار" });
+        });
+
+        builder.Entity<SiteSettings>(entity =>
+        {
+            entity.ToTable("SiteSettings");
+            entity.HasKey(settings => settings.Id);
+            entity.Property(settings => settings.Id).ValueGeneratedNever();
+            entity.Property(settings => settings.SiteTitle).HasMaxLength(70).IsRequired();
+            entity.Property(settings => settings.SiteDescription).HasMaxLength(300).IsRequired();
+            entity.Property(settings => settings.SiteUrl).HasMaxLength(500);
+            entity.Property(settings => settings.SeoTitle).HasMaxLength(60);
+            entity.Property(settings => settings.SeoDescription).HasMaxLength(160);
+            entity.Property(settings => settings.OgImage).HasMaxLength(500);
+            entity.Property(settings => settings.ContactEmail).HasMaxLength(254);
+            entity.Property(settings => settings.ContactPhone).HasMaxLength(40);
+            entity.Property(settings => settings.Address).HasMaxLength(300);
+            entity.Property(settings => settings.Linkedin).HasMaxLength(500);
+            entity.Property(settings => settings.Github).HasMaxLength(500);
+            entity.Property(settings => settings.Instagram).HasMaxLength(500);
         });
 
         builder.Entity<Article>(entity =>

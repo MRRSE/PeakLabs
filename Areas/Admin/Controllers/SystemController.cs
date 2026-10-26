@@ -21,8 +21,45 @@ public class SystemController : Controller
     {
         ViewData["ArticleCategories"] = await _dbContext.ArticleCategories.AsNoTracking()
             .OrderBy(category => category.Name).ToListAsync();
+        ViewData["SiteSettings"] = await _dbContext.SiteSettings.AsNoTracking().FirstOrDefaultAsync(settings => settings.Id == 1)
+            ?? new SiteSettings();
         return View();
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveSettings([FromBody] SiteSettings input)
+    {
+        if (string.IsNullOrWhiteSpace(input.SiteTitle) || input.SiteTitle.Length > 70
+            || string.IsNullOrWhiteSpace(input.SiteDescription) || input.SiteDescription.Length > 300
+            || (input.SeoTitle?.Length ?? 0) > 60 || (input.SeoDescription?.Length ?? 0) > 160
+            || (input.Address?.Length ?? 0) > 300)
+            return BadRequest(new { message = "مقادیر واردشده معتبر نیستند." });
+
+        var settings = await _dbContext.SiteSettings.FindAsync(1);
+        if (settings is null)
+        {
+            settings = new SiteSettings { Id = 1 };
+            _dbContext.SiteSettings.Add(settings);
+        }
+
+        settings.SiteTitle = input.SiteTitle.Trim();
+        settings.SiteDescription = input.SiteDescription.Trim();
+        settings.SiteUrl = Clean(input.SiteUrl);
+        settings.SeoTitle = Clean(input.SeoTitle);
+        settings.SeoDescription = Clean(input.SeoDescription);
+        settings.OgImage = Clean(input.OgImage);
+        settings.ContactEmail = Clean(input.ContactEmail);
+        settings.ContactPhone = Clean(input.ContactPhone);
+        settings.Address = Clean(input.Address);
+        settings.Linkedin = Clean(input.Linkedin);
+        settings.Github = Clean(input.Github);
+        settings.Instagram = Clean(input.Instagram);
+        await _dbContext.SaveChangesAsync();
+        return Ok(new { message = "تغییرات ذخیره شد." });
+    }
+
+    private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
     [HttpPost]
     [ValidateAntiForgeryToken]
