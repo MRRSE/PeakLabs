@@ -1,4 +1,13 @@
-@model IReadOnlyList<PeakLabs.Models.PortfolioItem>
-@{ ViewData["Title"] = "نمونه‌کارها"; }
-<partial name="_PortfolioHeroSec" model="Model" />
-<partial name="_PortfolioSec" model="Model" />
+@model PeakLabs.Models.PortfolioIndexViewModel
+@{
+    ViewData["Title"] = "نمونه‌کارها";
+}
+
+<form id="portfolioViewToken" hidden>@Html.AntiForgeryToken()</form>
+<partial name="_PortfolioHeroSec" model="Model.TotalCount" />
+<partial name="_PortfolioSec" model="Model.Items" />
+<partial name="_PageCounter" model="Model" />
+
+@section Scripts {
+    <script src="~/js/pages/home.js" asp-append-version="true"></script>
+}

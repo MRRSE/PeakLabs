@@ -1,27 +1,16 @@
 @model IReadOnlyList<PeakLabs.Models.PortfolioItem>
-<section class="section" style="padding-top:0;">
+
+<section class="section portfolio-list-section">
     <div class="container">
-        <div class="section-title-row"></div>
         <div class="article-grid">
             @foreach (var item in Model)
             {
-                <article class="card">
-                    <div class="portfolio-cover" style="padding:0;">
-                        <img src="@item.ProjectImagePath" alt="تصویر @item.ProjectName" loading="lazy" />
-                    </div>
-                    <div class="card-body">
-                        <h3>@item.ProjectName</h3>
-                        <p class="card-desc">@item.ProjectDescription</p>
-                        <a href="@item.ProjectLink" class="card-link" target="_blank" rel="noopener noreferrer">
-                            مشاهده پروژه <i class="bi bi-arrow-left" aria-hidden="true"></i>
-                        </a>
-                    </div>
-                </article>
-            }
-            @if (Model.Count == 0)
-            {
-                <p class="muted">نمونه‌کاری برای نمایش ثبت نشده است.</p>
+                <partial name="~/Views/Portfolio/_PortfolioCard.cshtml" model="item" />
             }
         </div>
+        @if (Model.Count == 0)
+        {
+            <p class="muted">هنوز نمونه‌کاری ثبت نشده است.</p>
+        }
     </div>
 </section>

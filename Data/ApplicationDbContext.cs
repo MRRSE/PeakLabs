@@ -8,6 +8,7 @@ namespace PeakLabs.Data;
 public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
 {
     public DbSet<PortfolioItem> Portfolio { get; set; } = null!;
+    public DbSet<PortfolioView> PortfolioViews { get; set; } = null!;
     public DbSet<Article> Articles { get; set; } = null!;
     public DbSet<ArticleView> ArticleViews { get; set; } = null!;
     public DbSet<ArticleHashtag> ArticleHashtags { get; set; } = null!;
@@ -65,6 +66,17 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
             entity.Property(item => item.ProjectDescription).HasMaxLength(1000).IsRequired();
             entity.Property(item => item.ProjectLink).HasMaxLength(500).IsRequired();
             entity.Property(item => item.AddedAt).IsRequired();
+            entity.Property(item => item.ViewCount).HasDefaultValue(0);
+        });
+
+        builder.Entity<PortfolioView>(entity =>
+        {
+            entity.ToTable("PortfolioView");
+            entity.HasKey(view => view.Id);
+            entity.Property(view => view.ViewedAt).IsRequired();
+            entity.HasIndex(view => view.ViewedAt);
+            entity.HasOne(view => view.PortfolioItem).WithMany()
+                .HasForeignKey(view => view.PortfolioItemId).OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<Developer>(entity =>
