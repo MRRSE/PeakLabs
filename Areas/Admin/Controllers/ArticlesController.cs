@@ -6,6 +6,7 @@ using PeakLabs.Areas.Admin.Models;
 using PeakLabs.Data;
 using PeakLabs.Models;
 using PeakLabs.Models.Identity;
+using PeakLabs.Infrastructure;
 
 namespace PeakLabs.Areas.Admin.Controllers;
 
@@ -17,14 +18,17 @@ public class ArticlesController : Controller
     private readonly ApplicationDbContext _dbContext;
     private readonly IWebHostEnvironment _environment;
     private readonly UserManager<PeakLabsUser> _userManager;
+    private readonly DashboardActivityLogger _activityLogger;
 
-    public ArticlesController(ApplicationDbContext dbContext, IWebHostEnvironment environment, UserManager<PeakLabsUser> userManager)
+    public ArticlesController(ApplicationDbContext dbContext, IWebHostEnvironment environment, UserManager<PeakLabsUser> userManager, DashboardActivityLogger activityLogger)
     {
         _dbContext = dbContext;
         _environment = environment;
         _userManager = userManager;
+        _activityLogger = activityLogger;
     }
 
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
     public async Task<IActionResult> Index()
     {
         var dashboardUser = await _userManager.GetUserAsync(User);
@@ -34,13 +38,18 @@ public class ArticlesController : Controller
             await _userManager.UpdateAsync(dashboardUser);
         }
 
-        var model = new ArticleAdminIndexViewModel
-        {
-            Articles = await _dbContext.Articles.AsNoTracking()
+        var isEditor = User.IsInRole(DashboardRoles.Editor);
+        var currentUserId = _userManager.GetUserId(User);
+        var articlesQuery = _dbContext.Articles.AsNoTracking()
                 .Include(article => article.Category)
                 .Include(article => article.Author)
                 .Include(article => article.Sections.OrderBy(section => section.Order))
                 .Include(article => article.Hashtags)
+                .Where(article => !isEditor || article.AuthorId == currentUserId);
+
+        var model = new ArticleAdminIndexViewModel
+        {
+            Articles = await articlesQuery
                 .OrderByDescending(article => article.PublishedAt)
                 .ToListAsync(),
             Categories = await _dbContext.ArticleCategories.AsNoTracking()
@@ -50,6 +59,7 @@ public class ArticlesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(MaxImageSize + 1024 * 1024)]
     public async Task<IActionResult> Create(CreateArticleInputModel input)
@@ -134,6 +144,7 @@ public class ArticlesController : Controller
 
             _dbContext.Articles.Add(article);
             await _dbContext.SaveChangesAsync();
+            await _activityLogger.LogAsync($"مقاله «{article.Title}» ثبت شده", _userManager.GetUserId(User));
             return Ok(new { message = "مقاله با موفقیت ذخیره شد." });
         }
         catch
@@ -147,6 +158,7 @@ public class ArticlesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(MaxImageSize + 1024 * 1024)]
     public async Task<IActionResult> Update(int id, CreateArticleInputModel input)
@@ -158,6 +170,11 @@ public class ArticlesController : Controller
         if (article is null)
         {
             return NotFound(new { message = "مقاله موردنظر پیدا نشد." });
+        }
+
+        if (User.IsInRole(DashboardRoles.Editor) && article.AuthorId != _userManager.GetUserId(User))
+        {
+            return Forbid();
         }
 
         if (input.CoverImage is { Length: > 0 } image)
@@ -201,6 +218,7 @@ public class ArticlesController : Controller
             article.Sections = MapSections(input);
             SyncHashtags(article, input);
             await _dbContext.SaveChangesAsync();
+            await _activityLogger.LogAsync($"مقاله «{article.Title}» ویرایش شده", _userManager.GetUserId(User));
             if (newImagePath is not null) DeleteArticleImage(oldCover);
             return Ok(new { message = "تغییرات مقاله ذخیره شد." });
         }
@@ -212,6 +230,7 @@ public class ArticlesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
@@ -220,6 +239,7 @@ public class ArticlesController : Controller
 
         _dbContext.Articles.Remove(article);
         await _dbContext.SaveChangesAsync();
+        await _activityLogger.LogAsync($"مقاله «{article.Title}» حذف شده", _userManager.GetUserId(User));
         DeleteArticleImage(article.CoverImage);
         return Ok(new { message = "مقاله حذف شد." });
     }

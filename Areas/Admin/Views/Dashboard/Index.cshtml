@@ -2,7 +2,14 @@
   Layout = "_AdminLayout";
   var welcomeName = ViewData["WelcomeName"] as string ?? "کاربر";
   var topArticles = (IReadOnlyList<PeakLabs.Models.Article>)ViewData["TopArticles"]!;
+  var recentActivities = (IReadOnlyList<PeakLabs.Models.DashboardActivity>)ViewData["RecentActivities"]!;
   var numberFormat = System.Globalization.CultureInfo.GetCultureInfo("fa-IR");
+  var articleViewsTrend = (dynamic)ViewData["ArticleViewsTrend"]!;
+  var publishedArticlesTrend = (dynamic)ViewData["PublishedArticlesTrend"]!;
+  var portfolioTrend = (dynamic)ViewData["PortfolioTrend"]!;
+  var accountsTrend = (dynamic)ViewData["AccountsTrend"]!;
+  string TrendText(dynamic trend) => trend.Percentage == 0 ? "بدون تغییر نسبت به ماه قبل" : $"{(trend.Percentage > 0 ? "افزایش" : "کاهش")} {Math.Abs((decimal)trend.Percentage):0.#}% نسبت به ماه قبل";
+  string TrendClass(dynamic trend) => trend.Percentage < 0 ? "trend trend-down" : "trend";
 }
 
 <html lang="en">
@@ -28,6 +35,20 @@
     <p class="muted">وضعیت فعلی وب‌سایت PeakLabs را اینجا می‌بینید.</p>
   </div>
 </div>
+
+<div class="modal" id="activitiesModal" hidden>
+  <div class="modal-backdrop" data-close-activities></div>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="activitiesModalTitle">
+    <div class="dialog-head"><h2 id="activitiesModalTitle">همه فعالیت‌ها</h2><button type="button" class="icon-btn" data-close-activities><i class="bi bi-x"></i></button></div>
+    <div class="dialog-body" id="allActivitiesList"></div>
+    <div class="dialog-foot"><button type="button" class="btn btn-outline btn-sm" id="activitiesMore">فعالیت‌های قدیمی‌تر</button></div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => { const modal=document.getElementById('activitiesModal'), list=document.getElementById('allActivitiesList'), more=document.getElementById('activitiesMore'); let page=0;
+async function load(){ page++; const r=await fetch(`/Admin/Dashboard/Activities?page=${page}`); const d=await r.json(); d.items.forEach(x=>{const e=document.createElement('div');e.className='activity-item';e.innerHTML=`<span class="activity-dot"></span><div><strong>${x.message}</strong><time>${new Date(x.occurredAt).toLocaleString('fa-IR')}</time></div>`;list.appendChild(e)}); more.hidden=!d.hasNext; }
+document.querySelector('[data-open-activities]')?.addEventListener('click',()=>{modal.hidden=false;modal.classList.add('open');if(!page)load()}); document.querySelectorAll('[data-close-activities]').forEach(x=>x.addEventListener('click',()=>{modal.hidden=true;modal.classList.remove('open')})); more?.addEventListener('click',load); });
+</script>
 <div class="stats">
   <div class="stat">
     <div class="stat-top">
@@ -39,9 +60,9 @@
       </span>
     </div>
     <strong>@(((long)ViewData["ArticleViewTotal"]!).ToString("N0", numberFormat))</strong>
-    <span class="trend">
-      <i class="bi bi-eye"></i>
-      <span>بازدید ثبت‌شدهٔ مقاله‌های منتشرشده</span>
+    <span class="@TrendClass(articleViewsTrend)">
+      <i class="bi @(articleViewsTrend.Percentage < 0 ? "bi-arrow-down-left" : "bi-arrow-up-right")"></i>
+      <span>@TrendText(articleViewsTrend)</span>
     </span>
   </div>
   <div class="stat">
@@ -55,9 +76,9 @@
       </span>
     </div>
     <strong>@(((int)ViewData["PublishedArticleCount"]!).ToString("N0", numberFormat))</strong>
-    <span class="trend">
-      <i class="bi bi-journal-check"></i>
-      <span>منتشرشده</span>
+    <span class="@TrendClass(publishedArticlesTrend)">
+      <i class="bi @(publishedArticlesTrend.Percentage < 0 ? "bi-arrow-down-left" : "bi-arrow-up-right")"></i>
+      <span>@TrendText(publishedArticlesTrend)</span>
     </span>
   </div>
   <div class="stat">
@@ -69,10 +90,10 @@
         <i class="bi bi-boxes"></i>
       </span>
     </div>
-    <strong>@(((int)ViewData["PortfolioItemCount"]!).ToString("N0", numberFormat))</strong>
-    <span class="trend">
-      <i class="bi bi-database-check"></i>
-      <span>نمونه‌کار ثبت‌شده</span>
+    <strong>@(((int)ViewData["PortfolioCount"]!).ToString("N0", numberFormat))</strong>
+    <span class="@TrendClass(portfolioTrend)">
+      <i class="bi @(portfolioTrend.Percentage < 0 ? "bi-arrow-down-left" : "bi-arrow-up-right")"></i>
+      <span>@TrendText(portfolioTrend)</span>
     </span>
   </div>
   <div class="stat">
@@ -84,12 +105,10 @@
         <i class="bi bi-people"></i>
       </span>
     </div>
-    <strong>
-      12
-    </strong>
-    <span class="trend">
-      <i class="bi bi-check2"></i> 100%
-      <span data-t="active">فعال</span>
+    <strong>@(((int)ViewData["ActiveAccountCount"]!).ToString("N0", numberFormat))</strong>
+    <span class="@TrendClass(accountsTrend)">
+      <i class="bi @(accountsTrend.Percentage < 0 ? "bi-arrow-down-left" : "bi-arrow-up-right")"></i>
+      <span>@TrendText(accountsTrend) · فعال</span>
     </span>
   </div>
 </div>
@@ -97,10 +116,14 @@
   <div class="panel">
     <div class="panel-head">
       <div>
-        <h2>بازدید مقاله‌ها</h2>
-        <span class="tiny">دسته‌بندی و بازهٔ زمانی را برای بررسی کلیک‌ها انتخاب کنید.</span>
+        <h2 id="dashboardChartTitle">بازدید مقاله‌ها</h2>
+        <span class="tiny">آمار واقعی ثبت‌شده را بر اساس منبع و بازهٔ زمانی ببینید.</span>
       </div>
       <div class="chart-filters">
+        <select class="select" id="dashboardChartSource" aria-label="منبع نمودار">
+          <option value="articles">بازدید مقاله‌ها</option>
+          <option value="traffic">ترافیک سایت</option>
+        </select>
         <select class="select" id="articleViewCategory" aria-label="دسته‌بندی نمودار بازدید">
           <option value="all">همهٔ دسته‌بندی‌ها</option>
           @foreach (var category in (IReadOnlyList<string>)ViewData["ArticleViewCategories"]!)
@@ -130,42 +153,20 @@
         <h2 class="acticity">فعالیت‌های اخیر</h2>
         <span class="tiny">رویدادهای زنده محیط کاری</span>
       </div>
-      <i class="bi bi-three-dots"></i>
+      <button class="btn btn-outline btn-sm" type="button" data-open-activities>همه فعالیت‌ها</button>
     </div>
     <div class="panel-body">
       <div class="activity">
+        @foreach (var activity in recentActivities)
+        {
         <div class="activity-item">
           <span class="activity-dot"></span>
           <div>
-            <strong>سارا یک مقاله منتشر کرد</strong>
-            <p>Designing clean architecture...</p>
-            <time>2 ساعت پیش</time>
+            <strong>@activity.Message</strong>
+            <time>@activity.OccurredAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</time>
           </div>
         </div>
-        <div class="activity-item">
-          <span class="activity-dot"></span>
-          <div>
-            <strong>رضا پروژه NimbusPay را به‌روزرسانی کرد</strong>
-            <p>Portfolio cover and tech stack</p>
-            <time>48 دقیقه پیش</time>
-          </div>
-        </div>
-        <div class="activity-item">
-          <span class="activity-dot"></span>
-          <div>
-            <strong>توسعه‌دهنده جدید دعوت شد</strong>
-            <p>alex@peaklabs.dev · Editor</p>
-            <time>2 ساعت پیش</time>
-          </div>
-        </div>
-        <div class="activity-item">
-          <span class="activity-dot"></span>
-          <div>
-            <strong>بازدید یک مقاله از ۱۰۰۰ گذشت</strong>
-            <p>Prompt design patterns...</p>
-            <time>4 ساعت پیش</time>
-          </div>
-        </div>
+        }
       </div>
     </div>
   </div>
@@ -225,6 +226,9 @@
       new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)));
   window.articleViewsTrends = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
       ViewData["ArticleViewTrends"],
+      new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)));
+  window.siteTrafficTrends = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+      ViewData["SiteTrafficTrends"],
       new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)));
 </script>
 </body>

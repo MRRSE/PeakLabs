@@ -340,6 +340,34 @@ namespace PeakLabs.Data.Migrations
                     b.ToTable("ArticleView", (string)null);
                 });
 
+            modelBuilder.Entity("PeakLabs.Models.DashboardActivity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OccurredAt");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DashboardActivities", (string)null);
+                });
+
             modelBuilder.Entity("PeakLabs.Models.Identity.PeakLabsUser", b =>
                 {
                     b.Property<string>("Id")
@@ -360,6 +388,11 @@ namespace PeakLabs.Data.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -512,6 +545,29 @@ namespace PeakLabs.Data.Migrations
                     b.ToTable("PortfolioView", (string)null);
                 });
 
+            modelBuilder.Entity("PeakLabs.Models.SiteVisit", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("VisitedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VisitedAt");
+
+                    b.ToTable("SiteVisit", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -623,6 +679,16 @@ namespace PeakLabs.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("PortfolioItem");
+                });
+
+            modelBuilder.Entity("PeakLabs.Models.DashboardActivity", b =>
+                {
+                    b.HasOne("PeakLabs.Models.Identity.PeakLabsUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PeakLabs.Models.Article", b =>
