@@ -3,11 +3,13 @@ using System.Threading.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using PeakLabs.Data;
 using PeakLabs.Models.Identity;
+using PeakLabs.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<DashboardActivityLogger>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrWhiteSpace(connectionString))
@@ -74,6 +76,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseRateLimiter();
+app.UseMiddleware<SiteTrafficMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

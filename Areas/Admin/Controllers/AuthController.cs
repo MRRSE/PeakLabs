@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PeakLabs.Areas.Admin.Models;
 using PeakLabs.Data;
 using PeakLabs.Models.Identity;
+using PeakLabs.Infrastructure;
 
 namespace PeakLabs.Areas.Admin.Controllers;
 
@@ -18,6 +19,7 @@ public class AuthController : Controller
     private readonly UserManager<PeakLabsUser> _userManager;
     private readonly SignInManager<PeakLabsUser> _signInManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly DashboardActivityLogger _activityLogger;
     private readonly IWebHostEnvironment _environment;
     private readonly ApplicationDbContext _dbContext;
 
@@ -25,12 +27,14 @@ public class AuthController : Controller
         UserManager<PeakLabsUser> userManager,
         SignInManager<PeakLabsUser> signInManager,
         RoleManager<IdentityRole> roleManager,
+        DashboardActivityLogger activityLogger,
         IWebHostEnvironment environment,
         ApplicationDbContext dbContext)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _roleManager = roleManager;
+        _activityLogger = activityLogger;
         _environment = environment;
         _dbContext = dbContext;
     }
@@ -78,6 +82,7 @@ public class AuthController : Controller
 
         if (signInResult.Succeeded)
         {
+            await _activityLogger.LogAsync($"ورود کاربر {user.UserName} به داشبورد", user.Id);
             if (!string.IsNullOrWhiteSpace(input.ReturnUrl) && Url.IsLocalUrl(input.ReturnUrl))
             {
                 return LocalRedirect(input.ReturnUrl);
@@ -103,11 +108,13 @@ public class AuthController : Controller
         return RedirectToAction(nameof(Login));
     }
 
+    [HttpGet]
     public IActionResult Profile()
     {
-        return View();
+        return RedirectToAction("Profile", "Account", new { area = "Admin" });
     }
-    [Authorize(Roles = DashboardRoles.SuperAdmin)]
+
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
     public async Task<IActionResult> AdminUsers()
     {
         var users = await _userManager.Users
@@ -206,6 +213,7 @@ public class AuthController : Controller
             GitHubUrl = NormalizeSocialUrl(input.GitHubUrl),
             ProfileImagePath = profileImagePath,
             IsActive = input.IsActive,
+            CreatedAt = DateTimeOffset.UtcNow,
         };
 
         var createResult = await _userManager.CreateAsync(user, input.Password);
@@ -233,6 +241,8 @@ public class AuthController : Controller
             DeleteProfileImage(profileImagePath);
             return BadRequest(new { errors = TranslateIdentityErrors(addToRoleResult) });
         }
+
+        await _activityLogger.LogAsync($"حساب کاربری {user.UserName} اضافه شد", _userManager.GetUserId(User));
 
         return Ok(new { message = "حساب کاربری ساخته شد." });
     }
@@ -425,6 +435,8 @@ public class AuthController : Controller
         {
             return BadRequest(new { message = "وضعیت حساب به‌روزرسانی نشد." });
         }
+        if (!isActive)
+            await _activityLogger.LogAsync($"حساب کاربری {user.UserName} توسط مدیر ارشد غیرفعال شد", _userManager.GetUserId(User));
 
         return Ok(new { message = isActive ? "حساب فعال شد." : "حساب غیرفعال شد." });
     }

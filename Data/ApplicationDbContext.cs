@@ -15,6 +15,8 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
     public DbSet<ArticleSection> ArticleSections { get; set; } = null!;
     public DbSet<Developer> Developers { get; set; } = null!;
     public DbSet<ContactMessage> ContactMessages { get; set; } = null!;
+    public DbSet<SiteVisit> SiteVisits { get; set; } = null!;
+    public DbSet<DashboardActivity> DashboardActivities { get; set; } = null!;
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -49,6 +51,9 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
 
             entity.Property(user => user.IsActive)
                 .HasDefaultValue(true);
+
+            entity.Property(user => user.CreatedAt)
+                .HasDefaultValueSql("SYSUTCDATETIME()");
         });
 
         builder.Entity<PortfolioItem>(entity =>
@@ -150,6 +155,22 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
             entity.Property(message => message.Message).HasMaxLength(5000).IsRequired();
             entity.Property(message => message.SentAt).IsRequired();
             entity.HasIndex(message => message.SentAt);
+        });
+        builder.Entity<SiteVisit>(entity =>
+        {
+            entity.ToTable("SiteVisit");
+            entity.HasKey(visit => visit.Id);
+            entity.Property(visit => visit.Path).HasMaxLength(500).IsRequired();
+            entity.Property(visit => visit.VisitedAt).IsRequired();
+            entity.HasIndex(visit => visit.VisitedAt);
+        });
+        builder.Entity<DashboardActivity>(entity =>
+        {
+            entity.ToTable("DashboardActivities");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Message).HasMaxLength(1000).IsRequired();
+            entity.HasIndex(x => x.OccurredAt);
+            entity.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

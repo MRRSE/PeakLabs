@@ -1,0 +1,155 @@
+@model PeakLabs.Areas.Admin.Models.ProfileInputModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "پروفایل من";
+    var initials = string.Concat(Model.FirstName.FirstOrDefault(), Model.LastName.FirstOrDefault()).Trim('\0');
+    var displayName = string.IsNullOrWhiteSpace(Model.FullName) ? Model.UserName : Model.FullName;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Admin/profile.css" asp-append-version="true" />
+}
+
+<section class="profile-page">
+    <div class="page-head profile-page-head">
+        <div>
+            <span class="eyebrow"><i class="bi bi-person-circle"></i> پروفایل من</span>
+            <h1>اطلاعات حساب کاربری</h1>
+            <p class="muted">اطلاعات شخصی، تصویر و لینک‌های حرفه‌ای خود را به‌روزرسانی کنید.</p>
+        </div>
+    </div>
+
+    @if (TempData["ProfileSuccess"] is string successMessage)
+    {
+        <div class="profile-alert profile-alert-success" role="status">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@successMessage</span>
+        </div>
+    }
+
+    <form asp-action="Profile" method="post" enctype="multipart/form-data" class="profile-layout">
+        <div class="profile-card">
+            <div asp-validation-summary="ModelOnly" class="profile-validation" role="alert"></div>
+
+            <div class="profile-header">
+                <div class="avatar-wrapper">
+                    <div class="profile-avatar">
+                        <span id="avatarText" class="@(string.IsNullOrWhiteSpace(Model.ProfileImagePath) ? string.Empty : "is-hidden")">@(string.IsNullOrWhiteSpace(initials) ? "؟" : initials)</span>
+                        <img id="avatarImage" class="@(string.IsNullOrWhiteSpace(Model.ProfileImagePath) ? string.Empty : "is-visible")"
+                             src="@(Model.ProfileImagePath ?? string.Empty)" alt="تصویر پروفایل @displayName" />
+                    </div>
+                </div>
+                <div>
+                    <h2 class="profile-name">@displayName</h2>
+                    <p class="profile-role">@Model.RoleDisplayName</p>
+                    <button class="profile-image-button" id="profileImageButton" type="button">
+                        <i class="bi bi-camera-fill"></i>
+                        تغییر عکس
+                    </button>
+                    <input asp-for="ProfileImage" id="profileImageInput" class="profile-image-input" accept="image/png,image/jpeg,image/webp" />
+                </div>
+            </div>
+
+            <section class="profile-section">
+                <div class="profile-section-title">
+                    <h3>اطلاعات اصلی</h3>
+                    <p>این اطلاعات در حساب شما و بخش نویسندهٔ مقالات استفاده می‌شوند.</p>
+                </div>
+
+                <div class="profile-form-grid">
+                    <div class="profile-field">
+                        <label asp-for="FirstName">نام</label>
+                        <input asp-for="FirstName" autocomplete="given-name" />
+                        <span asp-validation-for="FirstName"></span>
+                    </div>
+                    <div class="profile-field">
+                        <label asp-for="LastName">نام خانوادگی</label>
+                        <input asp-for="LastName" autocomplete="family-name" />
+                        <span asp-validation-for="LastName"></span>
+                    </div>
+                    <div class="profile-field">
+                        <label asp-for="UserName">نام کاربری</label>
+                        <input asp-for="UserName" autocomplete="username" dir="ltr" />
+                        <span asp-validation-for="UserName"></span>
+                    </div>
+                    <div class="profile-field">
+                        <label asp-for="Email">ایمیل</label>
+                        <input asp-for="Email" type="email" autocomplete="email" dir="ltr" />
+                        <span asp-validation-for="Email"></span>
+                    </div>
+                    <div class="profile-field profile-field-wide">
+                        <label asp-for="AuthorDescription">معرفی کوتاه نویسنده</label>
+                        <textarea asp-for="AuthorDescription" rows="3" placeholder="مثلاً نقش و زمینهٔ تخصصی شما در شرکت"></textarea>
+                        <span asp-validation-for="AuthorDescription"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="profile-section">
+                <div class="profile-section-title">
+                    <h3>لینک‌های حرفه‌ای</h3>
+                    <p>این لینک‌ها پس از ذخیره در حساب شما باقی می‌مانند.</p>
+                </div>
+
+                <div class="profile-form-grid">
+                    <div class="profile-field">
+                        <label asp-for="GitHubUrl"><i class="bi bi-github"></i> لینک GitHub</label>
+                        <input asp-for="GitHubUrl" type="url" dir="ltr" placeholder="https://github.com/username" />
+                        <span asp-validation-for="GitHubUrl"></span>
+                    </div>
+                    <div class="profile-field">
+                        <label asp-for="LinkedInUrl"><i class="bi bi-linkedin linkedin-icon"></i> لینک LinkedIn</label>
+                        <input asp-for="LinkedInUrl" type="url" dir="ltr" placeholder="https://linkedin.com/in/username" />
+                        <span asp-validation-for="LinkedInUrl"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="profile-section profile-security-section">
+                <div class="profile-section-title">
+                    <h3>تغییر رمز عبور</h3>
+                    <p>اگر قصد تغییر رمز ندارید، این بخش را خالی بگذارید.</p>
+                </div>
+
+                <div class="profile-form-grid">
+                    <div class="profile-field profile-field-wide">
+                        <label asp-for="CurrentPassword">رمز عبور فعلی</label>
+                        <input asp-for="CurrentPassword" type="password" value="" autocomplete="current-password" />
+                        <span asp-validation-for="CurrentPassword"></span>
+                    </div>
+                    <div class="profile-field">
+                        <label asp-for="NewPassword">رمز عبور جدید</label>
+                        <input asp-for="NewPassword" type="password" value="" autocomplete="new-password" placeholder="حداقل ۸ نویسه" />
+                        <span asp-validation-for="NewPassword"></span>
+                    </div>
+                    <div class="profile-field">
+                        <label asp-for="ConfirmNewPassword">تکرار رمز عبور جدید</label>
+                        <input asp-for="ConfirmNewPassword" type="password" value="" autocomplete="new-password" />
+                        <span asp-validation-for="ConfirmNewPassword"></span>
+                    </div>
+                </div>
+            </section>
+
+            <div class="profile-actions">
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-check2"></i>
+                    ذخیرهٔ تغییرات
+                </button>
+            </div>
+        </div>
+
+        <aside class="profile-side-card">
+            <h3>نقش و دسترسی‌ها</h3>
+            <p class="muted">دسترسی‌های حساب فعلی شما در پنل مدیریت.</p>
+            <div class="permissions">
+                <span class="permission">@Model.RoleDisplayName</span>
+                <span class="permission">@Model.AccessDescription</span>
+            </div>
+            <p class="profile-image-note"><i class="bi bi-info-circle"></i> تصویر باید PNG، JPG یا WebP و حداکثر ۲ مگابایت باشد.</p>
+        </aside>
+    </form>
+</section>
+
+@section Scripts {
+    <script src="~/js/Admin/profile.js" asp-append-version="true"></script>
+}

@@ -40,7 +40,6 @@
     <title>@ViewData["Title"] - PeakLabs</title>
     <script type="importmap"></script>
 
-    <link rel="stylesheet" href="~/css/Admin/profile.css">
     <link rel="stylesheet" href="~/css/base/variables.css" />
     <link rel="stylesheet" href="~/css/base/reset.css" />
     <link rel="stylesheet" href="~/css/base/typography.css" />
@@ -61,6 +60,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
     <link rel="stylesheet" href="~/css/admin/admin.css">
+    @await RenderSectionAsync("Styles", required: false)
 
 </head>
 
@@ -96,6 +96,8 @@
                     </a>
                 }
             </nav>
+            @if (User.IsInRole(DashboardRoles.SuperAdmin) || User.IsInRole(DashboardRoles.ContentManager))
+            {
             <div class="side-label">تیم و دسترسی</div>
             <nav class="nav">
                 @if (User.IsInRole(DashboardRoles.SuperAdmin) || User.IsInRole(DashboardRoles.ContentManager))
@@ -117,9 +119,10 @@
                     </a>
                 }
             </nav>
+            }
             <div class="side-label">سیستم</div>
             <nav class="nav">
-                <a class="@(IsCurrentPage("Auth", "Profile") ? "active" : "")" asp-area="Admin" asp-controller="Auth" asp-action="Profile">
+                <a class="@(IsCurrentPage("Account", "Profile") ? "active" : "")" asp-area="Admin" asp-controller="Account" asp-action="Profile">
                     <i class="bi bi-person-circle"></i>
                     <span>پروفایل من</span>
                 </a>

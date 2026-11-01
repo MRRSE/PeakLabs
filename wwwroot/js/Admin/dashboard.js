@@ -36,8 +36,11 @@ mobilePanel.querySelectorAll("a").forEach(function (a) {
   if (!canvas) return;
 
   const trends = window.articleViewsTrends || {};
+  const trafficTrends = window.siteTrafficTrends || {};
   const initialTrend = trends.monthly || { labels: [], datasets: [] };
   const categorySelect = document.getElementById("articleViewCategory");
+  const sourceSelect = document.getElementById("dashboardChartSource");
+  const chartTitle = document.getElementById("dashboardChartTitle");
   const buildDatasets = (trend) => {
     const series = trend.datasets || [];
     const selectedCategory = categorySelect?.value || "all";
@@ -156,8 +159,23 @@ mobilePanel.querySelectorAll("a").forEach(function (a) {
   });
 
   const periodSelect = document.getElementById("articleViewPeriod");
+  const currentTrends = () => sourceSelect?.value === "traffic" ? trafficTrends : trends;
+  const updateSourceUi = () => {
+    const isTraffic = sourceSelect?.value === "traffic";
+    if (categorySelect) categorySelect.hidden = isTraffic;
+    if (chartTitle) chartTitle.textContent = isTraffic ? "ترافیک سایت" : "بازدید مقاله‌ها";
+  };
+  sourceSelect?.addEventListener("change", () => {
+    const selected = currentTrends()[periodSelect?.value || "monthly"];
+    if (!selected) return;
+    updateSourceUi();
+    chart.data.labels = selected.labels;
+    chart.data.datasets = [buildDatasets(selected)];
+    renderChartLabels(selected.labels);
+    chart.update();
+  });
   periodSelect?.addEventListener("change", () => {
-    const selected = trends[periodSelect.value];
+    const selected = currentTrends()[periodSelect.value];
     if (!selected) return;
     chart.data.labels = selected.labels;
     chart.data.datasets = [buildDatasets(selected)];
@@ -165,11 +183,12 @@ mobilePanel.querySelectorAll("a").forEach(function (a) {
     chart.update();
   });
   categorySelect?.addEventListener("change", () => {
-    const selected = trends[periodSelect?.value || "monthly"];
+    const selected = currentTrends()[periodSelect?.value || "monthly"];
     if (!selected) return;
     chart.data.datasets = [buildDatasets(selected)];
     chart.update();
   });
+  updateSourceUi();
 
   /*
    * اگر Theme عوض شد، رنگ‌های نمودار هم دوباره از CSS Variables خوانده شوند.
