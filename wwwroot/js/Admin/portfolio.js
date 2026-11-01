@@ -16,7 +16,7 @@ document.addEventListener("click", (event) => {
       name: editButton.dataset.portfolioName,
       description: editButton.dataset.portfolioDescription,
       link: editButton.dataset.portfolioLink,
-      imagePath: editButton.dataset.portfolioImage,
+      image: editButton.dataset.portfolioImage,
     });
     return;
   }

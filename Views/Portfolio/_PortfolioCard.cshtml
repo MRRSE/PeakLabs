@@ -1,0 +1,22 @@
+@model PeakLabs.Models.PortfolioItem
+@using System.Globalization
+
+<article class="card article-card js-portfolio-card" data-portfolio-id="@Model.Id" data-project-url="@Model.ProjectLink" tabindex="0" role="link" aria-label="مشاهده پروژه @Model.ProjectName">
+    <a class="card-cover article-card-cover js-portfolio-view" href="@Model.ProjectLink" data-portfolio-id="@Model.Id" target="_blank" rel="noopener noreferrer" aria-label="مشاهده پروژه @Model.ProjectName">
+        <img src="@Model.ProjectImagePath" alt="@Model.ProjectName" loading="lazy">
+    </a>
+    <div class="card-body">
+        <h3><a class="js-portfolio-view" href="@Model.ProjectLink" data-portfolio-id="@Model.Id" target="_blank" rel="noopener noreferrer">@Model.ProjectName</a></h3>
+        <p class="card-desc article-card-description">@Model.ProjectDescription</p>
+        <div class="card-meta article-card-meta">
+            <time datetime="@Model.AddedAt.ToString("O")">@Model.AddedAt.ToLocalTime().ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("fa-IR"))</time>
+            <span class="article-card-views" aria-label="@Model.ViewCount.ToString("N0", CultureInfo.GetCultureInfo("fa-IR")) بازدید">
+                <i class="bi bi-eye" aria-hidden="true"></i>
+                <span data-portfolio-view-number>@Model.ViewCount.ToString("N0", CultureInfo.GetCultureInfo("fa-IR"))</span>
+            </span>
+        </div>
+        <a href="@Model.ProjectLink" class="card-link js-portfolio-view" data-portfolio-id="@Model.Id" target="_blank" rel="noopener noreferrer">
+            مشاهده پروژه <i class="bi bi-arrow-left"></i>
+        </a>
+    </div>
+</article>
