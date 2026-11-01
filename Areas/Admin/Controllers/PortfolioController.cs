@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Identity;
 namespace PeakLabs.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager)]
 public class PortfolioController : Controller
 {
     private const long MaxImageSize = 5 * 1024 * 1024;

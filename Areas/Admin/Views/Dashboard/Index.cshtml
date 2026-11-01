@@ -91,6 +91,9 @@ document.querySelector('[data-open-activities]')?.addEventListener('click',()=>{
       </span>
     </div>
     <strong>@(((int)ViewData["PortfolioCount"]!).ToString("N0", numberFormat))</strong>
+    <a class="trend" asp-area="Admin" asp-controller="Portfolio" asp-action="Index">
+      <i class="bi bi-pencil-square" aria-hidden="true"></i><span>مدیریت و ویرایش نمونه‌کارها</span>
+    </a>
     <span class="@TrendClass(portfolioTrend)">
       <i class="bi @(portfolioTrend.Percentage < 0 ? "bi-arrow-down-left" : "bi-arrow-up-right")"></i>
       <span>@TrendText(portfolioTrend)</span>

@@ -1,101 +1,114 @@
-// const members = [
-//   {
-//     name: "Sara Rezaei",
-//     init: "SR",
-//     role: "Lead developer",
-//     email: "sara@peaklabs.dev",
-//     perms: ["Articles", "Analytics"],
-//     last: "12 min ago",
-//     status: "online",
-//   },
-//   {
-//     name: "Reza Hosseini",
-//     init: "RH",
-//     role: "Lead developer",
-//     email: "reza@peaklabs.dev",
-//     perms: ["Articles", "Portfolio"],
-//     last: "48 min ago",
-//     status: "online",
-//   },
-//   {
-//     name: "Milad Jafari",
-//     init: "MJ",
-//     role: "Editor",
-//     email: "milad@peaklabs.dev",
-//     perms: ["Articles"],
-//     last: "2 hours ago",
-//     status: "online",
-//   },
-//   {
-//     name: "Alex Morgan",
-//     init: "AM",
-//     role: "Editor",
-//     email: "alex@peaklabs.dev",
-//     perms: ["Articles"],
-//     last: "Yesterday",
-//     status: "offline",
-//   },
-// ];
+(() => {
+  const editor = document.getElementById("developerEditor");
+  const form = document.getElementById("developerForm");
+  const page = document.getElementById("developerPage");
+  if (!editor || !form || !page) return;
 
-// function memberRows(arr, id) {
-//   document.getElementById(id).innerHTML = arr
-//     .map(
-//       (m) =>
-//         `<tr>
-//                     <td>
-//                         <div class="member">
-//                             <div class="avatar">${m.init}</div>
-//                             <div>
-//                                 <div class="item-title">${m.name}</div>
-//                                 <div class="role">${m.email}</div>
-//                             </div>
-//                         </div>
-//                     </td>
+  const token = document.querySelector("#developerAntiforgeryToken input[name='__RequestVerificationToken']")?.value;
+  const errorBox = document.getElementById("developerFormError");
+  const toast = document.getElementById("developerToast");
+  const imagePreview = document.getElementById("developerImagePreview");
+  const imageName = document.getElementById("developerImageName");
+  let previewUrl;
+  const fields = Object.fromEntries([...form.elements].filter((element) => element.name).map((element) => [element.name, element]));
+  let toastTimer;
 
-//                     <td>${tRole(m.role)}</td>
+  function notify(message) {
+    toast.textContent = message;
+    toast.classList.add("visible");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("visible"), 3200);
+  }
 
-//                     <td>
-//                         <div class="permissions">
-//                             ${m.perms
-//                               .map(
-//                                 (p) => `<span class="permission">${p}</span>`,
-//                               )
-//                               .join("")}
-//                         </div>
-//                     </td>
+  function open(item = {}) {
+    form.reset();
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    previewUrl = null;
+    imagePreview.hidden = !item.profileImage;
+    imagePreview.src = item.profileImage || "";
+    imageName.textContent = "";
+    fields.Id.value = item.id || 0;
+    fields.Name.value = item.name || "";
+    fields.JobTitle.value = item.jobTitle || "";
+    fields.Email.value = item.email || "";
+    fields.Bio.value = item.bio || "";
+    fields.LinkedInUrl.value = item.linkedin || "";
+    fields.GitHubUrl.value = item.github || "";
+    fields.IsActive.checked = item.active === true || item.active === "True";
+    errorBox.hidden = true;
+    editor.hidden = false;
+    fields.Name.focus();
+  }
+  function close() { editor.hidden = true; }
 
-//                     <td>${m.last}</td>
+  fields.ProfileImage.addEventListener("change", () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    const file = fields.ProfileImage.files[0];
+    previewUrl = file ? URL.createObjectURL(file) : null;
+    imageName.textContent = file?.name || "";
+    imagePreview.src = previewUrl || "";
+    imagePreview.hidden = !previewUrl;
+  });
 
-//                     <td>
-//                         <span class="status ${m.status === "online" ? "published" : "archived"}">
-//                             ${m.status === "online" ? "آنلاین" : "آفلاین"}
-//                         </span>
-//                     </td>
+  document.getElementById("developerAddButton").addEventListener("click", () => open());
+  document.getElementById("developerCancel").addEventListener("click", close);
+  editor.addEventListener("click", (event) => { if (event.target === editor) close(); });
 
-//                     <td>
-//                         <div class="actions">
-//                             <button
-//                                 class="action"
-//                                 onclick="openModal('${id === "adminRows" ? "admin" : "developer"}')">
+  document.addEventListener("click", async (event) => {
+    const edit = event.target.closest(".developer-edit");
+    if (edit) {
+      open({ id: edit.dataset.id, name: edit.dataset.name, jobTitle: edit.dataset.jobTitle, email: edit.dataset.email, bio: edit.dataset.bio, linkedin: edit.dataset.linkedin, github: edit.dataset.github, profileImage: edit.dataset.profileImage, active: edit.dataset.active });
+      return;
+    }
 
-//                                 <i class="bi bi-pencil"></i>
+    const toggle = event.target.closest(".developer-toggle");
+    if (toggle) {
+      toggle.disabled = true;
+      const body = new FormData();
+      body.append("id", toggle.dataset.id);
+      body.append("__RequestVerificationToken", token || "");
+      try {
+        const response = await fetch(page.dataset.toggleUrl, { method: "POST", body, headers: { Accept: "application/json" } });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || "تغییر وضعیت انجام نشد.");
+        notify(result.message);
+        window.location.reload();
+      } catch (error) { notify(error.message); toggle.disabled = false; }
+      return;
+    }
 
-//                             </button>
-//                         </div>
-//                     </td>
-//                 </tr>`,
-//     )
-//     .join("");
-// }
-function tRole(r) {
-  return (
-    {
-      "Lead developer": "سرپرست توسعه",
-      Editor: "ویرایشگر",
-      "Super Admin": "مدیر ارشد",
-      "Content Admin": "مدیر محتوا",
-    }[r] || r
-  );
-}
-// memberRows(members, "developerRows");
-// memberRows(admins, "adminRows");
+    const remove = event.target.closest(".developer-delete");
+    if (remove && window.confirm(`توسعه‌دهنده «${remove.dataset.name}» حذف شود؟`)) {
+      remove.disabled = true;
+      const body = new FormData();
+      body.append("id", remove.dataset.id);
+      body.append("__RequestVerificationToken", token || "");
+      try {
+        const response = await fetch(page.dataset.deleteUrl, { method: "POST", body, headers: { Accept: "application/json" } });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || "حذف انجام نشد.");
+        notify(result.message);
+        window.location.reload();
+      } catch (error) { notify(error.message); remove.disabled = false; }
+    }
+  });
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    errorBox.hidden = true;
+    const button = form.querySelector("[type='submit']");
+    button.disabled = true;
+    const body = new FormData(form);
+    body.append("__RequestVerificationToken", token || "");
+    try {
+      const response = await fetch(page.dataset.saveUrl, { method: "POST", body, headers: { Accept: "application/json" } });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || "ذخیره انجام نشد.");
+      close();
+      window.location.reload();
+    } catch (error) {
+      errorBox.textContent = error.message;
+      errorBox.hidden = false;
+    } finally { button.disabled = false; }
+  });
+})();

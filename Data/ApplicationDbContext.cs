@@ -14,6 +14,8 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
     public DbSet<ArticleHashtag> ArticleHashtags { get; set; } = null!;
     public DbSet<ArticleCategory> ArticleCategories { get; set; } = null!;
     public DbSet<ArticleSection> ArticleSections { get; set; } = null!;
+    public DbSet<Developer> Developers { get; set; } = null!;
+    public DbSet<ContactMessage> ContactMessages { get; set; } = null!;
     public DbSet<SiteVisit> SiteVisits { get; set; } = null!;
     public DbSet<DashboardActivity> DashboardActivities { get; set; } = null!;
 
@@ -75,6 +77,21 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
             entity.HasIndex(view => view.ViewedAt);
             entity.HasOne(view => view.PortfolioItem).WithMany()
                 .HasForeignKey(view => view.PortfolioItemId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Developer>(entity =>
+        {
+            entity.ToTable("Developers");
+            entity.HasKey(developer => developer.Id);
+            entity.Property(developer => developer.Name).HasMaxLength(120).IsRequired();
+            entity.Property(developer => developer.JobTitle).HasMaxLength(120).IsRequired();
+            entity.Property(developer => developer.Email).HasMaxLength(254).IsRequired();
+            entity.Property(developer => developer.Bio).HasMaxLength(1000).IsRequired();
+            entity.Property(developer => developer.LinkedInUrl).HasMaxLength(500);
+            entity.Property(developer => developer.GitHubUrl).HasMaxLength(500);
+            entity.Property(developer => developer.ProfileImagePath).HasMaxLength(500);
+            entity.Property(developer => developer.CreatedAt).IsRequired();
+            entity.HasIndex(developer => developer.IsActive);
         });
 
         builder.Entity<ArticleCategory>(entity =>
@@ -140,6 +157,17 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
                 .HasForeignKey(view => view.ArticleId).OnDelete(DeleteBehavior.Cascade);
         });
 
+        builder.Entity<ContactMessage>(entity =>
+        {
+            entity.ToTable("ContactMessages");
+            entity.HasKey(message => message.Id);
+            entity.Property(message => message.Name).HasMaxLength(120).IsRequired();
+            entity.Property(message => message.Email).HasMaxLength(254).IsRequired();
+            entity.Property(message => message.Subject).HasMaxLength(160).IsRequired();
+            entity.Property(message => message.Message).HasMaxLength(5000).IsRequired();
+            entity.Property(message => message.SentAt).IsRequired();
+            entity.HasIndex(message => message.SentAt);
+        });
         builder.Entity<SiteVisit>(entity =>
         {
             entity.ToTable("SiteVisit");

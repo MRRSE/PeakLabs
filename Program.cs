@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using System.Threading.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using PeakLabs.Data;
 using PeakLabs.Models.Identity;
@@ -39,6 +40,26 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Admin/Auth/Login";
     options.ExpireTimeSpan = TimeSpan.FromDays(3);
     options.SlidingExpiration = false;
+});
+
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+{
+    options.ValidationInterval = TimeSpan.FromMinutes(5);
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("contact-form", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
 });
 
 var app = builder.Build();
@@ -119,6 +140,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseRateLimiter();
 app.UseMiddleware<SiteTrafficMiddleware>();
 
 app.UseAuthentication();

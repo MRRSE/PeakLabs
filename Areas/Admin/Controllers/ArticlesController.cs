@@ -11,7 +11,7 @@ using PeakLabs.Infrastructure;
 namespace PeakLabs.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
 public class ArticlesController : Controller
 {
     private const long MaxImageSize = 5 * 1024 * 1024;
@@ -171,7 +171,6 @@ public class ArticlesController : Controller
         {
             return NotFound(new { message = "مقاله موردنظر پیدا نشد." });
         }
-
         if (User.IsInRole(DashboardRoles.Editor) && article.AuthorId != _userManager.GetUserId(User))
         {
             return Forbid();
@@ -236,6 +235,7 @@ public class ArticlesController : Controller
     {
         var article = await _dbContext.Articles.FindAsync(id);
         if (article is null) return NotFound(new { message = "مقاله موردنظر پیدا نشد." });
+        if (User.IsInRole(DashboardRoles.Editor) && article.AuthorId != _userManager.GetUserId(User)) return Forbid();
 
         _dbContext.Articles.Remove(article);
         await _dbContext.SaveChangesAsync();
