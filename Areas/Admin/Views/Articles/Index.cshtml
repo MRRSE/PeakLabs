@@ -57,7 +57,7 @@
                                 </div>
                             </td>
                             <td>@(article.Author is null ? "نامشخص" : $"{article.Author.FirstName} {article.Author.LastName}".Trim())</td>
-                            <td>۰</td>
+                            <td>@article.ViewCount.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("fa-IR"))</td>
                             <td><span class="status @(article.Status == "published" ? "published" : "draft")">@(article.Status == "published" ? "منتشرشده" : "پیش‌نویس")</span></td>
                             <td>@article.PublishedAt.ToLocalTime().ToString("yyyy/MM/dd")</td>
                             <td>
@@ -81,6 +81,7 @@
         new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)));
     window.articles = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
         Model.Articles.Select(article => new { article.Id, article.Title, article.ShortDescription, article.CoverImage, article.CategoryId, article.Status,
+            Hashtags = article.Hashtags.Select(hashtag => hashtag.Tag),
             AuthorName = article.Author is null ? "نامشخص" : $"{article.Author.FirstName} {article.Author.LastName}".Trim(),
             Sections = article.Sections.OrderBy(section => section.Order).Select(section => new { section.HeadingType, section.Title, section.Content }) }),
         new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)));

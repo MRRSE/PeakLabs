@@ -122,6 +122,12 @@
   text-align: center;
 }
 
+.nav a .badge-new {
+  background: #10b981;
+  color: #03251b;
+  font-weight: 700;
+}
+
 .nav button.active .badge {
   background: var(--color-primary);
   color: #03140d;
@@ -226,3 +232,5 @@
   margin: auto;
 }
 .category-create-form{display:flex;align-items:flex-end;gap:12px;margin-bottom:18px}.category-create-form .field{flex:1}.category-list{display:grid;gap:8px}.category-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--border-color,rgba(148,163,184,.2));border-radius:12px}.category-row form{margin:0}.category-delete{color:var(--danger,#ef4444)}.category-feedback{margin:0 0 14px;padding:10px 12px;border-radius:10px;background:rgba(239,68,68,.1)}
+.chart-filters{display:flex;align-items:center;gap:8px}.chart-filters .select{min-width:125px}
+@media(max-width:640px){.chart-filters{width:100%;flex-wrap:wrap}.chart-filters .select{flex:1;min-width:120px}}

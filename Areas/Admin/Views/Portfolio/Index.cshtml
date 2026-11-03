@@ -1,7 +1,9 @@
 @model IReadOnlyList<PeakLabs.Models.PortfolioItem>
+@using PeakLabs.Models.Identity
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "مدیریت نمونه‌کار";
+    var canManagePortfolio = User.IsInRole(DashboardRoles.SuperAdmin) || User.IsInRole(DashboardRoles.ContentManager);
 }
 
 <form id="portfolioAntiforgeryToken" hidden>
@@ -15,9 +17,12 @@
             <h1>مدیریت نمونه‌کار</h1>
             <p class="muted">کارت‌های پروژه‌ای که در سایت اصلی PeakLabs نمایش داده می‌شوند را مدیریت کنید.</p>
         </div>
+        @if (canManagePortfolio)
+        {
         <button class="btn btn-primary" type="button" onclick="openModal('portfolio')">
             <i class="bi bi-plus-lg"></i><span>پروژه جدید</span>
         </button>
+        }
     </div>
 
     <div class="card-grid">
@@ -40,29 +45,15 @@
                     <div class="manage-foot">
                         <span class="muted">@item.AddedAt.ToLocalTime().ToString("yyyy/MM/dd")</span>
                         <div class="actions">
-                            <button class="action portfolio-edit-button" type="button"
-                                    data-portfolio-id="@item.Id" data-portfolio-name="@item.ProjectName"
-                                    data-portfolio-description="@item.ProjectDescription" data-portfolio-link="@item.ProjectLink"
-                                    data-portfolio-image="@item.ProjectImagePath"
-                                    title="ویرایش نمونه‌کار" aria-label="ویرایش نمونه‌کار @item.ProjectName">
-                                <i class="bi bi-pencil-square"></i>
-                            </button>
                             <a class="action" href="@item.ProjectLink" target="_blank" rel="noopener noreferrer" aria-label="لینک پروژه">
                                 <i class="bi bi-link-45deg"></i>
                             </a>
-                            <button class="action portfolio-edit-button" type="button"
-                                    data-portfolio-id="@item.Id" data-portfolio-name="@item.ProjectName"
-                                    data-portfolio-description="@item.ProjectDescription"
-                                    data-portfolio-link="@item.ProjectLink"
-                                    data-portfolio-image="@item.ProjectImagePath"
-                                    title="ویرایش نمونه‌کار" aria-label="ویرایش نمونه‌کار @item.ProjectName">
-                                <i class="bi bi-pencil"></i>
-                            </button>
                             <button class="action portfolio-delete-button" type="button"
                                     data-portfolio-id="@item.Id" data-portfolio-name="@item.ProjectName"
                                     title="حذف نمونه‌کار" aria-label="حذف نمونه‌کار @item.ProjectName">
                                 <i class="bi bi-trash3"></i>
                             </button>
+                            }
                         </div>
                     </div>
                 </div>

@@ -19,4 +19,6 @@ public class PortfolioItem
     public string ProjectLink { get; set; } = string.Empty;
 
     public DateTimeOffset AddedAt { get; set; }
+
+    public int ViewCount { get; set; }
 }

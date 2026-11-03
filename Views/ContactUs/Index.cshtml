@@ -1,12 +1,5 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="~/css/pages/contact.css">
-</head>
-<body>
-    <partial name="_ContactHeroSec" />
-    <partial name="_ContactFormSec" />
-</body>
-</html>
+@model PeakLabs.Models.ContactMessage
+@{ ViewData["Title"] = "تماس با ما"; }
+<link rel="stylesheet" href="~/css/pages/contact.css">
+<partial name="_ContactHeroSec" />
+<partial name="_ContactFormSec" />

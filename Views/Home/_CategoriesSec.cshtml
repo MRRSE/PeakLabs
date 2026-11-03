@@ -1,4 +1,14 @@
 @model PeakLabs.Models.HomeIndexViewModel
+@using System.Globalization
+
+@{
+    var icons = new[]
+    {
+        "bi-cpu", "bi-diagram-3", "bi-stars", "bi-cloud",
+        "bi-gear-wide-connected", "bi-code-slash", "bi-person-badge", "bi-diagram-2"
+    };
+    var numberFormat = CultureInfo.GetCultureInfo("fa-IR");
+}
 
 <section class="section" id="categories" style="padding-top: 20px;">
     <div class="container">
@@ -8,12 +18,13 @@
             <p>بررسی عمیق در سراسر پشته فناوری، از تصمیمات معماری تا استقرار در محیط عملیاتی.</p>
         </div>
         <div class="category-grid">
-            @foreach (var category in Model.Categories)
+            @for (var index = 0; index < Model.Categories.Count; index++)
             {
-                <a href="/Article?categoryId=@category.Id" class="category-card">
-                    <i class="bi bi-hash" aria-hidden="true"></i>
+                var category = Model.Categories[index];
+                <a asp-controller="Article" asp-action="Index" asp-route-categoryId="@category.Id" class="category-card">
+                    <i class="bi @icons[index % icons.Length]"></i>
                     <span>@category.Name</span>
-                    <small>@category.ArticleCount مقاله</small>
+                    <small>@category.ArticleCount.ToString("N0", numberFormat) مقاله</small>
                 </a>
             }
         </div>

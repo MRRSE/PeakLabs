@@ -1,21 +1,23 @@
-const imageInput = document.getElementById("profileImageInput");
-const avatarImage = document.getElementById("avatarImage");
-const avatarText = document.getElementById("avatarText");
+(() => {
+    const imageInput = document.getElementById("profileImageInput");
+    const imageButton = document.getElementById("profileImageButton");
+    const avatarImage = document.getElementById("avatarImage");
+    const avatarText = document.getElementById("avatarText");
 
-imageInput.addEventListener("change", function () {
-    const file = this.files[0];
+    if (!imageInput || !imageButton || !avatarImage || !avatarText) return;
 
-    if (!file || !file.type.startsWith("image/")) {
-        return;
-    }
+    imageButton.addEventListener("click", () => imageInput.click());
 
-    const reader = new FileReader();
+    imageInput.addEventListener("change", () => {
+        const [file] = imageInput.files;
+        if (!file || !file.type.startsWith("image/")) return;
 
-    reader.onload = function (e) {
-        avatarImage.src = e.target.result;
-        avatarImage.style.display = "block";
-        avatarText.style.display = "none";
-    };
-
-    reader.readAsDataURL(file);
-});
+        const reader = new FileReader();
+        reader.addEventListener("load", () => {
+            avatarImage.src = reader.result;
+            avatarImage.classList.add("is-visible");
+            avatarText.classList.add("is-hidden");
+        });
+        reader.readAsDataURL(file);
+    });
+})();

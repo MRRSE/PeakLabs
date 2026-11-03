@@ -28,6 +28,14 @@ public sealed class CreateDashboardAccountInputModel
     [StringLength(240, ErrorMessage = "توضیحات نقش نمی‌تواند بیشتر از ۲۴۰ نویسه باشد.")]
     public string? AuthorDescription { get; set; }
 
+    [Url(ErrorMessage = "لینک LinkedIn معتبر نیست.")]
+    [StringLength(200)]
+    public string? LinkedInUrl { get; set; }
+
+    [Url(ErrorMessage = "لینک GitHub معتبر نیست.")]
+    [StringLength(200)]
+    public string? GitHubUrl { get; set; }
+
     public bool IsActive { get; set; } = true;
 
     [Required(ErrorMessage = "رمز عبور اولیه را وارد کنید.")]

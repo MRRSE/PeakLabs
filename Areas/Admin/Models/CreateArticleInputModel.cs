@@ -11,6 +11,9 @@ public class CreateArticleInputModel
     [Required, StringLength(160, MinimumLength = 1)]
     public string ShortDescription { get; set; } = string.Empty;
 
+    [StringLength(500)]
+    public string Hashtags { get; set; } = string.Empty;
+
     public IFormFile? CoverImage { get; set; }
 
     [Range(1, int.MaxValue)]

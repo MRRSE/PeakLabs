@@ -17,6 +17,51 @@
   font-size: 0.65rem;
   font-weight: 800;
 }
+.developer-toggle {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+.developer-toggle:disabled { opacity: .55; cursor: wait; }
+.archived { background: var(--color-surface-alt); color: var(--color-text-muted); }
+.developer-editor {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 58%);
+}
+.developer-editor[hidden] { display: none; }
+.developer-editor form {
+  width: min(100%, 620px);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-lg);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.developer-editor label { display: grid; gap: 6px; font-size: .86rem; }
+.developer-editor label:nth-child(5), .developer-editor label:nth-child(6), .developer-editor label:nth-child(7), .developer-image-field, .developer-form-actions, .form-error { grid-column: 1 / -1; }
+.developer-editor input:not([type="checkbox"]), .developer-editor textarea {
+  width: 100%; padding: 10px 12px; color: var(--color-text);
+  border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  background: var(--color-surface); font: inherit;
+}
+.developer-active-field { display: flex !important; align-items: center; gap: 9px !important; }
+.developer-active-field input { accent-color: var(--color-primary); }
+.developer-image-field input[type="file"] { padding: 8px; }
+.developer-image-field img { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; }
+.developer-form-actions { display: flex; justify-content: flex-start; gap: 8px; }
+.form-error { color: #dc2626; font-size: .85rem; }
+.developer-toast { position: fixed; z-index: 1100; inset-inline-start: 24px; bottom: 24px; padding: 12px 18px; border-radius: var(--radius-md); background: var(--color-bg); border: 1px solid var(--color-border); box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; transition: opacity .2s; }
+.developer-toast.visible { opacity: 1; }
 .published {
   background: var(--color-primary-soft);
   color: var(--color-primary-700);

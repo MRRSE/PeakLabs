@@ -6,33 +6,50 @@ using PeakLabs.Areas.Admin.Models;
 using PeakLabs.Data;
 using PeakLabs.Models;
 using PeakLabs.Models.Identity;
+using PeakLabs.Infrastructure;
 
 namespace PeakLabs.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
 public class ArticlesController : Controller
 {
     private const long MaxImageSize = 5 * 1024 * 1024;
     private readonly ApplicationDbContext _dbContext;
     private readonly IWebHostEnvironment _environment;
     private readonly UserManager<PeakLabsUser> _userManager;
+    private readonly DashboardActivityLogger _activityLogger;
 
-    public ArticlesController(ApplicationDbContext dbContext, IWebHostEnvironment environment, UserManager<PeakLabsUser> userManager)
+    public ArticlesController(ApplicationDbContext dbContext, IWebHostEnvironment environment, UserManager<PeakLabsUser> userManager, DashboardActivityLogger activityLogger)
     {
         _dbContext = dbContext;
         _environment = environment;
         _userManager = userManager;
+        _activityLogger = activityLogger;
     }
 
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
     public async Task<IActionResult> Index()
     {
-        var model = new ArticleAdminIndexViewModel
+        var dashboardUser = await _userManager.GetUserAsync(User);
+        if (dashboardUser is not null)
         {
-            Articles = await _dbContext.Articles.AsNoTracking()
+            dashboardUser.ArticlesLastViewedAt = DateTimeOffset.UtcNow;
+            await _userManager.UpdateAsync(dashboardUser);
+        }
+
+        var isEditor = User.IsInRole(DashboardRoles.Editor);
+        var currentUserId = _userManager.GetUserId(User);
+        var articlesQuery = _dbContext.Articles.AsNoTracking()
                 .Include(article => article.Category)
                 .Include(article => article.Author)
                 .Include(article => article.Sections.OrderBy(section => section.Order))
+                .Include(article => article.Hashtags)
+                .Where(article => !isEditor || article.AuthorId == currentUserId);
+
+        var model = new ArticleAdminIndexViewModel
+        {
+            Articles = await articlesQuery
                 .OrderByDescending(article => article.PublishedAt)
                 .ToListAsync(),
             Categories = await _dbContext.ArticleCategories.AsNoTracking()
@@ -42,6 +59,7 @@ public class ArticlesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(MaxImageSize + 1024 * 1024)]
     public async Task<IActionResult> Create(CreateArticleInputModel input)
@@ -68,6 +86,7 @@ public class ArticlesController : Controller
         {
             ModelState.AddModelError(nameof(input.Sections), "حداقل یک بخش برای مقاله اضافه کنید.");
         }
+        ValidateHashtags(input);
 
         for (var index = 0; index < input.Sections.Count; index++)
         {
@@ -107,23 +126,25 @@ public class ArticlesController : Controller
             var article = new Article
             {
                 Title = input.Title.Trim(),
-                ShortDescription = input.ShortDescription.Trim(),
+                ShortDescription = input.ShortDescription,
                 CoverImage = $"/uploads/articles/{fileName}",
                 CategoryId = input.CategoryId,
                 AuthorId = _userManager.GetUserId(User),
                 Status = input.Status,
                 PublishedAt = DateTimeOffset.UtcNow,
+                Hashtags = MapHashtags(input),
                 Sections = input.Sections.Select((section, index) => new ArticleSection
                 {
                     HeadingType = string.IsNullOrWhiteSpace(section.HeadingType) ? null : section.HeadingType,
                     Title = string.IsNullOrWhiteSpace(section.Title) ? null : section.Title.Trim(),
-                    Content = section.Content.Trim(),
+                    Content = section.Content,
                     Order = index + 1
                 }).ToList()
             };
 
             _dbContext.Articles.Add(article);
             await _dbContext.SaveChangesAsync();
+            await _activityLogger.LogAsync($"مقاله «{article.Title}» ثبت شده", _userManager.GetUserId(User));
             return Ok(new { message = "مقاله با موفقیت ذخیره شد." });
         }
         catch
@@ -137,14 +158,22 @@ public class ArticlesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(MaxImageSize + 1024 * 1024)]
     public async Task<IActionResult> Update(int id, CreateArticleInputModel input)
     {
-        var article = await _dbContext.Articles.Include(item => item.Sections).FirstOrDefaultAsync(item => item.Id == id);
+        var article = await _dbContext.Articles
+            .Include(item => item.Sections)
+            .Include(item => item.Hashtags)
+            .FirstOrDefaultAsync(item => item.Id == id);
         if (article is null)
         {
             return NotFound(new { message = "مقاله موردنظر پیدا نشد." });
+        }
+        if (User.IsInRole(DashboardRoles.Editor) && article.AuthorId != _userManager.GetUserId(User))
+        {
+            return Forbid();
         }
 
         if (input.CoverImage is { Length: > 0 } image)
@@ -158,6 +187,7 @@ public class ArticlesController : Controller
         if (!await _dbContext.ArticleCategories.AnyAsync(category => category.Id == input.CategoryId))
             ModelState.AddModelError(nameof(input.CategoryId), "دسته‌بندی انتخاب‌شده معتبر نیست.");
         ValidateSections(input);
+        ValidateHashtags(input);
         if (!ModelState.IsValid)
         {
             return BadRequest(new { message = ValidationMessage() });
@@ -180,12 +210,14 @@ public class ArticlesController : Controller
             }
 
             article.Title = input.Title.Trim();
-            article.ShortDescription = input.ShortDescription.Trim();
+            article.ShortDescription = input.ShortDescription;
             article.CategoryId = input.CategoryId;
             article.Status = input.Status;
             _dbContext.ArticleSections.RemoveRange(article.Sections);
             article.Sections = MapSections(input);
+            SyncHashtags(article, input);
             await _dbContext.SaveChangesAsync();
+            await _activityLogger.LogAsync($"مقاله «{article.Title}» ویرایش شده", _userManager.GetUserId(User));
             if (newImagePath is not null) DeleteArticleImage(oldCover);
             return Ok(new { message = "تغییرات مقاله ذخیره شد." });
         }
@@ -197,14 +229,17 @@ public class ArticlesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
         var article = await _dbContext.Articles.FindAsync(id);
         if (article is null) return NotFound(new { message = "مقاله موردنظر پیدا نشد." });
+        if (User.IsInRole(DashboardRoles.Editor) && article.AuthorId != _userManager.GetUserId(User)) return Forbid();
 
         _dbContext.Articles.Remove(article);
         await _dbContext.SaveChangesAsync();
+        await _activityLogger.LogAsync($"مقاله «{article.Title}» حذف شده", _userManager.GetUserId(User));
         DeleteArticleImage(article.CoverImage);
         return Ok(new { message = "مقاله حذف شد." });
     }
@@ -227,9 +262,54 @@ public class ArticlesController : Controller
         {
             HeadingType = string.IsNullOrWhiteSpace(section.HeadingType) ? null : section.HeadingType,
             Title = string.IsNullOrWhiteSpace(section.Title) ? null : section.Title.Trim(),
-            Content = section.Content.Trim(),
+            Content = section.Content,
             Order = index + 1
         }).ToList();
+
+    private void ValidateHashtags(CreateArticleInputModel input)
+    {
+        var rawTags = SplitHashtags(input.Hashtags);
+        var tags = ParseHashtags(input.Hashtags);
+        if (tags.Count > 8)
+            ModelState.AddModelError(nameof(input.Hashtags), "حداکثر ۸ هشتگ برای هر مقاله مجاز است.");
+
+        foreach (var rawTag in rawTags)
+        {
+            var tag = rawTag.TrimStart('#');
+            if (tag.Length is 0 or > 40 || tag.Any(character =>
+                    !char.IsLetterOrDigit(character) && character is not ('_' or '-')))
+            {
+                ModelState.AddModelError(nameof(input.Hashtags), "هشتگ‌ها فقط می‌توانند شامل حروف، عدد، خط تیره و زیرخط باشند و حداکثر ۴۰ نویسه داشته باشند.");
+                break;
+            }
+        }
+    }
+
+    private static List<string> SplitHashtags(string? raw) => (raw ?? string.Empty)
+        .Split([',', ';', '\r', '\n', '\t', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .ToList();
+
+    private static List<string> ParseHashtags(string? raw) => SplitHashtags(raw)
+        .Select(tag => tag.TrimStart('#').Trim())
+        .Where(tag => tag.Length > 0)
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToList();
+
+    private static List<ArticleHashtag> MapHashtags(CreateArticleInputModel input) => ParseHashtags(input.Hashtags)
+        .Select(tag => new ArticleHashtag { Tag = tag })
+        .ToList();
+
+    private void SyncHashtags(Article article, CreateArticleInputModel input)
+    {
+        var desiredTags = ParseHashtags(input.Hashtags).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var existingTags = article.Hashtags.ToDictionary(hashtag => hashtag.Tag, StringComparer.OrdinalIgnoreCase);
+
+        _dbContext.ArticleHashtags.RemoveRange(article.Hashtags
+            .Where(hashtag => !desiredTags.Contains(hashtag.Tag)));
+
+        foreach (var tag in desiredTags.Where(tag => !existingTags.ContainsKey(tag)))
+            article.Hashtags.Add(new ArticleHashtag { ArticleId = article.Id, Tag = tag });
+    }
 
     private string ValidationMessage() => string.Join(" ", ModelState.Values.SelectMany(value => value.Errors)
         .Select(error => error.ErrorMessage).Where(message => !string.IsNullOrWhiteSpace(message)));

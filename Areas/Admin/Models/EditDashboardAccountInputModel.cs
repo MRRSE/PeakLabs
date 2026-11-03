@@ -30,6 +30,14 @@ public sealed class EditDashboardAccountInputModel
     [StringLength(240)]
     public string? AuthorDescription { get; set; }
 
+    [Url(ErrorMessage = "لینک LinkedIn معتبر نیست.")]
+    [StringLength(200)]
+    public string? LinkedInUrl { get; set; }
+
+    [Url(ErrorMessage = "لینک GitHub معتبر نیست.")]
+    [StringLength(200)]
+    public string? GitHubUrl { get; set; }
+
     public IFormFile? ProfileImage { get; set; }
 
     [StringLength(100, MinimumLength = 8, ErrorMessage = "رمز عبور جدید باید حداقل ۸ نویسه داشته باشد.")]

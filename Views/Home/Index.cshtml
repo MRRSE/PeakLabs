@@ -1,4 +1,5 @@
-﻿@{
+@model PeakLabs.Models.HomeIndexViewModel
+@{
   ViewData["Title"] = "Home Page";
 }
 
@@ -12,12 +13,18 @@
 </head>
 
 <body>
+  <form id="homeViewToken" hidden>@Html.AntiForgeryToken()</form>
   @* Hero section part *@
   <partial name="_HeroSec" />
   @* Categories section part *@
   <partial name="_CategoriesSec" model="Model" />
-  <partial name="_ArticleSec" />
+  <partial name="_ArticleSec" model="Model.Articles" />
   <partial name="_PortfolioSec" />
 </body>
 
 </html>
+
+@section Scripts {
+  <script src="~/js/pages/home.js" asp-append-version="true"></script>
+}
+

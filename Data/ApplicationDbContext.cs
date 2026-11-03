@@ -8,10 +8,17 @@ namespace PeakLabs.Data;
 public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
 {
     public DbSet<PortfolioItem> Portfolio { get; set; } = null!;
+    public DbSet<PortfolioView> PortfolioViews { get; set; } = null!;
     public DbSet<Article> Articles { get; set; } = null!;
+    public DbSet<ArticleView> ArticleViews { get; set; } = null!;
+    public DbSet<ArticleHashtag> ArticleHashtags { get; set; } = null!;
     public DbSet<ArticleCategory> ArticleCategories { get; set; } = null!;
     public DbSet<ArticleSection> ArticleSections { get; set; } = null!;
     public DbSet<SiteSettings> SiteSettings { get; set; } = null!;
+    public DbSet<Developer> Developers { get; set; } = null!;
+    public DbSet<ContactMessage> ContactMessages { get; set; } = null!;
+    public DbSet<SiteVisit> SiteVisits { get; set; } = null!;
+    public DbSet<DashboardActivity> DashboardActivities { get; set; } = null!;
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -24,6 +31,12 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
 
         builder.Entity<PeakLabsUser>(entity =>
         {
+            entity.Property(user => user.ArticlesLastViewedAt)
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+
+            entity.Property(user => user.PortfolioLastViewedAt)
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+
             entity.Property(user => user.FirstName)
                 .HasMaxLength(60)
                 .HasDefaultValue(string.Empty);
@@ -40,6 +53,9 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
 
             entity.Property(user => user.IsActive)
                 .HasDefaultValue(true);
+
+            entity.Property(user => user.CreatedAt)
+                .HasDefaultValueSql("SYSUTCDATETIME()");
         });
 
         builder.Entity<PortfolioItem>(entity =>
@@ -51,6 +67,32 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
             entity.Property(item => item.ProjectDescription).HasMaxLength(1000).IsRequired();
             entity.Property(item => item.ProjectLink).HasMaxLength(500).IsRequired();
             entity.Property(item => item.AddedAt).IsRequired();
+            entity.Property(item => item.ViewCount).HasDefaultValue(0);
+        });
+
+        builder.Entity<PortfolioView>(entity =>
+        {
+            entity.ToTable("PortfolioView");
+            entity.HasKey(view => view.Id);
+            entity.Property(view => view.ViewedAt).IsRequired();
+            entity.HasIndex(view => view.ViewedAt);
+            entity.HasOne(view => view.PortfolioItem).WithMany()
+                .HasForeignKey(view => view.PortfolioItemId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Developer>(entity =>
+        {
+            entity.ToTable("Developers");
+            entity.HasKey(developer => developer.Id);
+            entity.Property(developer => developer.Name).HasMaxLength(120).IsRequired();
+            entity.Property(developer => developer.JobTitle).HasMaxLength(120).IsRequired();
+            entity.Property(developer => developer.Email).HasMaxLength(254).IsRequired();
+            entity.Property(developer => developer.Bio).HasMaxLength(1000).IsRequired();
+            entity.Property(developer => developer.LinkedInUrl).HasMaxLength(500);
+            entity.Property(developer => developer.GitHubUrl).HasMaxLength(500);
+            entity.Property(developer => developer.ProfileImagePath).HasMaxLength(500);
+            entity.Property(developer => developer.CreatedAt).IsRequired();
+            entity.HasIndex(developer => developer.IsActive);
         });
 
         builder.Entity<ArticleCategory>(entity =>
@@ -115,5 +157,53 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
             entity.HasOne(section => section.Article).WithMany(article => article.Sections)
                 .HasForeignKey(section => section.ArticleId).OnDelete(DeleteBehavior.Cascade);
         });
+
+        builder.Entity<ArticleHashtag>(entity =>
+        {
+            entity.ToTable("ArticleHashtag");
+            entity.HasKey(hashtag => new { hashtag.ArticleId, hashtag.Tag });
+            entity.Property(hashtag => hashtag.Tag).HasMaxLength(40).IsRequired();
+            entity.HasOne(hashtag => hashtag.Article).WithMany(article => article.Hashtags)
+                .HasForeignKey(hashtag => hashtag.ArticleId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ArticleView>(entity =>
+        {
+            entity.ToTable("ArticleView");
+            entity.HasKey(view => view.Id);
+            entity.Property(view => view.ViewedAt).IsRequired();
+            entity.HasIndex(view => view.ViewedAt);
+            entity.HasOne(view => view.Article).WithMany()
+                .HasForeignKey(view => view.ArticleId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ContactMessage>(entity =>
+        {
+            entity.ToTable("ContactMessages");
+            entity.HasKey(message => message.Id);
+            entity.Property(message => message.Name).HasMaxLength(120).IsRequired();
+            entity.Property(message => message.Email).HasMaxLength(254).IsRequired();
+            entity.Property(message => message.Subject).HasMaxLength(160).IsRequired();
+            entity.Property(message => message.Message).HasMaxLength(5000).IsRequired();
+            entity.Property(message => message.SentAt).IsRequired();
+            entity.HasIndex(message => message.SentAt);
+        });
+        builder.Entity<SiteVisit>(entity =>
+        {
+            entity.ToTable("SiteVisit");
+            entity.HasKey(visit => visit.Id);
+            entity.Property(visit => visit.Path).HasMaxLength(500).IsRequired();
+            entity.Property(visit => visit.VisitedAt).IsRequired();
+            entity.HasIndex(visit => visit.VisitedAt);
+        });
+        builder.Entity<DashboardActivity>(entity =>
+        {
+            entity.ToTable("DashboardActivities");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Message).HasMaxLength(1000).IsRequired();
+            entity.HasIndex(x => x.OccurredAt);
+            entity.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.SetNull);
+        });
     }
 }
+

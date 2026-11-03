@@ -32,7 +32,8 @@
   .mv-grid {
     grid-template-columns: 1fr;
   }
-  .related-grid {
+  .related-grid,
+  .article-detail .related-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -52,7 +53,8 @@
   .team-grid {
     grid-template-columns: 1fr;
   }
-  .related-grid {
+  .related-grid,
+  .article-detail .related-grid {
     grid-template-columns: 1fr;
   }
   .newsletter {
@@ -66,5 +68,39 @@
   }
   h1 {
     font-size: 2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .article-detail {
+    padding-top: 20px;
+  }
+  .article-detail .article-hero {
+    aspect-ratio: 16 / 9;
+    margin-bottom: 24px;
+  }
+  .article-detail .article-meta-row {
+    gap: 8px;
+  }
+  .article-detail .share-bar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .article-share-actions {
+    flex-wrap: wrap;
+  }
+  .article-author-card {
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px;
+  }
+  .article-author-avatar {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+  }
+  .article-detail .related-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

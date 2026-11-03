@@ -18,23 +18,42 @@ public class HomeController : Controller
         var totalCategories = await _dbContext.ArticleCategories.CountAsync();
         var pageCount = Math.Max(1, (int)Math.Ceiling(totalCategories / (double)CategoriesPerPage));
         categoryPage = Math.Clamp(categoryPage, 1, pageCount);
-        var categories = await _dbContext.ArticleCategories.AsNoTracking()
-            .OrderBy(category => category.Name)
-            .Skip((categoryPage - 1) * CategoriesPerPage)
-            .Take(CategoriesPerPage)
-            .Select(category => new HomeCategoryViewModel
-            {
-                Id = category.Id,
-                Name = category.Name,
-                ArticleCount = category.Articles.Count(article => article.Status == "published")
-            }).ToListAsync();
 
-        return View(new HomeIndexViewModel
+        var publishedArticles = _dbContext.Articles.AsNoTracking()
+            .Where(article => article.Status == "published");
+        ViewBag.PublishedArticleCount = await publishedArticles.CountAsync();
+        ViewBag.PortfolioItemCount = await _dbContext.Portfolio.AsNoTracking().CountAsync();
+        ViewBag.PortfolioItems = await _dbContext.Portfolio.AsNoTracking()
+            .OrderByDescending(item => item.AddedAt)
+            .ThenByDescending(item => item.Id)
+            .Take(6)
+            .ToListAsync();
+
+        var model = new HomeIndexViewModel
         {
-            Categories = categories,
+            Articles = await publishedArticles
+                .Include(article => article.Category)
+                .Include(article => article.Author)
+                .Include(article => article.Hashtags)
+                .OrderByDescending(article => article.PublishedAt)
+                .Take(6)
+                .ToListAsync(),
+            Categories = await _dbContext.ArticleCategories.AsNoTracking()
+                .OrderBy(category => category.Name)
+                .Skip((categoryPage - 1) * CategoriesPerPage)
+                .Take(CategoriesPerPage)
+                .Select(category => new ArticleCategorySummary
+                {
+                    Id = category.Id,
+                    Name = category.Name,
+                    ArticleCount = category.Articles.Count(article => article.Status == "published")
+                })
+                .ToListAsync(),
             CategoryPage = categoryPage,
             CategoryPageCount = pageCount
-        });
+        };
+
+        return View(model);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

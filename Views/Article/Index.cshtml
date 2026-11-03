@@ -1,14 +1,11 @@
-<html lang="en">
+@model PeakLabs.Models.ArticleIndexViewModel
+@{
+    ViewData["Title"] = "مقالات";
+}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
+<partial name="_ArticleHeroSec" />
+<partial name="_ArticlesCardsSec" model="Model" />
 
-<body>
-    <partial name="_ArticleHeroSec" />
-    <partial name="_ArticlesCardsSec" />
-    <partial name="../Portfolio/_PageCounter" />
-</body>
-
-</html>
+@section Scripts {
+    <script src="~/js/pages/articles.js" asp-append-version="true"></script>
+}
