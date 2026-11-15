@@ -37,10 +37,13 @@
   display: block;
   font-size: 0.88rem;
 }
-.info-row span {
+.info-row span,
+.info-row a {
   font-size: 0.85rem;
   color: var(--color-text-faint);
 }
+.info-row a { text-decoration: none; }
+.info-row a:hover { color: var(--color-primary); }
 .map-placeholder {
   aspect-ratio: 16/9;
   border-radius: var(--radius-lg);

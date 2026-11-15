@@ -64,19 +64,15 @@
                     <h2 data-t="appearance">ظاهر</h2>
                 </div>
                 <div class="panel-body">
-                    <p class="muted" data-t="appearanceDesc">
-                        این داشبورد از همان فونت‌های Inter / Vazirmatn، رنگ سبز
-                        زمردی و توکن‌های روشن/تیره سایت اصلی PeakLabs استفاده می‌کند.
-                    </p>
-                    <div style="display:flex;gap:10px;margin-top:18px">
-                        <button type="button" class="btn btn-outline" onclick="setTheme('light')"><i
-                            class="bi bi-sun"></i> Light</button>
-                            <button type="button" class="btn btn-outline" onclick="setTheme('dark')"><i
-                                class="bi bi-moon-stars"></i> Dark</button>
-                            </div>
-                        </div>
+                    <p class="muted">تم پیش‌فرض برای بازدیدکنندگانی اعمال می‌شود که انتخاب شخصی ذخیره‌شده ندارند.</p>
+                    <p class="site-default-theme-status" aria-live="polite">تم پیش‌فرض ذخیره‌شدهٔ فعلی: <strong id="siteDefaultThemeCurrent">@(siteSettings.DefaultTheme == "dark" ? "تیره" : "روشن")</strong></p>
+                    <div class="site-default-theme-options" role="radiogroup" aria-label="تم پیش‌فرض سایت">
+                        <label class="site-theme-option"><input type="radio" name="defaultTheme" value="light" checked="@(siteSettings.DefaultTheme != "dark")" /><i class="bi bi-sun"></i> روشن</label>
+                        <label class="site-theme-option"><input type="radio" name="defaultTheme" value="dark" checked="@(siteSettings.DefaultTheme == "dark")" /><i class="bi bi-moon-stars"></i> تیره</label>
+                    </div>
                     </div>
                 </div>
+            </div>
                 <div class="grid-2" style="margin-top:18px">
                     <div class="panel">
                         <div class="panel-head">
@@ -229,7 +225,7 @@
                 </div>
             </div>
         </section>
-        <div style="display:flex;justify-content:flex-end;margin-top:18px">
+        <div class="settings-save-actions">
             <button type="submit" form="settingsForm" class="btn btn-primary">
                 <i class="bi bi-check2"></i>
                 <span data-t="saveChanges">

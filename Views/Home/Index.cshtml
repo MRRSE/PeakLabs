@@ -1,28 +1,20 @@
 @model PeakLabs.Models.HomeIndexViewModel
 @{
-  ViewData["Title"] = "Home Page";
+  ViewData["Title"] = "خانه";
 }
 
-<html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="~/css/pages/home.css">
-  <title>PeakLabs</title>
-</head>
+@section Styles {
+  <link rel="stylesheet" href="~/css/pages/home.css" asp-append-version="true" />
+}
 
-<body>
-  <form id="homeViewToken" hidden>@Html.AntiForgeryToken()</form>
+<form id="homeViewToken" hidden>@Html.AntiForgeryToken()</form>
   @* Hero section part *@
   <partial name="_HeroSec" />
   @* Categories section part *@
   <partial name="_CategoriesSec" model="Model" />
   <partial name="_ArticleSec" model="Model.Articles" />
   <partial name="_PortfolioSec" />
-</body>
-
-</html>
 
 @section Scripts {
   <script src="~/js/pages/home.js" asp-append-version="true"></script>

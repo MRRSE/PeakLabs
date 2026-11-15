@@ -40,7 +40,14 @@ public class SystemController : Controller
         if (string.IsNullOrWhiteSpace(input.SiteTitle) || input.SiteTitle.Length > 70
             || string.IsNullOrWhiteSpace(input.SiteDescription) || input.SiteDescription.Length > 300
             || (input.SeoTitle?.Length ?? 0) > 60 || (input.SeoDescription?.Length ?? 0) > 160
-            || (input.Address?.Length ?? 0) > 300)
+            || (input.Address?.Length ?? 0) > 300 || (input.ContactEmail?.Length ?? 0) > 254
+            || (input.ContactPhone?.Length ?? 0) > 40 || (input.SiteUrl?.Length ?? 0) > 500
+            || (input.OgImage?.Length ?? 0) > 500 || (input.Linkedin?.Length ?? 0) > 500
+            || (input.Github?.Length ?? 0) > 500 || (input.Instagram?.Length ?? 0) > 500
+            || input.DefaultTheme is not ("light" or "dark")
+            || !IsOptionalHttpUrl(input.SiteUrl) || !IsOptionalHttpUrl(input.OgImage)
+            || !IsOptionalHttpUrl(input.Linkedin) || !IsOptionalHttpUrl(input.Github)
+            || !IsOptionalHttpUrl(input.Instagram) || !IsOptionalEmail(input.ContactEmail))
             return BadRequest(new { message = "مقادیر واردشده معتبر نیستند." });
 
         var settings = await _dbContext.SiteSettings.FindAsync(1);
@@ -62,11 +69,18 @@ public class SystemController : Controller
         settings.Linkedin = Clean(input.Linkedin);
         settings.Github = Clean(input.Github);
         settings.Instagram = Clean(input.Instagram);
+        settings.DefaultTheme = input.DefaultTheme;
         await _dbContext.SaveChangesAsync();
         return Ok(new { message = "تغییرات ذخیره شد." });
     }
 
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    private static bool IsOptionalHttpUrl(string? value) => string.IsNullOrWhiteSpace(value)
+        || Uri.TryCreate(value, UriKind.Absolute, out var uri)
+        && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+    private static bool IsOptionalEmail(string? value) => string.IsNullOrWhiteSpace(value)
+        || System.Net.Mail.MailAddress.TryCreate(value, out var address)
+        && string.Equals(address.Address, value, StringComparison.OrdinalIgnoreCase);
 
     [HttpPost]
     [ValidateAntiForgeryToken]

@@ -26,6 +26,10 @@
             : User.IsInRole(DashboardRoles.Editor)
                 ? DashboardRoles.Editor
                 : null;
+    var siteDefaultTheme = await DbContext.SiteSettings.AsNoTracking()
+        .Where(settings => settings.Id == 1)
+        .Select(settings => settings.DefaultTheme)
+        .FirstOrDefaultAsync() ?? "light";
 }
 <!DOCTYPE html>
 @{
@@ -35,7 +39,7 @@
         string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
         && string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
 }
-<html lang="fa" dir="rtl" data-theme="dark">
+<html lang="fa" dir="rtl" data-theme="@siteDefaultTheme" data-default-theme="@siteDefaultTheme">
 
 <head>
     <meta charset="utf-8" />
@@ -66,7 +70,7 @@
 
     <link rel="stylesheet" href="~/fonts/bootstrap-icons/bootstrap-icons.min.css" asp-append-version="true" />
 
-    <link rel="stylesheet" href="~/css/admin/admin.css">
+    <link rel="stylesheet" href="~/css/admin/admin.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 
 </head>

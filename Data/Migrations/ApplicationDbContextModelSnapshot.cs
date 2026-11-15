@@ -37,6 +37,12 @@ namespace PeakLabs.Data.Migrations
                     b.Property<string>("SiteDescription").IsRequired().HasMaxLength(300).HasColumnType("nvarchar(300)");
                     b.Property<string>("SiteTitle").IsRequired().HasMaxLength(70).HasColumnType("nvarchar(70)");
                     b.Property<string>("SiteUrl").HasMaxLength(500).HasColumnType("nvarchar(500)");
+                    b.Property<string>("DefaultTheme")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("light");
                     b.HasKey("Id");
                     b.ToTable("SiteSettings", (string)null);
                 });

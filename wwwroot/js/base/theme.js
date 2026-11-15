@@ -13,7 +13,8 @@ function saveTheme(theme) {
 // Read saved theme
 function getSavedTheme() {
     const match = document.cookie.match(/(?:^|;\s*)Theme=(light|dark)/);
-    return match ? match[1] : "light";
+    const defaultTheme = document.documentElement.dataset.defaultTheme;
+    return match ? match[1] : (defaultTheme === "dark" ? "dark" : "light");
 }
 
 // Apply theme

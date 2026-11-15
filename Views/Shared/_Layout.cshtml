@@ -1,17 +1,62 @@
-﻿<!DOCTYPE html>
+@using Microsoft.EntityFrameworkCore
+@using PeakLabs.Data
+@using PeakLabs.Models
+@inject ApplicationDbContext DbContext
+<!DOCTYPE html>
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     bool IsCurrentPage(string controller, string action = "Index") =>
         string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
         && string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
+
+    var siteSettings = await DbContext.SiteSettings.AsNoTracking().FirstOrDefaultAsync(settings => settings.Id == 1) ?? new SiteSettings();
+    var brandTitle = string.IsNullOrWhiteSpace(siteSettings.SeoTitle) ? siteSettings.SiteTitle : siteSettings.SeoTitle;
+    var pageTitle = ViewData["Title"] as string;
+    var isHomePage = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", StringComparison.OrdinalIgnoreCase)
+        && string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", StringComparison.OrdinalIgnoreCase);
+    var documentTitle = isHomePage || string.IsNullOrWhiteSpace(pageTitle) ? brandTitle : $"{pageTitle} | {brandTitle}";
+    var metaDescription = ViewData["MetaDescription"] as string;
+    if (string.IsNullOrWhiteSpace(metaDescription))
+        metaDescription = string.IsNullOrWhiteSpace(siteSettings.SeoDescription) ? siteSettings.SiteDescription : siteSettings.SeoDescription;
+    Uri? siteBaseUri = null;
+    if (!Uri.TryCreate(siteSettings.SiteUrl, UriKind.Absolute, out siteBaseUri)
+        || (siteBaseUri.Scheme != Uri.UriSchemeHttp && siteBaseUri.Scheme != Uri.UriSchemeHttps))
+        siteBaseUri = new Uri($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.PathBase}/");
+    var canonicalUrl = new Uri(siteBaseUri, Context.Request.Path.Value?.TrimStart('/') ?? string.Empty).AbsoluteUri;
+    string? shareImageUrl = null;
+    if (Uri.TryCreate(siteSettings.OgImage, UriKind.Absolute, out var absoluteShareImage)
+        && (absoluteShareImage.Scheme == Uri.UriSchemeHttp || absoluteShareImage.Scheme == Uri.UriSchemeHttps))
+        shareImageUrl = absoluteShareImage.AbsoluteUri;
+    else if (!string.IsNullOrWhiteSpace(siteSettings.OgImage) && siteSettings.OgImage.StartsWith('/'))
+        shareImageUrl = new Uri(siteBaseUri, siteSettings.OgImage).AbsoluteUri;
 }
-<html lang="fa" dir="rtl" data-theme="dark">
+<html lang="fa" dir="rtl" data-theme="@siteSettings.DefaultTheme" data-default-theme="@siteSettings.DefaultTheme">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - PeakLabs</title>
+<title>@documentTitle</title>
+<meta name="description" content="@metaDescription" />
+<link rel="canonical" href="@canonicalUrl" />
+<link rel="icon" href="@Url.Content("~/favicon.ico")" type="image/x-icon" />
+<meta property="og:site_name" content="@siteSettings.SiteTitle" />
+<meta property="og:title" content="@documentTitle" />
+<meta property="og:description" content="@metaDescription" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="@canonicalUrl" />
+@if (!string.IsNullOrWhiteSpace(shareImageUrl))
+{
+    <meta property="og:image" content="@shareImageUrl" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="@shareImageUrl" />
+}
+else
+{
+    <meta name="twitter:card" content="summary" />
+}
+<meta name="twitter:title" content="@documentTitle" />
+<meta name="twitter:description" content="@metaDescription" />
     <script type="importmap"></script>
     @* <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" /> *@
 
@@ -36,6 +81,7 @@
     <link rel="stylesheet" href="~/fonts/bootstrap-icons/bootstrap-icons.min.css" asp-append-version="true" />
 
     <link rel="stylesheet" href="~/PeakLabs.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body>
@@ -92,10 +138,14 @@
                         <span class="brand-name">Pick <Span>Labs</Span></span>
                     </div>
                     <p>استودیوی مهندسی نرم‌افزار که درباره معماری، ابر و هنر ساخت سیستم‌های پایدار می‌نویسد.</p>
-                    <div class="footer-social">
-                        <a class="icon-btn" href=""><i class="bi bi-github"></i></a>
-                        <a class="icon-btn" href=""><i class="bi bi-linkedin"></i></a>
-                    </div>
+                    @if (!string.IsNullOrWhiteSpace(siteSettings.Github) || !string.IsNullOrWhiteSpace(siteSettings.Linkedin) || !string.IsNullOrWhiteSpace(siteSettings.Instagram))
+                    {
+                        <div class="footer-social">
+                            @if (!string.IsNullOrWhiteSpace(siteSettings.Github)) { <a class="icon-btn" href="@siteSettings.Github" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="bi bi-github"></i></a> }
+                            @if (!string.IsNullOrWhiteSpace(siteSettings.Linkedin)) { <a class="icon-btn" href="@siteSettings.Linkedin" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a> }
+                            @if (!string.IsNullOrWhiteSpace(siteSettings.Instagram)) { <a class="icon-btn" href="@siteSettings.Instagram" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="bi bi-instagram"></i></a> }
+                        </div>
+                    }
                 </div>
                 <div class="footer-col">
                     <h4>شرکت</h4>
@@ -105,8 +155,9 @@
                 </div>
                 <div class="footer-col">
                     <h4>شبکه های اجتمایی</h4>
-                    <a href="">GitHub</a>
-                    <a href="">LinkedIn</a>
+                    @if (!string.IsNullOrWhiteSpace(siteSettings.Github)) { <a href="@siteSettings.Github" target="_blank" rel="noopener noreferrer">GitHub</a> }
+                    @if (!string.IsNullOrWhiteSpace(siteSettings.Linkedin)) { <a href="@siteSettings.Linkedin" target="_blank" rel="noopener noreferrer">LinkedIn</a> }
+                    @if (!string.IsNullOrWhiteSpace(siteSettings.Instagram)) { <a href="@siteSettings.Instagram" target="_blank" rel="noopener noreferrer">Instagram</a> }
                 </div>
             </div>
             <div class="footer-bottom">

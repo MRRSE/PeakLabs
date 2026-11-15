@@ -129,6 +129,7 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
             entity.Property(settings => settings.Linkedin).HasMaxLength(500);
             entity.Property(settings => settings.Github).HasMaxLength(500);
             entity.Property(settings => settings.Instagram).HasMaxLength(500);
+            entity.Property(settings => settings.DefaultTheme).HasMaxLength(10).HasDefaultValue("light").IsRequired();
         });
 
         builder.Entity<Article>(entity =>

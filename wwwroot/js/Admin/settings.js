@@ -19,6 +19,7 @@
     };
 
     const payload = Object.fromEntries(Object.entries(fields).map(([key, id]) => [key, document.getElementById(id).value]));
+    payload.defaultTheme = form.querySelector('input[name="defaultTheme"]:checked')?.value || "light";
     const button = document.querySelector('button[form="settingsForm"]');
     button.disabled = true;
     try {
@@ -32,6 +33,9 @@
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || "ذخیره تنظیمات انجام نشد.");
+      const themeLabel = payload.defaultTheme === "dark" ? "تیره" : "روشن";
+      document.getElementById("siteDefaultThemeCurrent").textContent = themeLabel;
+      document.documentElement.dataset.defaultTheme = payload.defaultTheme;
       if (typeof window.toastMsg === "function") window.toastMsg(result.message);
     } catch (error) {
       if (typeof window.toastMsg === "function") window.toastMsg(error.message || "ذخیره تنظیمات انجام نشد.");

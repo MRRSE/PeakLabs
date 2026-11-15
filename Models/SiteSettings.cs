@@ -15,4 +15,5 @@ public class SiteSettings
     public string? Linkedin { get; set; }
     public string? Github { get; set; }
     public string? Instagram { get; set; }
+    public string DefaultTheme { get; set; } = "light";
 }

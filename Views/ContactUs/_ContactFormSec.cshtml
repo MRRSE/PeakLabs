@@ -1,4 +1,10 @@
+@using Microsoft.EntityFrameworkCore
+@using PeakLabs.Data
+@inject ApplicationDbContext DbContext
 @model PeakLabs.Models.ContactMessage
+@{
+    var contactSettings = await DbContext.SiteSettings.AsNoTracking().FirstOrDefaultAsync(settings => settings.Id == 1);
+}
 
 <section class="section" style="padding-top: 0;">
         <div class="container contact-grid">
@@ -33,37 +39,35 @@
             </div>
 
             <div class="reveal">
-                <div class="info-card">
-                    <div class="info-row">
-                        <i class="bi bi-geo-alt"></i>
-                        <div>
-                            <strong>دفتر</strong>
-                            <span>بندرعباس، خیابان دانشگاه, ساختمان اداری کروش</span>
-                        </div>
+                @if (contactSettings is not null && (!string.IsNullOrWhiteSpace(contactSettings.Address)
+                    || !string.IsNullOrWhiteSpace(contactSettings.ContactEmail)
+                    || !string.IsNullOrWhiteSpace(contactSettings.ContactPhone)))
+                {
+                    <div class="info-card">
+                        @if (!string.IsNullOrWhiteSpace(contactSettings.Address))
+                        {
+                            <div class="info-row"><i class="bi bi-geo-alt"></i><div><strong>دفتر</strong><span>@contactSettings.Address</span></div></div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(contactSettings.ContactEmail))
+                        {
+                            <div class="info-row"><i class="bi bi-envelope"></i><div><strong>ایمیل</strong><a href="mailto:@contactSettings.ContactEmail">@contactSettings.ContactEmail</a></div></div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(contactSettings.ContactPhone))
+                        {
+                            <div class="info-row"><i class="bi bi-telephone"></i><div><strong>شماره تماس</strong><a href="tel:@contactSettings.ContactPhone" dir="ltr">@contactSettings.ContactPhone</a></div></div>
+                        }
                     </div>
-                    <div class="info-row">
-                        <i class="bi bi-envelope"></i>
-                        <div>
-                            <strong>ایمیل</strong>
-                            <span>PeakLabsCompany@gmail.com</span>
-                        </div>
+                }
+                @if (contactSettings is not null && (!string.IsNullOrWhiteSpace(contactSettings.Github)
+                    || !string.IsNullOrWhiteSpace(contactSettings.Linkedin)
+                    || !string.IsNullOrWhiteSpace(contactSettings.Instagram)))
+                {
+                    <div class="footer-social" style="margin-bottom: 18px;">
+                        @if (!string.IsNullOrWhiteSpace(contactSettings.Github)) { <a href="@contactSettings.Github" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub"><i class="bi bi-github"></i></a> }
+                        @if (!string.IsNullOrWhiteSpace(contactSettings.Linkedin)) { <a href="@contactSettings.Linkedin" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a> }
+                        @if (!string.IsNullOrWhiteSpace(contactSettings.Instagram)) { <a href="@contactSettings.Instagram" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="Instagram"><i class="bi bi-instagram"></i></a> }
                     </div>
-                    <div class="info-row">
-                        <i class="bi bi-telephone"></i>
-                        <div>
-                            <strong>شماره تماس</strong>
-                            <span dir="ltr">+98 21 0000 0000</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="footer-social" style="margin-bottom: 18px;">
-                    <a href="#" class="icon-btn" aria-label="GitHub">
-                        <i class="bi bi-github"></i>
-                    </a>
-                    <a href="#" class="icon-btn" aria-label="LinkedIn">
-                        <i class="bi bi-linkedin"></i>
-                    </a>
-                </div>
+                }
             </div>
         </div>
     </section>
