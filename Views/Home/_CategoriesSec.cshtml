@@ -1,4 +1,4 @@
-@model IReadOnlyList<PeakLabs.Models.ArticleCategorySummary>
+@model PeakLabs.Models.HomeIndexViewModel
 @using System.Globalization
 
 @{
@@ -10,7 +10,7 @@
     var numberFormat = CultureInfo.GetCultureInfo("fa-IR");
 }
 
-<section class="section" style="padding-top: 20px;">
+<section class="section" id="categories" style="padding-top: 20px;">
     <div class="container">
         <div class="section-head reveal">
             <span class="eyebrow">موضوعات</span>
@@ -18,9 +18,9 @@
             <p>بررسی عمیق در سراسر پشته فناوری، از تصمیمات معماری تا استقرار در محیط عملیاتی.</p>
         </div>
         <div class="category-grid">
-            @for (var index = 0; index < Model.Count; index++)
+            @for (var index = 0; index < Model.Categories.Count; index++)
             {
-                var category = Model[index];
+                var category = Model.Categories[index];
                 <a asp-controller="Article" asp-action="Index" asp-route-categoryId="@category.Id" class="category-card">
                     <i class="bi @icons[index % icons.Length]"></i>
                     <span>@category.Name</span>
@@ -28,5 +28,16 @@
                 </a>
             }
         </div>
+        @if (Model.CategoryPageCount > 1)
+        {
+            <nav class="pagination" aria-label="صفحه‌بندی دسته‌بندی‌ها">
+                @for (var pageNumber = 1; pageNumber <= Model.CategoryPageCount; pageNumber++)
+                {
+                    <a class="page-btn @(pageNumber == Model.CategoryPage ? "active" : "")"
+                       asp-controller="Home" asp-action="Index" asp-route-categoryPage="@pageNumber" asp-fragment="categories"
+                       aria-label="صفحه @pageNumber" aria-current="@(pageNumber == Model.CategoryPage ? "page" : null)">@pageNumber</a>
+                }
+            </nav>
+        }
     </div>
 </section>

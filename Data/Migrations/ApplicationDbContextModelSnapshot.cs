@@ -22,6 +22,25 @@ namespace PeakLabs.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("PeakLabs.Models.SiteSettings", b =>
+                {
+                    b.Property<int>("Id").ValueGeneratedNever().HasColumnType("int");
+                    b.Property<string>("Address").HasMaxLength(300).HasColumnType("nvarchar(300)");
+                    b.Property<string>("ContactEmail").HasMaxLength(254).HasColumnType("nvarchar(254)");
+                    b.Property<string>("ContactPhone").HasMaxLength(40).HasColumnType("nvarchar(40)");
+                    b.Property<string>("Github").HasMaxLength(500).HasColumnType("nvarchar(500)");
+                    b.Property<string>("Instagram").HasMaxLength(500).HasColumnType("nvarchar(500)");
+                    b.Property<string>("Linkedin").HasMaxLength(500).HasColumnType("nvarchar(500)");
+                    b.Property<string>("OgImage").HasMaxLength(500).HasColumnType("nvarchar(500)");
+                    b.Property<string>("SeoDescription").HasMaxLength(160).HasColumnType("nvarchar(160)");
+                    b.Property<string>("SeoTitle").HasMaxLength(60).HasColumnType("nvarchar(60)");
+                    b.Property<string>("SiteDescription").IsRequired().HasMaxLength(300).HasColumnType("nvarchar(300)");
+                    b.Property<string>("SiteTitle").IsRequired().HasMaxLength(70).HasColumnType("nvarchar(70)");
+                    b.Property<string>("SiteUrl").HasMaxLength(500).HasColumnType("nvarchar(500)");
+                    b.HasKey("Id");
+                    b.ToTable("SiteSettings", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")

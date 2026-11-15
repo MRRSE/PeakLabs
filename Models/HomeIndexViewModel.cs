@@ -4,6 +4,8 @@ public class HomeIndexViewModel
 {
     public IReadOnlyList<Article> Articles { get; init; } = [];
     public IReadOnlyList<ArticleCategorySummary> Categories { get; init; } = [];
+    public int CategoryPage { get; init; }
+    public int CategoryPageCount { get; init; }
 }
 
 public class ArticleCategorySummary

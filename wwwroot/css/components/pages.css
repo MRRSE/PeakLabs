@@ -49,6 +49,7 @@
   gap: 16px;
 }
 
+
 .mv-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

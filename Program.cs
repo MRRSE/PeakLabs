@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddAntiforgery(options => options.HeaderName = "RequestVerificationToken");
 builder.Services.AddScoped<DashboardActivityLogger>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -158,3 +159,4 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.Run();
+

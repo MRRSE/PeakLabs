@@ -1,4 +1,46 @@
 (() => {
+  window.saveSiteSettings = async () => {
+    const form = document.getElementById("settingsForm");
+    if (!form.reportValidity()) return;
+
+    const fields = {
+      siteTitle: "settingSiteTitle",
+      siteDescription: "settingSiteDescription",
+      siteUrl: "settingSiteUrl",
+      seoTitle: "settingSeoTitle",
+      seoDescription: "settingSeoDescription",
+      ogImage: "settingOgImage",
+      contactEmail: "settingContactEmail",
+      contactPhone: "settingContactPhone",
+      address: "settingAddress",
+      linkedin: "settingLinkedin",
+      github: "settingGithub",
+      instagram: "settingInstagram",
+    };
+
+    const payload = Object.fromEntries(Object.entries(fields).map(([key, id]) => [key, document.getElementById(id).value]));
+    const button = document.querySelector('button[form="settingsForm"]');
+    button.disabled = true;
+    try {
+      const response = await fetch("/Admin/System/SaveSettings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          RequestVerificationToken: form.querySelector('input[name="__RequestVerificationToken"]').value,
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || "ذخیره تنظیمات انجام نشد.");
+      if (typeof window.toastMsg === "function") window.toastMsg(result.message);
+    } catch (error) {
+      if (typeof window.toastMsg === "function") window.toastMsg(error.message || "ذخیره تنظیمات انجام نشد.");
+      else window.alert(error.message || "ذخیره تنظیمات انجام نشد.");
+    } finally {
+      button.disabled = false;
+    }
+  };
+
   const modal = document.getElementById("modal");
   if (!modal) return;
 
