@@ -38,6 +38,38 @@
   }
 }
 @media (max-width: 768px) {
+  .site-footer {
+    margin-top: 28px;
+    padding-block: 32px 18px;
+  }
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 12px;
+    margin-bottom: 22px;
+  }
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+  .footer-brand p {
+    margin-top: 8px;
+  }
+  .footer-social {
+    margin-top: 12px;
+  }
+  .footer-col h4 {
+    margin-bottom: 8px;
+  }
+  .footer-col a {
+    padding-block: 4px;
+    font-size: 0.82rem;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding-top: 16px;
+    font-size: 0.75rem;
+  }
   .nav-links {
     display: none;
   }
@@ -45,7 +77,15 @@
     display: inline-flex;
   }
   .article-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .article-card .card-body {
+    padding: 14px;
+    gap: 9px;
+  }
+  .article-card-tags {
+    display: none;
   }
   .portfolio-grid {
     grid-template-columns: 1fr;

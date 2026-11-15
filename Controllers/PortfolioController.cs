@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using PeakLabs.Data;
 using PeakLabs.Models;
@@ -38,6 +39,7 @@ public class PortfolioController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting("public-view-counter")]
     public async Task<IActionResult> RecordView(int id)
     {
         var exists = await _dbContext.Portfolio.AsNoTracking().AnyAsync(item => item.Id == id);

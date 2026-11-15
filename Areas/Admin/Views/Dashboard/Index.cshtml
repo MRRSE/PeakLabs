@@ -46,7 +46,7 @@
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', () => { const modal=document.getElementById('activitiesModal'), list=document.getElementById('allActivitiesList'), more=document.getElementById('activitiesMore'); let page=0;
-async function load(){ page++; const r=await fetch(`/Admin/Dashboard/Activities?page=${page}`); const d=await r.json(); d.items.forEach(x=>{const e=document.createElement('div');e.className='activity-item';e.innerHTML=`<span class="activity-dot"></span><div><strong>${x.message}</strong><time>${new Date(x.occurredAt).toLocaleString('fa-IR')}</time></div>`;list.appendChild(e)}); more.hidden=!d.hasNext; }
+async function load(){ page++; const r=await fetch(`/Admin/Dashboard/Activities?page=${page}`); const d=await r.json(); d.items.forEach(x=>{const e=document.createElement('div');e.className='activity-item';const dot=document.createElement('span');dot.className='activity-dot';const body=document.createElement('div');const message=document.createElement('strong');message.textContent=x.message ?? '';const time=document.createElement('time');time.textContent=new Date(x.occurredAt).toLocaleString('fa-IR');body.append(message,time);e.append(dot,body);list.appendChild(e)}); more.hidden=!d.hasNext; }
 document.querySelector('[data-open-activities]')?.addEventListener('click',()=>{modal.hidden=false;modal.classList.add('open');if(!page)load()}); document.querySelectorAll('[data-close-activities]').forEach(x=>x.addEventListener('click',()=>{modal.hidden=true;modal.classList.remove('open')})); more?.addEventListener('click',load); });
 </script>
 <div class="stats">
