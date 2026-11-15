@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using PeakLabs.Data;
 using PeakLabs.Models;
@@ -64,6 +65,7 @@ public class ArticleController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting("public-view-counter")]
     public async Task<IActionResult> RecordView(int id)
     {
         var articleExists = await _dbContext.Articles.AsNoTracking()

@@ -594,7 +594,11 @@ blockquote.pl-quote {
   transform: scale(1.035);
 }
 .article-card-description {
-  white-space: pre-wrap;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  white-space: normal;
   overflow-wrap: anywhere;
 }
 .article-card-tags {
