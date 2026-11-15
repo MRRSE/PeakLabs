@@ -43,11 +43,27 @@
                     <h3>@item.ProjectName</h3>
                     <p>@item.ProjectDescription</p>
                     <div class="manage-foot">
-                        <span class="muted">@item.AddedAt.ToLocalTime().ToString("yyyy/MM/dd")</span>
+                        <div class="manage-meta">
+                            <span class="muted"><i class="bi bi-calendar3" aria-hidden="true"></i> @item.AddedAt.ToLocalTime().ToString("yyyy/MM/dd", System.Globalization.CultureInfo.GetCultureInfo("fa-IR"))</span>
+                            <span class="views" aria-label="@item.ViewCount.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("fa-IR")) بازدید">
+                                <i class="bi bi-eye" aria-hidden="true"></i>
+                                @item.ViewCount.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("fa-IR"))
+                            </span>
+                        </div>
                         <div class="actions">
                             <a class="action" href="@item.ProjectLink" target="_blank" rel="noopener noreferrer" aria-label="لینک پروژه">
                                 <i class="bi bi-link-45deg"></i>
                             </a>
+                            @if (canManagePortfolio)
+                            {
+                                <button class="action portfolio-edit-button" type="button"
+                                        data-portfolio-id="@item.Id" data-portfolio-name="@item.ProjectName"
+                                        data-portfolio-description="@item.ProjectDescription"
+                                        data-portfolio-link="@item.ProjectLink"
+                                        data-portfolio-image="@item.ProjectImagePath"
+                                        title="ویرایش نمونه‌کار" aria-label="ویرایش نمونه‌کار @item.ProjectName">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
                             <button class="action portfolio-delete-button" type="button"
                                     data-portfolio-id="@item.Id" data-portfolio-name="@item.ProjectName"
                                     title="حذف نمونه‌کار" aria-label="حذف نمونه‌کار @item.ProjectName">

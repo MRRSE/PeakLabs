@@ -186,6 +186,7 @@ public class ApplicationDbContext : IdentityDbContext<PeakLabsUser>
             entity.Property(message => message.Subject).HasMaxLength(160).IsRequired();
             entity.Property(message => message.Message).HasMaxLength(5000).IsRequired();
             entity.Property(message => message.SentAt).IsRequired();
+            entity.Property(message => message.IsAnswered).HasDefaultValue(false);
             entity.HasIndex(message => message.SentAt);
         });
         builder.Entity<SiteVisit>(entity =>

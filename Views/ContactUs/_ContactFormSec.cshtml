@@ -7,7 +7,7 @@
                     @Html.AntiForgeryToken()
                     @if (TempData["ContactSuccess"] is string successMessage)
                     {
-                        <div class="form-status" role="status">@successMessage</div>
+                        <div class="contact-success-message" role="status"><i class="bi bi-check-circle-fill" aria-hidden="true"></i><span>@successMessage</span></div>
                     }
                     <div asp-validation-summary="All" class="form-status" role="alert"></div>
                     <div class="form-row">

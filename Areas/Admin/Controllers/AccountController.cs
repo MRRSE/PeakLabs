@@ -42,7 +42,7 @@ public sealed class AccountController : Controller
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(MaxProfileImageSize + 64 * 1024)]
     [RequestFormLimits(MultipartBodyLengthLimit = MaxProfileImageSize + 64 * 1024)]
-    public async Task<IActionResult> Profile(ProfileInputModel input)
+    public async Task<IActionResult> UpdateProfile(ProfileInputModel input)
     {
         var user = await _userManager.GetUserAsync(User);
         if (user is null)
@@ -50,41 +50,9 @@ public sealed class AccountController : Controller
             return Challenge();
         }
 
-        var changesPassword = !string.IsNullOrWhiteSpace(input.NewPassword)
-            || !string.IsNullOrWhiteSpace(input.ConfirmNewPassword)
-            || !string.IsNullOrWhiteSpace(input.CurrentPassword);
-
-        if (changesPassword && string.IsNullOrWhiteSpace(input.CurrentPassword))
-        {
-            ModelState.AddModelError(nameof(input.CurrentPassword), "برای تغییر رمز، رمز عبور فعلی را وارد کنید.");
-        }
-
-        if (changesPassword && string.IsNullOrWhiteSpace(input.NewPassword))
-        {
-            ModelState.AddModelError(nameof(input.NewPassword), "رمز عبور جدید را وارد کنید.");
-        }
-
         if (input.ProfileImage is { Length: > MaxProfileImageSize })
         {
             ModelState.AddModelError(nameof(input.ProfileImage), "حجم تصویر باید کمتر از ۲ مگابایت باشد.");
-        }
-
-        if (changesPassword && !string.IsNullOrWhiteSpace(input.CurrentPassword)
-            && !await _userManager.CheckPasswordAsync(user, input.CurrentPassword))
-        {
-            ModelState.AddModelError(nameof(input.CurrentPassword), "رمز عبور فعلی درست نیست.");
-        }
-
-        if (changesPassword && !string.IsNullOrWhiteSpace(input.NewPassword))
-        {
-            foreach (var validator in _userManager.PasswordValidators)
-            {
-                var result = await validator.ValidateAsync(_userManager, user, input.NewPassword);
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(nameof(input.NewPassword), TranslateIdentityError(error.Code));
-                }
-            }
         }
 
         if (!ModelState.IsValid)
@@ -126,16 +94,6 @@ public sealed class AccountController : Controller
             return View(await CreateInputModelAsync(user, input));
         }
 
-        if (changesPassword)
-        {
-            var passwordResult = await _userManager.ChangePasswordAsync(user, input.CurrentPassword!, input.NewPassword!);
-            if (!passwordResult.Succeeded)
-            {
-                AddIdentityErrors(passwordResult, nameof(input.NewPassword));
-                return View(await CreateInputModelAsync(user, input));
-            }
-        }
-
         if (newImagePath is not null)
         {
             DeleteProfileImage(oldImagePath);
@@ -144,7 +102,59 @@ public sealed class AccountController : Controller
         await _userManager.UpdateSecurityStampAsync(user);
         await _signInManager.RefreshSignInAsync(user);
 
-        TempData["ProfileSuccess"] = "اطلاعات پروفایل با موفقیت ذخیره شد.";
+        TempData["ProfileSuccess"] = "اطلاعات حساب با موفقیت به‌روزرسانی شد.";
+        return RedirectToAction(nameof(Profile));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(ProfileInputModel input)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Challenge();
+        }
+
+        if (string.IsNullOrWhiteSpace(input.CurrentPassword))
+        {
+            ModelState.AddModelError(nameof(input.CurrentPassword), "رمز عبور فعلی را وارد کنید.");
+        }
+        else if (!await _userManager.CheckPasswordAsync(user, input.CurrentPassword))
+        {
+            ModelState.AddModelError(nameof(input.CurrentPassword), "رمز عبور فعلی درست نیست.");
+        }
+
+        if (string.IsNullOrWhiteSpace(input.NewPassword))
+        {
+            ModelState.AddModelError(nameof(input.NewPassword), "رمز عبور جدید را وارد کنید.");
+        }
+        else
+        {
+            foreach (var validator in _userManager.PasswordValidators)
+            {
+                var result = await validator.ValidateAsync(_userManager, user, input.NewPassword);
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(nameof(input.NewPassword), TranslateIdentityError(error.Code));
+                }
+            }
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View("Profile", await CreateInputModelAsync(user, input));
+        }
+
+        var changeResult = await _userManager.ChangePasswordAsync(user, input.CurrentPassword!, input.NewPassword!);
+        if (!changeResult.Succeeded)
+        {
+            AddIdentityErrors(changeResult, nameof(input.NewPassword));
+            return View("Profile", await CreateInputModelAsync(user, input));
+        }
+
+        await _signInManager.RefreshSignInAsync(user);
+        TempData["ProfileSuccess"] = "رمز عبور با موفقیت تغییر کرد.";
         return RedirectToAction(nameof(Profile));
     }
 

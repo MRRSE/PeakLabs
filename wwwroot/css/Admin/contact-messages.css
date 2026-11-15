@@ -1,0 +1,101 @@
+.contact-message-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.contact-message-tabs a {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-faint);
+  text-decoration: none;
+}
+
+.contact-message-tabs a.active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 9%, transparent);
+}
+
+.contact-message-tabs a span {
+  min-width: 22px;
+  text-align: center;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.contact-message-table td { vertical-align: middle; }
+
+.contact-message-preview {
+  display: block;
+  width: min(360px, 32vw);
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-text-faint);
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.contact-message-preview:hover { color: var(--color-primary); }
+
+.contact-message-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.contact-message-status input { accent-color: var(--color-primary); }
+
+.contact-message-dialog {
+  position: fixed;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  width: min(620px, calc(100% - 32px));
+  max-height: min(80vh, 720px);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .35);
+}
+
+.contact-message-dialog::backdrop { background: rgba(0, 0, 0, .62); }
+
+.contact-message-dialog-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.contact-message-dialog-head h2 { margin: 0; font-size: 1.05rem; }
+.contact-message-dialog-head p { margin: 6px 0 0; color: var(--color-text-faint); font-size: .84rem; }
+
+.contact-message-dialog-body {
+  max-height: calc(80vh - 100px);
+  overflow: auto;
+  padding: 22px;
+  line-height: 2;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+  .contact-message-preview { width: 180px; }
+  .contact-message-table { min-width: 760px; }
+}

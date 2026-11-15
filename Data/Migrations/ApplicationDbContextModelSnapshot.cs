@@ -367,6 +367,11 @@ namespace PeakLabs.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("IsAnswered")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(254)
@@ -395,6 +400,34 @@ namespace PeakLabs.Data.Migrations
                     b.HasIndex("SentAt");
 
                     b.ToTable("ContactMessages", (string)null);
+                });
+
+            modelBuilder.Entity("PeakLabs.Models.DashboardActivity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OccurredAt");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DashboardActivities", (string)null);
                 });
 
             modelBuilder.Entity("PeakLabs.Models.Developer", b =>
@@ -448,34 +481,6 @@ namespace PeakLabs.Data.Migrations
                     b.HasIndex("IsActive");
 
                     b.ToTable("Developers", (string)null);
-                });
-
-            modelBuilder.Entity("PeakLabs.Models.DashboardActivity", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<DateTimeOffset>("OccurredAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OccurredAt");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("DashboardActivities", (string)null);
                 });
 
             modelBuilder.Entity("PeakLabs.Models.Identity.PeakLabsUser", b =>
@@ -780,6 +785,16 @@ namespace PeakLabs.Data.Migrations
                     b.Navigation("Article");
                 });
 
+            modelBuilder.Entity("PeakLabs.Models.DashboardActivity", b =>
+                {
+                    b.HasOne("PeakLabs.Models.Identity.PeakLabsUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("PeakLabs.Models.PortfolioView", b =>
                 {
                     b.HasOne("PeakLabs.Models.PortfolioItem", "PortfolioItem")
@@ -789,16 +804,6 @@ namespace PeakLabs.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("PortfolioItem");
-                });
-
-            modelBuilder.Entity("PeakLabs.Models.DashboardActivity", b =>
-                {
-                    b.HasOne("PeakLabs.Models.Identity.PeakLabsUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PeakLabs.Models.Article", b =>

@@ -19,4 +19,6 @@ public sealed class ContactMessage
     public string Message { get; set; } = string.Empty;
 
     public DateTimeOffset SentAt { get; set; }
+
+    public bool IsAnswered { get; set; }
 }

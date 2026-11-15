@@ -26,9 +26,10 @@ public class ContactUsController : Controller
 
         input.Id = 0;
         input.SentAt = DateTimeOffset.UtcNow;
+        input.IsAnswered = false;
         _dbContext.ContactMessages.Add(input);
         await _dbContext.SaveChangesAsync();
-        TempData["ContactSuccess"] = "پیام شما ثبت شد. از اینکه با ما تماس گرفتید سپاسگزاریم.";
-        return RedirectToAction(nameof(Index));
+        TempData["ContactSuccess"] = "پیام شما با موفقیت ارسال شد. تیم ما در اولین فرصت از طریق ایمیل به شما پاسخ خواهد داد.";
+        return Redirect($"{Url.Action(nameof(Index))}#contactForm");
     }
 }

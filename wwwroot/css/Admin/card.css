@@ -112,6 +112,21 @@
   padding-top: 12px
 }
 
+.manage-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: .68rem;
+  color: var(--color-text-faint)
+}
+
+.manage-meta .muted,
+.manage-meta .views {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px
+}
+
 .views {
   font-size: .68rem;
   color: var(--color-text-faint)

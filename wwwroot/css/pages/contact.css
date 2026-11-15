@@ -5,6 +5,19 @@
   background: var(--color-surface);
   margin-bottom: 18px;
 }
+.contact-success-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 13px 15px;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color: var(--color-text);
+  line-height: 1.8;
+}
+.contact-success-message i { color: var(--color-primary); margin-top: 4px; }
 .info-row {
   display: flex;
   gap: 14px;

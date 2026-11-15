@@ -5,6 +5,12 @@
     align-items: start;
 }
 
+.profile-page .profile-main-column {
+    display: grid;
+    gap: 18px;
+    min-width: 0;
+}
+
 .profile-page .profile-card,
 .profile-page .profile-side-card {
     padding: 22px;

@@ -59,8 +59,12 @@
     {
         <link rel="stylesheet" href="~/css/Admin/developers.css" asp-append-version="true" />
     }
+    @if (string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "ContactMessages", StringComparison.OrdinalIgnoreCase))
+    {
+        <link rel="stylesheet" href="~/css/Admin/contact-messages.css" asp-append-version="true" />
+    }
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/fonts/bootstrap-icons/bootstrap-icons.min.css" asp-append-version="true" />
 
     <link rel="stylesheet" href="~/css/admin/admin.css">
     @await RenderSectionAsync("Styles", required: false)
@@ -115,7 +119,7 @@
                     </a>
                     <a class="@(IsCurrentPage("ContactMessages") ? "active" : "")" asp-area="Admin" asp-controller="ContactMessages" asp-action="Index">
                         <i class="bi bi-envelope"></i>
-                        <span>پیام‌های تماس</span>
+                        <span>پیام‌های کاربران</span>
                     </a>
                 }
                 @if (User.IsInRole(DashboardRoles.SuperAdmin))
