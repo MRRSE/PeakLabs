@@ -65,20 +65,23 @@ document.addEventListener("input", (event) => {
   if (event.target.id === "articleSearch") filterArticles();
 });
 document.addEventListener("change", (event) => {
-  if (event.target.id === "articleCategoryFilter" || event.target.id === "articleStatusFilter") filterArticles();
+  if (event.target.id === "articleCategoryFilter" || event.target.id === "articleStatusFilter" || event.target.id === "articleOwnerFilter") filterArticles();
 });
 
 function filterArticles() {
   const search = (document.getElementById("articleSearch")?.value || "").trim().toLocaleLowerCase();
   const category = document.getElementById("articleCategoryFilter")?.value || "";
   const status = document.getElementById("articleStatusFilter")?.value || "";
+  const owner = document.getElementById("articleOwnerFilter")?.value || "";
+  const currentUserId = document.getElementById("articlesPage")?.dataset.currentUserId || "";
   const rows = [...document.querySelectorAll(".article-row")];
   let visibleCount = 0;
 
   rows.forEach((row) => {
     const matches = (!search || row.dataset.search.toLocaleLowerCase().includes(search))
       && (!category || row.dataset.categoryId === category)
-      && (!status || row.dataset.status === status);
+      && (!status || row.dataset.status === status)
+      && (owner !== "mine" || row.dataset.authorId === currentUserId);
     row.hidden = !matches;
     if (matches) visibleCount++;
   });

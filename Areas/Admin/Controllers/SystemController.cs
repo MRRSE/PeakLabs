@@ -28,12 +28,20 @@ public class SystemController : Controller
     {
         ViewData["ArticleCategories"] = await _dbContext.ArticleCategories.AsNoTracking()
             .OrderBy(category => category.Name).ToListAsync();
-        ViewData["SiteSettings"] = await _dbContext.SiteSettings.AsNoTracking().FirstOrDefaultAsync(settings => settings.Id == 1)
-            ?? new SiteSettings();
+        if (User.IsInRole(DashboardRoles.SuperAdmin))
+        {
+            ViewData["SiteSettings"] = await _dbContext.SiteSettings.AsNoTracking()
+                .FirstOrDefaultAsync(settings => settings.Id == 1) ?? new SiteSettings();
+        }
+        else
+        {
+            ViewData["SiteSettings"] = new SiteSettings();
+        }
         return View();
     }
 
     [HttpPost]
+    [Authorize(Roles = DashboardRoles.SuperAdmin)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SaveSettings([FromBody] SiteSettings input)
     {

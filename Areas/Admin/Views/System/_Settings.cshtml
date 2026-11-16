@@ -1,4 +1,8 @@
-@{ var siteSettings = (PeakLabs.Models.SiteSettings)ViewData["SiteSettings"]!; }
+@using PeakLabs.Models.Identity
+@{
+    var siteSettings = (PeakLabs.Models.SiteSettings)ViewData["SiteSettings"]!;
+    var canEditSiteSettings = User.IsInRole(DashboardRoles.SuperAdmin);
+}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -17,9 +21,11 @@
                     <span data-t="settings">تنظیمات</span>
                 </span>
                 <h1 data-t="settingsTitle">تنظیمات داشبورد</h1>
-                <p class="muted" data-t="settingsDesc">هویت سایت، سئو و اطلاعات تماس را مدیریت کنید.</p>
+                <p class="muted" data-t="settingsDesc">@(canEditSiteSettings ? "هویت سایت، سئو، ظاهر و اطلاعات تماس را مدیریت کنید." : "دسته‌بندی‌های مقالات را مدیریت کنید.")</p>
             </div>
         </div>
+        @if (canEditSiteSettings)
+        {
         <form id="settingsForm" onsubmit="event.preventDefault();window.saveSiteSettings?.()">
             @Html.AntiForgeryToken()
             <div class="grid-2">
@@ -186,6 +192,7 @@
                 </div>
             </div>
         </form>
+        }
         <section class="panel" style="margin-top:18px" aria-labelledby="articleCategoriesHeading">
             <div class="panel-head">
                 <div>
@@ -225,6 +232,8 @@
                 </div>
             </div>
         </section>
+        @if (canEditSiteSettings)
+        {
         <div class="settings-save-actions">
             <button type="submit" form="settingsForm" class="btn btn-primary">
                 <i class="bi bi-check2"></i>
@@ -234,6 +243,7 @@
                 </span>
             </button>
         </div>
+        }
     </section>
 </body>
 

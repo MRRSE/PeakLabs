@@ -667,20 +667,34 @@ document.addEventListener("submit", async (event) => {
       body: new FormData(form),
       headers: { Accept: "application/json" },
     });
-    const result = await response.json();
+    const contentType = response.headers.get("content-type") || "";
+    let result;
+    if (contentType.includes("application/json")) {
+      result = await response.json();
+    } else {
+      await response.text();
+      if (response.redirected && response.url.includes("/Admin/Auth/Login")) {
+        throw new Error("نشست ورود منقضی شده است. دوباره وارد داشبورد شوید.");
+      }
+      throw new Error(`پاسخ سرور قابل‌خواندن نبود (کد ${response.status}).`);
+    }
 
     if (!response.ok) {
       errorBox.textContent = (result.errors || ["ساخت حساب انجام نشد."]).join(" ");
       errorBox.hidden = false;
+      errorBox.tabIndex = -1;
+      errorBox.focus();
       return;
     }
 
     closeModal();
     toastMsg(result.message || "حساب کاربری ساخته شد.");
     window.setTimeout(() => window.location.reload(), 900);
-  } catch {
-    errorBox.textContent = "ارتباط با سرور برقرار نشد. دوباره تلاش کنید.";
+  } catch (error) {
+    errorBox.textContent = error.message || "ارتباط با سرور برقرار نشد. دوباره تلاش کنید.";
     errorBox.hidden = false;
+    errorBox.tabIndex = -1;
+    errorBox.focus();
   } finally {
     if (saveButton) saveButton.disabled = false;
   }
@@ -782,7 +796,7 @@ function accountModalBody(account = {}) {
           <div class="field"><label for="accountLastName">نام خانوادگی</label><input id="accountLastName" name="LastName" value="${escapeHtml(account.lastName)}" required maxlength="80" placeholder="نام خانوادگی"></div>
           <div class="field"><label for="accountUsername">نام کاربری</label><input id="accountUsername" name="UserName" value="${escapeHtml(account.userName)}" required maxlength="50" placeholder="نام کاربری"></div>
           <div class="field"><label for="accountEmail">ایمیل</label><input id="accountEmail" name="Email" type="email" value="${escapeHtml(account.email)}" required maxlength="120" placeholder="name@peaklabs.dev"></div>
-          <div class="field"><label for="accountRole">نقش</label><select id="accountRole" name="RoleName" required><option value="" disabled ${accountRole ? "" : "selected"}>انتخاب نقش</option><option value="Editor" ${accountRole === "Editor" ? "selected" : ""}>ویرایشگر</option><option value="ContentManager" ${accountRole === "ContentManager" ? "selected" : ""}>مدیر محتوا</option><option value="SuperAdmin" ${accountRole === "SuperAdmin" ? "selected" : ""}>مدیر ارشد</option></select></div>
+          <div class="field"><label for="accountRole">نقش</label><select id="accountRole" name="RoleName" required><option value="" disabled ${accountRole ? "" : "selected"}>انتخاب نقش</option><option value="Editor" ${accountRole === "Editor" ? "selected" : ""}>ویرایشگر</option><option value="CustomerSupport" ${accountRole === "CustomerSupport" ? "selected" : ""}>پشتیبان</option><option value="ContentManager" ${accountRole === "ContentManager" ? "selected" : ""}>مدیر محتوا</option><option value="SuperAdmin" ${accountRole === "SuperAdmin" ? "selected" : ""}>مدیر ارشد</option></select></div>
           ${editMode ? "" : `<div class="field"><label for="accountStatus">وضعیت حساب</label><select id="accountStatus" name="IsActive"><option value="true" selected>فعال</option><option value="false">غیرفعال</option></select></div>`}
           <div class="field full"><label for="accountRoleDescription">توضیح کوتاه درباره نقش در شرکت</label><textarea id="accountRoleDescription" name="AuthorDescription" maxlength="240" placeholder="مثلاً نویسنده مقالات حوزه طراحی و توسعه وب">${escapeHtml(account.authorDescription)}</textarea><small class="muted">این توضیح می‌تواند کنار مقاله‌های این شخص نمایش داده شود.</small></div>
           <div class="field"><label for="accountLinkedInUrl">لینک LinkedIn نویسنده</label><input id="accountLinkedInUrl" name="LinkedInUrl" type="url" maxlength="200" value="${escapeHtml(account.linkedInUrl)}" placeholder="https://linkedin.com/in/username"></div>

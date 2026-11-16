@@ -114,7 +114,7 @@ public class AuthController : Controller
         return RedirectToAction("Profile", "Account", new { area = "Admin" });
     }
 
-    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor + "," + DashboardRoles.CustomerSupport)]
     public async Task<IActionResult> AdminUsers()
     {
         var users = await _userManager.Users
@@ -127,20 +127,21 @@ public class AuthController : Controller
         {
             var roles = await _userManager.GetRolesAsync(user);
             var roleName = roles.FirstOrDefault();
+            var isSuperAdmin = User.IsInRole(DashboardRoles.SuperAdmin);
 
             accounts.Add(new DashboardAccountListItemViewModel
             {
-                Id = user.Id,
+                Id = isSuperAdmin ? user.Id : string.Empty,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                UserName = user.UserName ?? string.Empty,
+                UserName = isSuperAdmin ? user.UserName ?? string.Empty : string.Empty,
                 RoleName = roleName ?? string.Empty,
-                Email = user.Email ?? string.Empty,
-                ProfileImagePath = user.ProfileImagePath,
-                AuthorDescription = user.AuthorDescription,
-                LinkedInUrl = user.LinkedInUrl,
-                GitHubUrl = user.GitHubUrl,
-                IsActive = user.IsActive,
+                Email = isSuperAdmin ? user.Email ?? string.Empty : string.Empty,
+                ProfileImagePath = isSuperAdmin ? user.ProfileImagePath : null,
+                AuthorDescription = isSuperAdmin ? user.AuthorDescription : null,
+                LinkedInUrl = isSuperAdmin ? user.LinkedInUrl : null,
+                GitHubUrl = isSuperAdmin ? user.GitHubUrl : null,
+                IsActive = isSuperAdmin && user.IsActive,
                 RoleDisplayName = DashboardRoles.GetDisplayName(roleName),
                 AccessDescription = DashboardRoles.GetAccessDescription(roleName),
             });
@@ -148,7 +149,7 @@ public class AuthController : Controller
 
         return View(new AdminUsersViewModel
         {
-            CurrentUserId = _userManager.GetUserId(User),
+            CurrentUserId = User.IsInRole(DashboardRoles.SuperAdmin) ? _userManager.GetUserId(User) : null,
             Accounts = accounts,
         });
     }

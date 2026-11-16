@@ -8,6 +8,7 @@
   var publishedArticlesTrend = (dynamic)ViewData["PublishedArticlesTrend"]!;
   var portfolioTrend = (dynamic)ViewData["PortfolioTrend"]!;
   var accountsTrend = (dynamic)ViewData["AccountsTrend"]!;
+  var isEditor = User.IsInRole(PeakLabs.Models.Identity.DashboardRoles.Editor);
   string TrendText(dynamic trend) => trend.Percentage == 0 ? "بدون تغییر نسبت به ماه قبل" : $"{(trend.Percentage > 0 ? "افزایش" : "کاهش")} {Math.Abs((decimal)trend.Percentage):0.#}% نسبت به ماه قبل";
   string TrendClass(dynamic trend) => trend.Percentage < 0 ? "trend trend-down" : "trend";
 }
@@ -46,14 +47,14 @@
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', () => { const modal=document.getElementById('activitiesModal'), list=document.getElementById('allActivitiesList'), more=document.getElementById('activitiesMore'); let page=0;
-async function load(){ page++; const r=await fetch(`/Admin/Dashboard/Activities?page=${page}`); const d=await r.json(); d.items.forEach(x=>{const e=document.createElement('div');e.className='activity-item';const dot=document.createElement('span');dot.className='activity-dot';const body=document.createElement('div');const message=document.createElement('strong');message.textContent=x.message ?? '';const time=document.createElement('time');time.textContent=new Date(x.occurredAt).toLocaleString('fa-IR');body.append(message,time);e.append(dot,body);list.appendChild(e)}); more.hidden=!d.hasNext; }
+async function load(){ page++; const r=await fetch(`/Admin/Dashboard/Activities?page=${page}`); const d=await r.json(); d.items.forEach(x=>{const e=document.createElement('div');e.className='activity-item';const dot=document.createElement('span');dot.className='activity-dot';const body=document.createElement('div');const message=document.createElement('strong');message.textContent=x.message ?? '';const time=document.createElement('time');const actor=x.actorName || 'کاربر حذف‌شده';time.textContent=`${new Date(x.occurredAt).toLocaleString('fa-IR')} · توسط ${actor}`;body.append(message,time);e.append(dot,body);list.appendChild(e)}); more.hidden=!d.hasNext; }
 document.querySelector('[data-open-activities]')?.addEventListener('click',()=>{modal.hidden=false;modal.classList.add('open');if(!page)load()}); document.querySelectorAll('[data-close-activities]').forEach(x=>x.addEventListener('click',()=>{modal.hidden=true;modal.classList.remove('open')})); more?.addEventListener('click',load); });
 </script>
 <div class="stats">
   <div class="stat">
     <div class="stat-top">
       <span class="tiny" data-t="totalViews">
-        بازدید مقالات
+        @(isEditor ? "بازدید مقاله‌های من" : "بازدید مقالات")
       </span>
       <span class="stat-icon">
         <i class="bi bi-eye"></i>
@@ -68,7 +69,7 @@ document.querySelector('[data-open-activities]')?.addEventListener('click',()=>{
   <div class="stat">
     <div class="stat-top">
       <span class="tiny" data-t="publishedArticles">
-        مقالات منتشر شده
+        @(isEditor ? "مقاله‌های منتشرشدهٔ من" : "مقالات منتشر شده")
       </span>
       <span class="stat-icon">
         <i class="bi bi-journal-richtext">
@@ -119,8 +120,8 @@ document.querySelector('[data-open-activities]')?.addEventListener('click',()=>{
   <div class="panel">
     <div class="panel-head">
       <div>
-        <h2 id="dashboardChartTitle">بازدید مقاله‌ها</h2>
-        <span class="tiny">آمار واقعی ثبت‌شده را بر اساس منبع و بازهٔ زمانی ببینید.</span>
+        <h2 id="dashboardChartTitle">@(isEditor ? "بازدید مقاله‌های من" : "بازدید مقاله‌ها")</h2>
+        <span class="tiny">@(isEditor ? "آمار فقط برای مقاله‌های منتشرشدهٔ شما محاسبه می‌شود." : "آمار واقعی ثبت‌شده را بر اساس منبع و بازهٔ زمانی ببینید.")</span>
       </div>
       <div class="chart-filters">
         <select class="select" id="dashboardChartSource" aria-label="منبع نمودار">
@@ -162,11 +163,14 @@ document.querySelector('[data-open-activities]')?.addEventListener('click',()=>{
       <div class="activity">
         @foreach (var activity in recentActivities)
         {
+        var activityActor = activity.User is null
+            ? "کاربر حذف‌شده"
+            : $"{activity.User.FirstName} {activity.User.LastName}".Trim();
         <div class="activity-item">
           <span class="activity-dot"></span>
           <div>
             <strong>@activity.Message</strong>
-            <time>@activity.OccurredAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</time>
+            <time>@activity.OccurredAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm") · توسط @activityActor</time>
           </div>
         </div>
         }
@@ -179,7 +183,7 @@ document.querySelector('[data-open-activities]')?.addEventListener('click',()=>{
 <div class="panel" style="margin-top:18px">
   <div class="panel-head">
     <div>
-      <h2>مقالات پربازدید</h2>
+      <h2>@(isEditor ? "مقاله‌های پربازدید من" : "مقالات پربازدید")</h2>
       <span class="tiny">مقاله‌های منتشرشده بر اساس مجموع بازدید</span>
     </div>
     <button class="btn btn-outline btn-sm" onclick="go('articles')" data-t="manage">مدیریت</button>
