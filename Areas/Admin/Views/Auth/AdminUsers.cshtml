@@ -16,6 +16,8 @@
 
 <body>
     <section class="page active">
+        @if (canManageAccounts)
+        {
         <div id="accountAntiforgeryToken"
              data-create-url="@Url.Action("CreateAccount", "Auth", new { area = "Admin" })"
              data-update-url="@Url.Action("UpdateAccount", "Auth", new { area = "Admin" })"
@@ -23,6 +25,7 @@
              data-delete-url="@Url.Action("DeleteAccount", "Auth", new { area = "Admin" })" hidden>
             @Html.AntiForgeryToken()
         </div>
+        }
         <div class="page-head">
             <div>
                 <span class="eyebrow">
@@ -30,10 +33,11 @@
                     <span>حساب های داشبورد</span>
                 </span>
 
-                <h1>مدیریت حساب‌های داشبورد</h1>
+                <h1>@(canManageAccounts ? "مدیریت حساب‌های داشبورد" : "حساب‌های داشبورد")</h1>
                 <p class="muted">
-                    حساب افرادی را که اجازه ورود به پنل مدیریت دارند ایجاد و
-                    مدیریت کنید.
+                    @(canManageAccounts
+                        ? "حساب افرادی را که اجازه ورود به پنل مدیریت دارند ایجاد و مدیریت کنید."
+                        : "تعداد حساب‌های داشبورد و نام اعضای دارای دسترسی را مشاهده کنید.")
                 </p>
             </div>
             @if (canManageAccounts)
@@ -46,20 +50,23 @@
         </div>
         <div class="account-summary">
             <div class="stat">
-                <span class="tiny">تعداد حساب‌ها</span><strong id="accountCount">@Model.TotalCount / 10</strong>
+                <span class="tiny">تعداد حساب‌ها</span><strong id="accountCount">@Model.TotalCount@(canManageAccounts ? " / 10" : "")</strong>
             </div>
+            @if (canManageAccounts)
+            {
             <div class="stat">
                 <span class="tiny">حساب‌های فعال</span><strong id="activeAccountCount">@Model.ActiveCount</strong>
             </div>
             <div class="stat">
                 <span class="tiny">حساب‌های غیرفعال</span><strong id="inactiveAccountCount">@Model.InactiveCount</strong>
             </div>
+            }
         </div>
         <div class="panel">
             <div class="panel-head">
                 <div>
                     <h2>حساب‌های داشبورد</h2>
-                    <span class="tiny">نقش انتخاب‌شده برای هر حساب در این فهرست نمایش داده می‌شود.</span>
+                    <span class="tiny">@(canManageAccounts ? "اطلاعات و دسترسی‌های حساب‌ها" : "نام و نقش اعضای داشبورد")</span>
                 </div>
             </div>
             <div class="table-wrap">
@@ -68,15 +75,18 @@
                         <tr>
                             <th>کاربر</th>
                             <th>نقش</th>
-                            <th>دسترسی‌ها</th>
-                            <th>وضعیت</th>
-                            <th>عملیات</th>
+                            @if (canManageAccounts)
+                            {
+                                <th>دسترسی‌ها</th>
+                                <th>وضعیت</th>
+                                <th>عملیات</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
                         @if (Model.Accounts.Count == 0)
                         {
-                            <tr><td colspan="5" class="muted">هنوز حسابی ساخته نشده است.</td></tr>
+                            <tr><td colspan="@(canManageAccounts ? 5 : 2)" class="muted">هنوز حسابی ساخته نشده است.</td></tr>
                         }
                         else
                         {
@@ -85,6 +95,8 @@
                                 <tr>
                                     <td>
                                         <div class="member">
+                                            @if (canManageAccounts)
+                                            {
                                             @if (!string.IsNullOrWhiteSpace(account.ProfileImagePath))
                                             {
                                                 <img class="avatar account-avatar" src="@account.ProfileImagePath" alt="تصویر @account.FirstName @account.LastName">
@@ -97,15 +109,25 @@
                                                 <div class="item-title">@account.FirstName @account.LastName</div>
                                                 <div class="role">@account.UserName · @account.Email</div>
                                             </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="item-title">@account.FirstName @account.LastName</div>
+                                            }
                                         </div>
                                     </td>
                                     <td>@account.RoleDisplayName</td>
+                                    @if (canManageAccounts)
+                                    {
                                     <td><span class="permission">@account.AccessDescription</span></td>
                                     <td>
                                         <span class="status @(account.IsActive ? "published" : "draft")">
                                             @(account.IsActive ? "فعال" : "غیرفعال")
                                         </span>
                                     </td>
+                                    }
+                                    @if (canManageAccounts)
+                                    {
                                     <td>
                                         <div class="account-actions">
                                             @if (canManageAccounts && account.Id != Model.CurrentUserId)
@@ -150,6 +172,7 @@
                                             }
                                             </div>
                                     </td>
+                                    }
                                 </tr>
                             }
                         }

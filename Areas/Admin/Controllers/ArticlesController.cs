@@ -11,7 +11,7 @@ using PeakLabs.Infrastructure;
 namespace PeakLabs.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
+[Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor + "," + DashboardRoles.CustomerSupport)]
 public class ArticlesController : Controller
 {
     private const long MaxImageSize = 5 * 1024 * 1024;
@@ -28,7 +28,7 @@ public class ArticlesController : Controller
         _activityLogger = activityLogger;
     }
 
-    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor + "," + DashboardRoles.CustomerSupport)]
     public async Task<IActionResult> Index()
     {
         var dashboardUser = await _userManager.GetUserAsync(User);
@@ -40,6 +40,11 @@ public class ArticlesController : Controller
 
         var isEditor = User.IsInRole(DashboardRoles.Editor);
         var currentUserId = _userManager.GetUserId(User);
+        ViewData["CurrentDashboardUserId"] = currentUserId;
+        var superAdminIds = (await _userManager.GetUsersInRoleAsync(DashboardRoles.SuperAdmin))
+            .Select(user => user.Id)
+            .ToHashSet(StringComparer.Ordinal);
+        ViewData["SuperAdminUserIds"] = superAdminIds;
         var articlesQuery = _dbContext.Articles.AsNoTracking()
                 .Include(article => article.Category)
                 .Include(article => article.Author)
@@ -59,7 +64,7 @@ public class ArticlesController : Controller
     }
 
     [HttpPost]
-    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
+    [Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager)]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(MaxImageSize + 1024 * 1024)]
     public async Task<IActionResult> Create(CreateArticleInputModel input)
@@ -175,6 +180,12 @@ public class ArticlesController : Controller
         {
             return Forbid();
         }
+        if (User.IsInRole(DashboardRoles.ContentManager)
+            && article.AuthorId is not null
+            && await IsSuperAdminAsync(article.AuthorId))
+        {
+            return Forbid();
+        }
 
         if (input.CoverImage is { Length: > 0 } image)
         {
@@ -235,7 +246,9 @@ public class ArticlesController : Controller
     {
         var article = await _dbContext.Articles.FindAsync(id);
         if (article is null) return NotFound(new { message = "مقاله موردنظر پیدا نشد." });
-        if (User.IsInRole(DashboardRoles.Editor) && article.AuthorId != _userManager.GetUserId(User)) return Forbid();
+        if (User.IsInRole(DashboardRoles.ContentManager)
+            && article.AuthorId is not null
+            && await IsSuperAdminAsync(article.AuthorId)) return Forbid();
 
         _dbContext.Articles.Remove(article);
         await _dbContext.SaveChangesAsync();
@@ -255,6 +268,12 @@ public class ArticlesController : Controller
             if (string.IsNullOrWhiteSpace(section.HeadingType) && !string.IsNullOrWhiteSpace(section.Title))
                 ModelState.AddModelError($"Sections[{index}].Title", "برای عنوان بخش، نوع عنوان را هم انتخاب کنید.");
         }
+    }
+
+    private async Task<bool> IsSuperAdminAsync(string userId)
+    {
+        var author = await _userManager.FindByIdAsync(userId);
+        return author is not null && await _userManager.IsInRoleAsync(author, DashboardRoles.SuperAdmin);
     }
 
     private List<ArticleSection> MapSections(CreateArticleInputModel input) => input.Sections

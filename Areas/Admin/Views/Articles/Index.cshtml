@@ -1,21 +1,31 @@
 @model PeakLabs.Areas.Admin.Models.ArticleAdminIndexViewModel
+@using PeakLabs.Models.Identity
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "مدیریت مقالات";
+    var canCreateArticles = User.IsInRole(DashboardRoles.SuperAdmin) || User.IsInRole(DashboardRoles.ContentManager);
+    var canManageAllArticles = User.IsInRole(DashboardRoles.SuperAdmin);
+    var isContentManager = User.IsInRole(DashboardRoles.ContentManager);
+    var isEditor = User.IsInRole(DashboardRoles.Editor);
+    var currentUserId = ViewData["CurrentDashboardUserId"] as string;
+    var superAdminUserIds = ViewData["SuperAdminUserIds"] as HashSet<string> ?? [];
 }
 
 <form id="articleAntiforgeryToken" hidden>@Html.AntiForgeryToken()</form>
 
-<section class="page active">
-    <div class="page-head">
+<section class="page active" id="articlesPage" data-current-user-id="@currentUserId">
+        <div class="page-head">
         <div>
             <span class="eyebrow"><i class="bi bi-journal-richtext"></i><span>مقالات</span></span>
             <h1>کتابخانه مقالات</h1>
             <p class="muted">مقالات و بخش‌های آن‌ها را مدیریت کنید.</p>
         </div>
-        <button class="btn btn-primary" type="button" onclick="openModal('article')">
+            @if (canCreateArticles)
+            {
+            <button class="btn btn-primary" type="button" onclick="openModal('article')">
             <i class="bi bi-plus-lg"></i><span>مقاله جدید</span>
         </button>
+            }
     </div>
 
     <div class="toolbar">
@@ -28,6 +38,13 @@
             <option value="published">منتشرشده</option>
             <option value="draft">پیش‌نویس</option>
         </select>
+        @if (User.IsInRole(DashboardRoles.SuperAdmin) || isContentManager)
+        {
+            <select id="articleOwnerFilter" class="select" aria-label="فیلتر نویسنده">
+                <option value="">همهٔ مقاله‌ها</option>
+                <option value="mine">مقاله‌های من</option>
+            </select>
+        }
         <select id="articleCategoryFilter" class="select" aria-label="فیلتر دسته‌بندی">
             <option value="">همه دسته‌بندی‌ها</option>
             @foreach (var category in Model.Categories)
@@ -48,7 +65,12 @@
                     }
                     @foreach (var article in Model.Articles)
                     {
-                        <tr class="article-row" data-article-id="@article.Id" data-category-id="@article.CategoryId"
+                        var isSuperAdminArticle = article.AuthorId is not null && superAdminUserIds.Contains(article.AuthorId);
+                        var canEditArticle = canManageAllArticles
+                            || (isContentManager && !isSuperAdminArticle)
+                            || (isEditor && article.AuthorId == currentUserId);
+                        var canDeleteArticle = canManageAllArticles || (isContentManager && !isSuperAdminArticle);
+                        <tr class="article-row" data-article-id="@article.Id" data-author-id="@article.AuthorId" data-category-id="@article.CategoryId"
                             data-status="@article.Status" data-search="@article.Title @article.ShortDescription @article.Category.Name @(article.Author?.FirstName) @(article.Author?.LastName)">
                             <td>
                                 <div style="display:flex;align-items:center;gap:10px">
@@ -62,8 +84,18 @@
                             <td>@article.PublishedAt.ToLocalTime().ToString("yyyy/MM/dd")</td>
                             <td>
                                 <div class="actions">
+                                    @if (canEditArticle)
+                                    {
                                     <button class="action article-edit-button" type="button" data-article-id="@article.Id" title="ویرایش" aria-label="ویرایش @article.Title"><i class="bi bi-pencil"></i></button>
+                                    }
+                                    @if (canDeleteArticle)
+                                    {
                                     <button class="action article-delete-button" type="button" data-article-id="@article.Id" title="حذف" aria-label="حذف @article.Title"><i class="bi bi-trash3"></i></button>
+                                    }
+                                    @if (!canEditArticle && !canDeleteArticle)
+                                    {
+                                        <span class="muted">فقط مشاهده</span>
+                                    }
                                 </div>
                             </td>
                         </tr>

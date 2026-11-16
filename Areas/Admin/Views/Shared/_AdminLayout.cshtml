@@ -25,7 +25,9 @@
             ? DashboardRoles.ContentManager
             : User.IsInRole(DashboardRoles.Editor)
                 ? DashboardRoles.Editor
-                : null;
+                    : User.IsInRole(DashboardRoles.CustomerSupport)
+                        ? DashboardRoles.CustomerSupport
+                        : null;
     var siteDefaultTheme = await DbContext.SiteSettings.AsNoTracking()
         .Where(settings => settings.Id == 1)
         .Select(settings => settings.DefaultTheme)
@@ -111,8 +113,6 @@
                     </a>
                 }
             </nav>
-            @if (User.IsInRole(DashboardRoles.SuperAdmin) || User.IsInRole(DashboardRoles.ContentManager))
-            {
             <div class="side-label">تیم و دسترسی</div>
             <nav class="nav">
                 @if (User.IsInRole(DashboardRoles.SuperAdmin) || User.IsInRole(DashboardRoles.ContentManager))
@@ -121,20 +121,19 @@
                         <i class="bi bi-code-slash"></i>
                         <span>توسعه‌دهندگان</span>
                     </a>
+                }
+                @if (User.IsInRole(DashboardRoles.SuperAdmin) || User.IsInRole(DashboardRoles.ContentManager) || User.IsInRole(DashboardRoles.CustomerSupport))
+                {
                     <a class="@(IsCurrentPage("ContactMessages") ? "active" : "")" asp-area="Admin" asp-controller="ContactMessages" asp-action="Index">
                         <i class="bi bi-envelope"></i>
                         <span>پیام‌های کاربران</span>
                     </a>
                 }
-                @if (User.IsInRole(DashboardRoles.SuperAdmin))
-                {
-                    <a class="@(IsCurrentPage("Auth", "AdminUsers") ? "active" : "")" asp-area="Admin" asp-controller="Auth" asp-action="AdminUsers">
-                        <i class="bi bi-person-lock"></i>
-                        <span>حساب های داشبورد</span>
-                    </a>
-                }
+                <a class="@(IsCurrentPage("Auth", "AdminUsers") ? "active" : "")" asp-area="Admin" asp-controller="Auth" asp-action="AdminUsers">
+                    <i class="bi bi-person-lock"></i>
+                    <span>حساب های داشبورد</span>
+                </a>
             </nav>
-            }
             <div class="side-label">سیستم</div>
             <nav class="nav">
                 <a class="@(IsCurrentPage("Account", "Profile") ? "active" : "")" asp-area="Admin" asp-controller="Account" asp-action="Profile">
@@ -219,7 +218,7 @@
     <link rel="stylesheet" href="~/css/admin/responsive.css">
     <script src="~/js/admin/dashboard.js" asp-append-version="true"></script>
     <script src="~/js/base/theme.js" asp-append-version="true"></script>
-    <script src="~/js/base/main.js"></script>
+    <script src="~/js/base/main.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 

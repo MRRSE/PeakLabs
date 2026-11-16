@@ -10,7 +10,7 @@ using PeakLabs.Infrastructure;
 namespace PeakLabs.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor)]
+[Authorize(Roles = DashboardRoles.SuperAdmin + "," + DashboardRoles.ContentManager + "," + DashboardRoles.Editor + "," + DashboardRoles.CustomerSupport)]
 public class DashboardController : Controller
 {
     private readonly UserManager<PeakLabsUser> _userManager;
@@ -33,8 +33,14 @@ public class DashboardController : Controller
         ViewData["RecentActivities"] = await _dbContext.DashboardActivities.AsNoTracking().Include(x => x.User).OrderByDescending(x => x.OccurredAt).Take(5).ToListAsync();
         ViewData["ArticleCategories"] = await _dbContext.ArticleCategories.AsNoTracking()
             .OrderBy(category => category.Name).ToListAsync();
+        var isEditor = User.IsInRole(DashboardRoles.Editor);
+        var currentUserId = _userManager.GetUserId(User);
         var publishedArticles = _dbContext.Articles.AsNoTracking()
             .Where(article => article.Status == "published");
+        if (isEditor)
+        {
+            publishedArticles = publishedArticles.Where(article => article.AuthorId == currentUserId);
+        }
         var now = DateTimeOffset.UtcNow;
         var currentMonth = new DateTimeOffset(now.Year, now.Month, 1, 0, 0, 0, TimeSpan.Zero);
         var previousMonth = currentMonth.AddMonths(-1);
@@ -47,34 +53,39 @@ public class DashboardController : Controller
         ViewData["ArticleViewTotal"] = articleViewTotal;
         ViewData["PortfolioCount"] = portfolioCount;
         ViewData["ActiveAccountCount"] = activeAccountCount;
+        var articleViewsQuery = _dbContext.ArticleViews.AsNoTracking()
+            .Where(view => view.Article.Status == "published");
+        if (isEditor)
+        {
+            articleViewsQuery = articleViewsQuery.Where(view => view.Article.AuthorId == currentUserId);
+        }
         ViewData["ArticleViewsTrend"] = await CalculateTrendAsync(
-            _dbContext.ArticleViews.Where(view => view.Article.Status == "published").Select(view => view.ViewedAt), currentMonth, previousMonth);
+            articleViewsQuery.Select(view => view.ViewedAt), currentMonth, previousMonth);
         ViewData["PublishedArticlesTrend"] = await CalculateTrendAsync(
             publishedArticles.Select(article => article.PublishedAt), currentMonth, previousMonth);
         ViewData["PortfolioTrend"] = await CalculateTrendAsync(
             _dbContext.Portfolio.Select(item => item.AddedAt), currentMonth, previousMonth);
         ViewData["AccountsTrend"] = await CalculateTrendAsync(
             _userManager.Users.Where(user => user.IsActive).Select(user => user.CreatedAt), currentMonth, previousMonth);
-        var topArticlesQuery = publishedArticles;
-        if (User.IsInRole(DashboardRoles.Editor))
-        {
-            var currentUserId = _userManager.GetUserId(User);
-            topArticlesQuery = topArticlesQuery.Where(article => article.AuthorId == currentUserId);
-        }
-
-        ViewData["TopArticles"] = await topArticlesQuery
+        ViewData["TopArticles"] = await publishedArticles
             .Include(article => article.Author)
             .OrderByDescending(article => article.ViewCount)
             .ThenByDescending(article => article.PublishedAt)
             .Take(6)
             .ToListAsync();
-        var trendEvents = await _dbContext.ArticleViews.AsNoTracking()
+        var trendEventsQuery = _dbContext.ArticleViews.AsNoTracking()
             .Where(view => view.ViewedAt >= DateTimeOffset.UtcNow.AddYears(-1).AddDays(-1))
-            .Where(view => view.Article.Status == "published")
+            .Where(view => view.Article.Status == "published");
+        if (isEditor)
+        {
+            trendEventsQuery = trendEventsQuery.Where(view => view.Article.AuthorId == currentUserId);
+        }
+        var trendEvents = await trendEventsQuery
             .Select(view => new ArticleViewPoint(view.ViewedAt, view.Article.Category.Name))
             .ToListAsync();
         var categories = await _dbContext.ArticleCategories.AsNoTracking()
-            .Where(category => category.Articles.Any(article => article.Status == "published"))
+            .Where(category => category.Articles.Any(article => article.Status == "published"
+                && (!isEditor || article.AuthorId == currentUserId)))
             .OrderBy(category => category.Name)
             .Select(category => category.Name)
             .ToListAsync();
@@ -108,7 +119,14 @@ public class DashboardController : Controller
         var query = _dbContext.DashboardActivities.AsNoTracking().OrderByDescending(x => x.OccurredAt);
         var total = await query.CountAsync();
         var items = await query.Skip((page - 1) * pageSize).Take(pageSize)
-            .Select(x => new { x.Message, x.OccurredAt }).ToListAsync();
+            .Select(x => new
+            {
+                x.Message,
+                x.OccurredAt,
+                ActorName = x.User == null
+                    ? "کاربر حذف‌شده"
+                    : (x.User.FirstName + " " + x.User.LastName).Trim()
+            }).ToListAsync();
         return Json(new { items, page, pageSize, total, hasNext = page * pageSize < total });
     }
 
